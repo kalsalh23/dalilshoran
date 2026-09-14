@@ -1,5 +1,9 @@
 # دليل صوران الطبي 🏥
 
+> **الموقع الحي:** https://dalilshoran.vercel.app
+> **المستودع:** https://github.com/kalsalh23/dalilshoran
+> **قاعدة البيانات:** Supabase (entities + oncall + faq + questions + messages)
+
 دليل طبي متكامل لمدينة **صوران** (ريف حماة الشمالي) — مستوحى من فكرة «دليلك الطبي» لكن بهوية بصرية وتصميم مختلفين تماماً:
 هوية **كحلي/كوبالت + كهرماني**، خطوط **Cairo + Tajawal**، وضع **ليلي**، بحث شامل فوري (Ctrl+K)، خريطة تفاعلية، وجدول صيدليات المناوبة الأسبوعي.
 
@@ -30,18 +34,28 @@ powershell -NoProfile -ExecutionPolicy Bypass -File serve.ps1
 # ثم افتح: http://127.0.0.1:8090
 ```
 
-## ✏️ تعديل البيانات (الأهم)
+## ✏️ تعديل البيانات — مصدران
 
-كل المحتوى في ملف واحد: **`js/data.js`**
+### 1) Supabase (المصدر الأساسي بعد النشر)
+الموقع عند الإقلاع يقرأ `entities` و`oncall` و`faq` من Supabase عبر مفتاح anon العام (`js/config.js`).
+- عدّل البيانات من لوحة Supabase → Table Editor → الجداول.
+- أسئلة الزوار تُدرج في جدول `questions` ورسائل التواصل في `messages` (إدخال فقط، دون قراءة عامة — حماية للخصوصية).
+- لتشغيل «دخول الجهات»: أنشئ مستخدمين من لوحة Supabase → Authentication، وسيشتغل نموذج الدخول تلقائياً.
+
+### 2) الملف المحلي `js/data.js` (نسخة احتياطية)
+عند تعذر الاتصال بـ Supabase أو فراغ الجداول يعمل الموقع ببيانات `data.js` كاملة تلقائياً — فلا ينكسر أبداً.
 
 - `SITE` — اسم الدليل، رقم الاستعلامات، البريد، إحداثيات المدينة، أرقام الطوارئ.
-- `ENTITIES` — الجهات (أطباء `doctor`، صيدليات `pharmacy`، مشافي `hospital`، مخابر `lab`، أشعة `radiology`، مراكز صحية `health-center`).
-  - كل جهة: `id` فريد، `name`، `spec` (للطبيب)، `area` + `address`، `phone` (10 أرقام)، `whatsapp: true/false`، `hours`، `services[]`، `featured + rank` (للمميزين)، `lat/lng` (للخريطة).
-- `ONCALL` — جدول المناوبة: اسم اليوم → معرّفات الصيدليات.
-- `FAQ` — الأسئلة والإرشادات.
-- `PACKAGES` — باقات الاشتراك.
+- `ENTITIES` / `ONCALL` / `FAQ` / `PACKAGES` — نفس بنية جداول Supabase.
 
-> ⚠️ **الأسماء والأرقام الحالية نموذجية (افتراضية)** — استبدلها بالبيانات الحقيقية قبل النشر.
+> ⚠️ **الأسماء والأرقام الحالية نموذجية (افتراضية)** — استبدلها بالبيانات الحقيقية.
+
+## 🗄️ قاعدة البيانات Supabase
+
+- `supabase/schema.sql` — الجداول + أمان الصفوف (RLS) + السياسات.
+- `supabase/seed.sql` — البيانات الأولية (29 جهة + مناوبة أسبوعية + 10 أسئلة).
+- لإعادة التهيئة على مشروع آخر: نفّذ الملفين بالترتيب من SQL Editor في لوحة Supabase.
+- مفاتيح الاتصال في `js/config.js` — **لا تضع أبداً مفتاح service_role في الواجهة**.
 
 ## 🎨 تعديل الهوية البصرية
 
@@ -56,19 +70,26 @@ powershell -NoProfile -ExecutionPolicy Bypass -File serve.ps1
 
 ## 🌍 النشر
 
-- **Vercel / Netlify:** ارفع المجلد كما هو (Static site — بلا build). أو اربطه بمستودع Git واختر المجلد الجذر.
-- **GitHub Pages:** ارفع الملفات لفرع `main` وفعّل Pages من إعدادات المستودع.
+الموقع منشور فعلياً على Vercel مرتبطاً بهذا المستودع:
+
+- **Vercel:** استوردها من GitHub (Framework: Other) — أو ارفع المجلد مباشرة.
+- **Netlify:** اسحب المجلد إلى لوحة Netlify.
+- **GitHub Pages:** فعّل Pages من فرع `main`.
 
 ## 📁 البنية
 
 ```
 dalilshoran/
-├── index.html          # الهيكل والواجهة العامة
-├── css/style.css       # الهوية البصرية كاملة
-├── js/data.js          # ⭐ البيانات — عدّل هنا
-├── js/app.js           # التوجيه والمنطق
-├── assets/favicon.svg  # الأيقونة
-└── manifest.webmanifest
+├── index.html            # الهيكل والواجهة العامة
+├── css/style.css         # الهوية البصرية كاملة
+├── js/config.js          # إعدادات Supabase العامة (anon)
+├── js/data.js            # البيانات المحلية الاحتياطية
+├── js/app.js             # التوجيه والمنطق + مزامنة Supabase
+├── assets/favicon.svg    # الأيقونة
+├── manifest.webmanifest  # PWA
+├── supabase/schema.sql   # مخطط قاعدة البيانات + RLS
+├── supabase/seed.sql     # البيانات الأولية
+└── serve.ps1             # خادم محلي اختياري (PowerShell)
 ```
 
 ---
