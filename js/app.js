@@ -254,19 +254,7 @@ function viewHome() {
   const featuredDoctors = featuredBy("doctor", 5).map((d) => entityCard(d, { rank: true })).join("");
   const featuredPharmacies = featuredBy("pharmacy", 5).map((p) => entityCard(p, { rank: true })).join("");
 
-  const weekStrip = DAYS.map((d, i) => {
-    const list = oncallPharmacies(d);
-    return `<a class="oncall-day ${i === todayIdx() ? "today" : ""}" href="#/oncall?day=${i}">
-      <b>${d}${i === todayIdx() ? " (اليوم)" : ""}</b>
-      <small>${list.length ? list.map((p) => esc(p.name.replace("صيدلية ", ""))).join(" • ") : "—"}</small>
-    </a>`;
-  }).join("");
-
-  const faqPreview = FAQ.slice(0, 3).map((f) => `
-    <details class="acc-item">
-      <summary><span class="acc-q">؟</span> ${esc(f.q)} <span class="acc-cat">${esc(f.cat)}</span>${icon("chevDown", "chev")}</summary>
-      <div class="acc-body"><p>${esc(f.a)}</p></div>
-    </details>`).join("");
+  const todayOncall = oncallPharmacies(todayName);
 
   const legend = Object.entries(TYPES).map(([k, t]) =>
     `<span class="legend-item"><i style="--c:${t.color}"></i>${t.plural}</span>`).join("");
@@ -311,10 +299,19 @@ function viewHome() {
 
   <section class="section container">
     <div class="section-head">
-      <div><h2>المناوبة خلال الأسبوع</h2><p>اضغط على أي يوم لعرض تفاصيل صيدلياته المناوبة</p></div>
-      <a class="section-link" href="#/oncall">صفحة المناوبة ${icon("arrowLeft")}</a>
+      <div><h2>صيدليات المناوبة اليوم</h2><p>${todayName} — الصيدليات العاملة خارج أوقات الدوام، اتصل قبل التوجه</p></div>
+      <a class="section-link" href="#/oncall">جدول المناوبة ${icon("arrowLeft")}</a>
     </div>
-    <div class="oncall-strip">${weekStrip}</div>
+    <div class="card oncall-today-card">
+      <div class="oncall-mini">
+        ${todayOncall.length ? todayOncall.map((p) => `
+          <a class="oncall-mini-item" href="${telHref(p.phone)}">
+            ${icon("pill")}
+            <strong>${esc(p.name)}</strong>
+            <span dir="ltr">${fmtPhone(p.phone)}</span>
+          </a>`).join("") : `<p class="oncall-empty">لا توجد صيدليات مناوبة مسجلة لهذا اليوم — راجع جدول بقية الأيام.</p>`}
+      </div>
+    </div>
   </section>
 
   <section class="section container">
@@ -401,22 +398,18 @@ function viewList(type, params) {
   const specParam = params.get("spec");
   if (specParam) f.spec = specParam;
 
+  /* الفلترة المبسطة: الأطباء = بحث + اختصاص، وبقية الأقسام = بحث بالاسم فقط */
   const specs = [...new Set(entitiesByType(type).map((e) => e.spec).filter(Boolean))].sort();
-  const areas = [...new Set(entitiesByType(type).map((e) => e.area).filter(Boolean))].sort();
+  const showSpec = type === "doctor" && specs.length;
+  const ph = type === "doctor" ? "ابحث باسم الطبيب أو الاختصاص…"
+    : type === "pharmacy" ? "ابحث باسم الصيدلية…"
+    : "ابحث بالاسم…";
 
-  const specSel = specs.length ? `
+  const specSel = showSpec ? `
     <select id="fSpec" aria-label="تصفية حسب التخصص">
       <option value="">كل التخصصات</option>
       ${specs.map((s) => `<option value="${esc(s)}" ${f.spec === s ? "selected" : ""}>${esc(s)}</option>`).join("")}
     </select>` : "";
-
-  const areaSel = areas.length ? `
-    <select id="fArea" aria-label="تصفية حسب المنطقة">
-      <option value="">كل المناطق</option>
-      ${areas.map((a) => `<option value="${esc(a)}" ${f.area === a ? "selected" : ""}>${esc(a)}</option>`).join("")}
-    </select>` : "";
-
-  const expOpt = type === "doctor" ? `<option value="exp" ${f.sort === "exp" ? "selected" : ""}>الأعلى خبرة</option>` : "";
 
   return `
   <section class="page-hero">
@@ -430,13 +423,8 @@ function viewList(type, params) {
   </section>
   <div class="container">
     <div class="toolbar">
-      <div class="search-field">${icon("search")}<input id="fQ" type="search" placeholder="ابحث بالاسم أو الخدمة…" value="${esc(f.q)}" /></div>
-      ${specSel}${areaSel}
-      <select id="fSort" aria-label="الترتيب">
-        <option value="featured" ${f.sort === "featured" ? "selected" : ""}>الأولوية للمميزين</option>
-        <option value="name" ${f.sort === "name" ? "selected" : ""}>الاسم أ – ي</option>
-        ${expOpt}
-      </select>
+      <div class="search-field">${icon("search")}<input id="fQ" type="search" placeholder="${ph}" value="${esc(f.q)}" /></div>
+      ${specSel}
       <span class="toolbar-count" id="fCount"></span>
     </div>
     <div id="listBody"></div>
@@ -1441,22 +1429,6 @@ function initHeader() {
   });
   $("#mainNav").addEventListener("click", (ev) => {
     if (ev.target.closest("a")) closeMenu();
-  });
-
-  /* إشعار المناوبة */
-  $("#btnNotif").addEventListener("click", async () => {
-    if (!("Notification" in window)) return showToast("متصفحك لا يدعم الإشعارات", "warn");
-    let perm = Notification.permission;
-    if (perm === "default") perm = await Notification.requestPermission();
-    if (perm !== "granted") return showToast("لم يُسمح بالإشعارات — فعّلها من إعدادات المتصفح", "warn");
-    const today = DAYS[todayIdx()];
-    const names = oncallPharmacies(today).map((p) => p.name).join("، ") || "لا توجد مناوبة مسجلة";
-    try {
-      new Notification("دليل صوران الطبي — مناوبة اليوم", { body: `${today}: ${names}` });
-      showToast("تم تفعيل إشعارات المناوبة");
-    } catch (_) {
-      showToast(`${today}: ${names}`);
-    }
   });
 
   /* اختصار لوحة المفاتيح: فتح صفحة البحث */

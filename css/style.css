@@ -1407,3 +1407,56 @@ a.entity-card:hover { color: var(--ink); }
   .about-stat b { font-size: 20px; }
 }
 
+/* ============================================================
+   تحديثات الجولة الثانية: تصغير البحث + فوتر مبسط + بطاقة المناوبة
+   ============================================================ */
+
+/* 1) مربعات البحث أصغر ومتناسقة في كل الواجهات */
+.hero-search { max-width: 500px; }
+.hero-search-box { padding: 4px 4px 4px 12px; gap: 8px; border-radius: var(--r-md); }
+.hero-search-box > svg { width: 17px; height: 17px; }
+.hero-search-box input { font-size: 14px; padding: 7px 0; }
+.hero-search-box .btn, .hero-search-btn { height: 36px; padding: 0 18px; font-size: 13.5px; border-radius: var(--r-sm); box-shadow: none; }
+.toolbar .search-field { padding: 6px 12px; }
+.toolbar .search-field input { font-size: 13.5px; }
+.search-big input { height: 46px; font-size: 14px; }
+.search-big .btn { height: 34px; padding: 0 18px; }
+.search-head input { font-size: 14px; }
+
+/* 2) هوامش أوضح في كل الاتجاهات */
+.container { padding-inline: clamp(20px, 5vw, 36px); }
+@media (max-width: 640px) {
+  .container { padding-inline: 20px; }
+}
+
+/* 3) الفوتر المبسط: اختصارات + روابط قانونية + سطر المطوّر */
+.footer { margin-top: 34px; }
+.footer-in { padding-top: 24px; }
+.f-quick {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding-bottom: 18px; border-bottom: 1px solid var(--border);
+}
+.f-quick a {
+  padding: 5px 13px; border-radius: var(--r-full);
+  font-size: 12.5px; font-weight: 600;
+  background: var(--subtle); color: var(--ink); border: 1px solid var(--border);
+  transition: all .15s;
+}
+.f-quick a:hover { border-color: var(--primary); color: var(--primary-dark); background: var(--primary-light); }
+.f-legal { display: flex; flex-wrap: wrap; gap: 6px 18px; padding-top: 13px; font-size: 11.5px; }
+.f-legal a { color: var(--muted); }
+.f-legal a:hover { color: var(--primary); }
+.f-bottom { margin-top: 18px; }
+@media (max-width: 640px) {
+  .f-quick a { font-size: 12px; padding: 5px 11px; }
+  .f-bottom { flex-direction: column; align-items: center; text-align: center; gap: 4px; }
+}
+
+/* 4) بطاقة «صيدليات المناوبة اليوم» في الرئيسية */
+.oncall-today-card { padding: 14px; }
+.oncall-today-card .oncall-mini { gap: 8px; }
+a.oncall-mini-item { transition: background .15s, border-color .15s; }
+a.oncall-mini-item:hover { background: var(--primary-light); border-color: var(--primary); }
+a.oncall-mini-item .ic:first-child { color: var(--primary); }
+
+
