@@ -31,12 +31,12 @@ const SITE = {
 
 /* ---------- أنواع الجهات ---------- */
 const TYPES = {
-  doctor: { label: "طبيب / عيادة", plural: "الأطباء", color: "#2B4BC4", icon: "stetho" },
-  pharmacy: { label: "صيدلية", plural: "الصيدليات", color: "#D97706", icon: "pill" },
-  hospital: { label: "مشفى", plural: "المشافي", color: "#E5484D", icon: "hospital" },
-  lab: { label: "مخبر تحليلات", plural: "المخابر", color: "#7C3AED", icon: "flask" },
-  radiology: { label: "مركز أشعة", plural: "مراكز الأشعة", color: "#0891B2", icon: "scan" },
-  "health-center": { label: "مركز صحي", plural: "المراكز الصحية", color: "#0FA981", icon: "shieldPlus" },
+  doctor: { label: "طبيب / عيادة", plural: "الأطباء", color: "#428177", icon: "stetho" },
+  pharmacy: { label: "صيدلية", plural: "الصيدليات", color: "#b9a779", icon: "pill" },
+  hospital: { label: "مشفى", plural: "المشافي", color: "#6b1f2a", icon: "hospital" },
+  lab: { label: "مخبر تحليلات", plural: "المخابر", color: "#988561", icon: "flask" },
+  radiology: { label: "مركز أشعة", plural: "مراكز الأشعة", color: "#3d3a3b", icon: "scan" },
+  "health-center": { label: "مركز صحي", plural: "المراكز الصحية", color: "#054239", icon: "shieldPlus" },
 };
 
 /* ---------- أيام الأسبوع (0 = الأحد كما في JavaScript) ---------- */
@@ -396,8 +396,8 @@ const FAQ = [
    ============================================================ */
 const PACKAGES = [
   {
-    id: "free", name: "الباقة الأساسية", price: "مجاناً", period: "للأبد",
-    color: "#0FA981",
+    id: "free", name: "الباقة المجانية", price: "مجاناً", period: "للأبد",
+    color: "#428177",
     features: [
       "إدراج الاسم والتخصص داخل قائمة القسم",
       "رقم هاتف قابل للاتصال بنقرة",
@@ -407,28 +407,26 @@ const PACKAGES = [
     cta: "سجّل جهتك", featured: false,
   },
   {
-    id: "plus", name: "باقة العيادة المميزة", price: "حسب الاتفاق", period: "شهرياً",
-    color: "#2B4BC4",
+    id: "pro", name: "الباقة الاحترافية", price: "حسب الاتفاق", period: "شهرياً",
+    color: "#988561",
     features: [
-      "ظهور ضمن «المميزون» في الصفحة الرئيسية",
       "بطاقة مميزة بلون وشعار خاص",
       "أوقات عمل تفصيلية وقائمة خدمات",
       "زر واتساب للتواصل المباشر",
       "إحصائيات مشاهدات شهرية",
     ],
-    cta: "اشترك الآن", featured: true,
+    cta: "اشترك الآن", featured: false,
   },
   {
-    id: "org", name: "باقة المنشأة", price: "حسب الاتفاق", period: "سنوياً",
-    color: "#D97706",
+    id: "gold", name: "الباقة الذهبية", price: "حسب الاتفاق", period: "شهرياً",
+    color: "#b9a779",
     features: [
-      "صفحة مستقلة كاملة لمنشأتك",
-      "عدة أفراد واختصاصات في بطاقة واحدة",
-      "نشر أخبار وإعلانات (إجازة، طبيب جديد…)",
-      "أولوية قصوى في نتائج البحث",
-      "دعم فني عبر واتساب",
+      "شارة ذهبية وتمييز كامل في القوائم",
+      "ظهور ضمن «المميزون» في الصفحة الرئيسية",
+      "أولوية قصوى في نتائج البحث والخريطة",
+      "دعم فني مباشر عبر واتساب",
     ],
-    cta: "تواصل معنا", featured: false,
+    cta: "اشترك الآن", featured: true,
   },
 ];
 

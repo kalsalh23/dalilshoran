@@ -62,6 +62,11 @@ const ICONS = {
   lock: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
   target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
   map: '<polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><path d="M9 3v15M15 6v15"/>',
+  key: '<path d="M2.6 17.4A2 2 0 0 0 2 18.8V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.2a2 2 0 0 0 1.4-.6l.8-.8a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/>',
+  crown: '<path d="M11.6 3.3a.5.5 0 0 1 .9 0l2.9 5.6a1 1 0 0 0 1.5.3l4.3-3.7a.5.5 0 0 1 .8.5l-2.8 10.2a1 1 0 0 1-1 .8H5.8a1 1 0 0 1-1-.8L2 6a.5.5 0 0 1 .8-.5L7 9.2a1 1 0 0 0 1.5-.3z"/><path d="M5 21h14"/>',
+  sparkles: '<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/>',
+  moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/>',
+  shieldCheck: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
 };
 const icon = (n, cls = "") =>
   `<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ICONS.info}</svg>`;
@@ -290,66 +295,45 @@ function viewHome() {
     `<span class="legend-item"><i style="--c:${t.color}"></i>${t.plural}</span>`).join("");
 
   return `
-  <section class="hero">
-    <div class="container hero-in">
-      <div>
-        <span class="hero-badge">${icon("pin")} الدليل الطبي الرسمي لمدينة صوران — نسخة تجريبية</span>
-        <h1>صحتك في <em>صوران</em>… أقرب من أن تبحث عنها</h1>
-        <p class="hero-sub">أطباء وعيادات، صيدليات ومناوبة، مشافي ومخابر ومراكز صحية — كلها في دليل واحد محلي، بأرقام صحيحة ومواقع على الخريطة.</p>
-        <div class="hero-search">
-          <div class="hero-search-box">
-            ${icon("search")}
-            <input type="search" id="heroSearch" placeholder="ابحث: تخصص، اسم طبيب، صيدلية، تحاليل…" autocomplete="off" aria-label="بحث في الدليل" />
-            <a class="btn btn-amber btn-sm" href="#/doctors" id="heroSearchBtn">تصفّح</a>
-          </div>
-          <div class="hero-suggest" id="heroSuggest" hidden></div>
+  <section class="container">
+    <div class="hero">
+      <span class="hero-badge">${icon("sparkles")} الدليل الطبي الرسمي لمدينة صوران — نسخة تجريبية</span>
+      <h1>كل الخدمات الصحية في <em>صوران</em>… أقرب من أن تبحث عنها</h1>
+      <p class="hero-sub">أطباء وعيادات، صيدليات ومناوبة، مشافي ومخابر ومراكز صحية — كلها في دليل واحد محلي، بأرقام صحيحة ومواقع على الخريطة.</p>
+      <div class="hero-search">
+        <div class="hero-search-box">
+          ${icon("search")}
+          <input type="search" id="heroSearch" placeholder="ابحث: تخصص، اسم طبيب، صيدلية، تحاليل…" autocomplete="off" aria-label="بحث في الدليل" />
+          <a class="btn btn-primary btn-sm" href="#/doctors" id="heroSearchBtn">تصفّح</a>
         </div>
-        <div class="hero-chips">
-          <a class="hero-chip is-amber" href="#/oncall">${icon("ambulance")} مناوبة اليوم</a>
-          <a class="hero-chip" href="#/doctors?spec=${encodeURIComponent("أطفال")}">أطفال</a>
-          <a class="hero-chip" href="#/doctors?spec=${encodeURIComponent("أسنان")}">أسنان</a>
-          <a class="hero-chip" href="#/labs">تحاليل مخبرية</a>
-          <a class="hero-chip" href="#/radiology">أشعة وسونار</a>
-          <a class="hero-chip" href="#/ask">اسأل طبياً</a>
-        </div>
+        <div class="hero-suggest" id="heroSuggest" hidden></div>
       </div>
-      <aside class="hero-side">
-        <div class="side-card">
-          <div class="side-card-head">${icon("ambulance")} صيدليات المناوبة <span class="today">${todayName}</span></div>
-          <div class="oncall-mini">${oncallMini}</div>
-          <div style="margin-top:12px"><a class="btn btn-ghost btn-sm btn-block" style="color:#fff;border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.08)" href="#/oncall">جدول الأسبوع كاملاً</a></div>
-        </div>
-        <div class="side-card">
-          <div class="side-card-head">${icon("alert")} أرقام الطوارئ</div>
-          <div class="emergency-list">
-            ${SITE.emergency.map((em) => `
-              <a class="emergency-item" href="tel:${em.num}" title="${esc(em.label)}">
-                ${icon(em.icon)}<b>${em.num}</b><small>${esc(em.label)}</small>
-              </a>`).join("")}
-          </div>
-        </div>
-        <div class="hero-stats">
-          <div class="hero-stat"><b data-count="${doctors}">٠</b><span>طبيب وعيادة</span></div>
-          <div class="hero-stat"><b data-count="${pharmacies}">٠</b><span>صيدلية</span></div>
-          <div class="hero-stat"><b data-count="${centers}">٠</b><span>مشفى ومخبر ومركز</span></div>
-          <div class="hero-stat"><b data-count="${FAQ.length}">٠</b><span>سؤال وإرشاد</span></div>
-        </div>
-      </aside>
+      <div class="hero-chips">
+        <a class="hero-chip is-amber" href="#/oncall">${icon("ambulance")} مناوبة اليوم</a>
+        <a class="hero-chip" href="#/doctors?spec=${encodeURIComponent("أطفال")}">أطفال</a>
+        <a class="hero-chip" href="#/doctors?spec=${encodeURIComponent("أسنان")}">أسنان</a>
+        <a class="hero-chip" href="#/labs">تحاليل مخبرية</a>
+        <a class="hero-chip" href="#/radiology">أشعة وسونار</a>
+        <a class="hero-chip" href="#/ask">اسأل طبياً</a>
+      </div>
     </div>
-  </section>
 
-  <section class="stats-band container">
-    <div class="stats-card">
-      ${[
-        { icon: "stetho", color: "#2B4BC4", n: doctors, label: "طبيب وعيادة مسجلة" },
-        { icon: "pill", color: "#D97706", n: pharmacies, label: "صيدلية داخل المدينة" },
-        { icon: "hospital", color: "#E5484D", n: centers, label: "مشفى ومخبر ومركز صحي" },
-        { icon: "clock", color: "#0FA981", n: 24, label: "مناوبة تغطي الساعة", suffix: "/7" },
-      ].map((s) => `
-        <div class="stat-cell">
-          <span class="stat-ic" style="background:color-mix(in srgb, ${s.color} 12%, transparent);color:${s.color}">${icon(s.icon)}</span>
-          <div><b data-count="${s.n}">٠</b><span>${s.label}</span></div>
-        </div>`).join("")}
+    <div class="home-top">
+      <div class="side-card">
+        <div class="side-card-head">${icon("clock")} صيدليات المناوبة <span class="today">${todayName}</span></div>
+        <div class="oncall-mini">${oncallMini}</div>
+        <div style="margin-top:12px"><a class="btn btn-ghost btn-sm btn-block" href="#/oncall">جدول الأسبوع كاملاً</a></div>
+      </div>
+      <div class="side-card">
+        <div class="side-card-head">${icon("alert")} أرقام الطوارئ</div>
+        <div class="emergency-list">
+          ${SITE.emergency.map((em) => `
+            <a class="emergency-item" href="tel:${em.num}" title="${esc(em.label)}">
+              ${icon(em.icon)}<b>${em.num}</b><small>${esc(em.label)}</small>
+            </a>`).join("")}
+        </div>
+        <p class="map-note">${icon("info")} اضغط على الرقم للاتصال المباشر.</p>
+      </div>
     </div>
   </section>
 
@@ -466,21 +450,6 @@ function afterHome() {
       if (b) { box.hidden = true; location.hash = b.getAttribute("data-go"); }
     });
   }
-
-  /* عدّادات متحركة */
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  $$("[data-count]").forEach((el) => {
-    const target = Number(el.getAttribute("data-count")) || 0;
-    if (reduce) { el.textContent = fmtNum(target); return; }
-    const t0 = performance.now(), dur = 900;
-    const step = (t) => {
-      const k = Math.min(1, (t - t0) / dur);
-      const eased = 1 - Math.pow(1 - k, 3);
-      el.textContent = fmtNum(Math.round(target * eased));
-      if (k < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  });
 
   mountMap("homeMap", ENTITIES);
 }
@@ -918,49 +887,63 @@ function viewSearch(params) {
 
 /* ================= الصفحات الثابتة ================= */
 function viewAbout() {
+  const features = [
+    { ic: "stetho", t: "دليل طبي موثّق", d: "الأطباء والعيادات والمشافي والصيدليات والمراكز الصحية في مكان واحد." },
+    { ic: "pin", t: "مواقع على الخريطة", d: "موقع كل جهة على الخريطة مع أقرب طريق للوصول." },
+    { ic: "moon", t: "الصيدليات المناوبة", d: "جدول المناوبة اليومي لمعرفة الصيدلية المفتوحة وقت الحاجة." },
+    { ic: "chat", t: "اسأل دليل صوران", d: "قاعدة أسئلة وأجوبة صحية ونصائح طبية موثوقة ومبسطة." },
+    { ic: "crown", t: "باقات للجهات", d: "باقات اشتراك شهرية تُبرز الجهة وتضاعف ظهورها في الدليل." },
+    { ic: "shieldCheck", t: "بيانات محدّثة", d: "أرقام الهواتف وساعات الدوام تُراجع وتُحدّث باستمرار من فريق المنصة." },
+  ];
   return `
-  <section class="page-hero">
-    <div class="container">
-      <nav class="breadcrumb"><a href="#/">الرئيسية</a> ${icon("chevLeft")} <span>عن المنصة</span></nav>
-      <h1>${icon("heart")} عن دليل صوران الطبي</h1>
-      <p>مشروع مجتمعي مجاني يهدف إلى تنظيم المعلومات الصحية في مدينة صوران وإتاحتها لكل أهالي المدينة بضغطة زر.</p>
-    </div>
-  </section>
-  <div class="container page-wrap prose">
-    <h2>لماذا هذا الدليل؟</h2>
-    <p>
-      في كل يوم يبحث أهالي مدينة صوران عن: أقرب عيادة أسنان، مخبر يعمل مساءً، صيدلية مناوبة للّيلة،
-      أو رقم مشفى لطلب إسعاف. هذه المعلومات متفرقة بين المعارف والمنشورات، وقد تكون قديمة أو غير دقيقة.
-      دليل صوران الطبي يجمعها في مكان واحد: منظّمة، محدّثة، ومجانية للجميع.
-    </p>
+  <div class="container page-wrap">
+    <nav class="breadcrumb on-page" aria-label="مسار التنقل">
+      <a href="#/">الرئيسية</a> ${icon("chevLeft")} <span>عن المنصة</span>
+    </nav>
 
-    <h2>ماذا يقدّم الدليل؟</h2>
-    <ul>
-      <li><strong>قوائم محلية شاملة:</strong> أطباء وعيادات، صيدليات، مشافي، مخابر تحليلات، مراكز أشعة، ومراكز صحية.</li>
-      <li><strong>صيدليات المناوبة:</strong> جدول أسبوعي يتحدّث يومياً ويعرض صيدليات المناوبة «اليوم» مباشرة في الصفحة الرئيسية.</li>
-      <li><strong>خريطة صحية تفاعلية:</strong> مواقع كل الجهات على خريطة المدينة مع إمكانية الاتصال مباشرة.</li>
-      <li><strong>تواصل فوري:</strong> كل جهة لها رقم اتصال وزر واتساب، ونسخ الرقم بضغطة واحدة.</li>
-      <li><strong>اسأل طبياً:</strong> مكتبة إرشادات توعوية موثوقة بالعربية، وإمكانية إرسال سؤالك للفريق.</li>
-    </ul>
-
-    <h2>كيف يعمل الدليل؟</h2>
-    <h3>1) نجمّع البيانات</h3>
-    <p>يتم حصر الجهات الطبية في المدينة والتحقق من بياناتها (التخصص، العنوان، الهاتف، أوقات العمل) بالتواصل المباشر مع أصحابها.</p>
-    <h3>2) ننظّمها ونحدّثها</h3>
-    <p>تُدخل البيانات في الدليل بصيغة موحّدة، وتُراجع دورياً. صاحب الجهة يستطيع تعديل بياناته في أي وقت عبر «دخول الجهات».</p>
-    <h3>3) تبقى مجانية للأهالي</h3>
-    <p>تصفّح الدليل والاتصال بالجهات مجاني تماماً ولا يتطلب تسجيلاً. تموّل باقات الاشتراك الاختيارية للجهات تكاليف التشغيل فقط.</p>
-
-    <div class="note-box">
-      ${icon("info")}
-      <p><strong>دقة البيانات:</strong> نبذل جهداً لتحديث المعلومات باستمرار، لكن قد تحدث تغييرات (إجازة، انتقال، تغيير رقم). ننصح دائماً بالاتصال قبل التوجه، ونرحّب بتنبيهاتكم عبر <a href="#/contact">صفحة التواصل</a>.</p>
+    <div class="about-hero">
+      <span class="pill-badge">${icon("sparkles")} عن المنصة</span>
+      <h1>دليل صوران الطبي</h1>
+      <p>منصة رقمية شاملة تجمع كل الخدمات الصحية في مدينة صوران — من الطبيب المناسب إلى الصيدلية المناوبة — في تجربة واحدة سريعة وسهلة من هاتفك.</p>
     </div>
 
-    <h2>من وراء المشروع؟</h2>
-    <p>
-      فريق متطوع من أبناء مدينة صوران يعتني بجمع البيانات وتحديثها والرد على الأسئلة الواردة عبر صفحة «اسأل طبياً»،
-      بالتنسيق مع أصحاب الجهات الطبية في المدينة.
-    </p>
+    <div class="card about-card">
+      <div class="about-card-head">
+        <span class="a-icon">${icon("heart")}</span>
+        <h2>ما هي دليل صوران الطبي؟</h2>
+      </div>
+      <p class="about-text">
+        في كل يوم يبحث أهالي مدينة صوران عن أقرب عيادة أسنان، أو مخبر يعمل مساءً، أو صيدلية مناوبة للّيلة،
+        أو رقم مشفى لطلب الإسعاف. دليل صوران الطبي يجمع هذه المعلومات المتفرقة في مكان واحد:
+        منظّمة، محدّثة، ومجانية للجميع — من أبناء المدينة ولأهلها.
+      </p>
+    </div>
+
+    <div class="features-grid">
+      ${features.map((f) => `
+        <div class="feature-card">
+          <span class="f-icon">${icon(f.ic)}</span>
+          <div><p>${f.t}</p><small>${f.d}</small></div>
+        </div>`).join("")}
+    </div>
+
+    <div class="dev-card">
+      <div>
+        <h3>تطوير المنصة وإدارتها</h3>
+        <p>مشروع مجتمعي يُطوَّر ويُدار من فريق متطوع من أبناء المدينة، بالتنسيق مع أصحاب الجهات الطبية.</p>
+      </div>
+      <a class="btn btn-gold" href="#/contact">${icon("mail")} تواصل مع الفريق</a>
+    </div>
+
+    <div class="card support-card">
+      <div class="support-row">
+        <div>
+          <p class="support-title">دعم المنصة والإدارة</p>
+          <p class="support-sub">للإبلاغ عن خطأ في البيانات أو إضافة جهة جديدة أو الاستفسار عن الباقات.</p>
+        </div>
+        <a class="support-btn" href="tel:${SITE.infoPhone}">${icon("phone")} <span>${fmtPhone(SITE.infoPhone)}</span></a>
+      </div>
+    </div>
   </div>`;
 }
 
@@ -969,7 +952,7 @@ function viewPackages() {
   <section class="page-hero">
     <div class="container">
       <nav class="breadcrumb"><a href="#/">الرئيسية</a> ${icon("chevLeft")} <span>باقات الاشتراك</span></nav>
-      <h1>${icon("star")} باقات الجهات الطبية</h1>
+      <h1>${icon("crown")} باقات الجهات الطبية</h1>
       <p>تصفّح الدليل مجاني دائماً للأهالي. أما باقات الاشتراك فهي للجهات الطبية الراغبة بتعزيز ظهورها ودعم استمرار المشروع.</p>
     </div>
   </section>
@@ -1000,25 +983,23 @@ function viewLogin() {
     <div class="login-wrap">
       <div class="login-card">
         <div class="login-head">
-          <span class="l-icon">${icon("lock")}</span>
-          <h1>دخول الجهات</h1>
-          <p>مساحة خاصة لأصحاب العيادات والصيدليات والمنشآت لتحديث بياناتهم في الدليل.</p>
+          <span class="l-icon">${icon("key")}</span>
+          <h1>دخول الجهة</h1>
+          <p>أدخل البريد وكلمة السر الخاصين بك للوصول إلى لوحة تحكم صفحتك.</p>
         </div>
         <form id="loginForm" class="form-grid" novalidate>
           <div class="field">
-            <label for="lgUser">البريد الإلكتروني أو اسم المستخدم</label>
-            <input id="lgUser" type="text" placeholder="you@example.com" autocomplete="username" />
+            <label for="lgUser">البريد الإلكتروني</label>
+            <input id="lgUser" type="text" dir="ltr" placeholder="admin-...@gmail.com" autocomplete="username" />
           </div>
           <div class="field">
-            <label for="lgPass">كلمة المرور</label>
-            <input id="lgPass" type="password" placeholder="••••••••" autocomplete="current-password" />
+            <label for="lgPass">كلمة السر</label>
+            <input id="lgPass" type="password" dir="ltr" placeholder="كلمة السر المرسلة لك" autocomplete="current-password" />
           </div>
-          <button class="btn btn-primary btn-block" type="submit">${icon("lock")} تسجيل الدخول</button>
+          <p class="login-error" id="loginError" hidden>بيانات الدخول غير صحيحة</p>
+          <button class="btn btn-primary btn-block" type="submit">${icon("key")} دخول</button>
         </form>
-        <div class="note-box" style="margin-top:18px">
-          ${icon("info")}
-          <p style="font-size:13.5px">نظام الحسابات قيد التفعيل في النسخة التجريبية. لتعديل بيانات جهتك الآن، راسلنا مباشرة عبر <a href="#/contact">صفحة التواصل</a>.</p>
-        </div>
+        <p class="login-note">بيانات الدخول تُسلَّم لك عند تفعيل اشتراكك من قبل إدارة المنصة.</p>
       </div>
     </div>
   </section>`;
@@ -1291,13 +1272,15 @@ const ROUTES = [
   { re: /^\/about$/, key: "about", title: "عن المنصة", view: viewAbout },
   { re: /^\/contact$/, key: "contact", title: "تواصل معنا", view: viewContact, after: bindContact },
   { re: /^\/packages$/, key: "", title: "باقات الاشتراك", view: viewPackages },
-  { re: /^\/login$/, key: "login", title: "دخول الجهات", view: viewLogin, after: () => {
+  { re: /^\/login$/, key: "login", title: "دخول الجهة", view: viewLogin, after: () => {
       const f = $("#loginForm");
       if (f) f.addEventListener("submit", async (ev) => {
         ev.preventDefault();
         const user = $("#lgUser").value.trim();
         const pass = $("#lgPass").value;
-        if (!user || !pass) return showToast("أدخل البريد وكلمة المرور", "warn");
+        const errEl = $("#loginError");
+        if (errEl) errEl.hidden = true;
+        if (!user || !pass) return showToast("أدخل البريد وكلمة السر", "warn");
         const cfg = window.SUPABASE_CONFIG;
         if (!cfg || !cfg.url || !cfg.anonKey) return showToast("نظام الدخول غير مهيأ بعد", "warn");
         try {
@@ -1311,6 +1294,7 @@ const ROUTES = [
             try { sessionStorage.setItem("ds-session", JSON.stringify({ email: s.user && s.user.email || user })); } catch (_) {}
             showToast("تم تسجيل الدخول بنجاح — مرحباً بك");
           } else {
+            if (errEl) errEl.hidden = false;
             showToast("بيانات الدخول غير صحيحة أو الحساب غير مُنشأ بعد", "err");
           }
         } catch (_) {
@@ -1387,13 +1371,6 @@ function initHeader() {
   });
   $("#mainNav").addEventListener("click", (ev) => {
     if (ev.target.closest("a")) closeMenu();
-  });
-
-  /* وضع ليلي/نهاري */
-  $("#btnTheme").addEventListener("click", () => {
-    const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-    applyTheme(next);
-    localStorage.setItem("ds-theme", next);
   });
 
   /* إشعار المناوبة */
@@ -1484,24 +1461,8 @@ function renderGlobalResults(qRaw) {
       </button>` : "");
 }
 
-/* ================= الثيم ================= */
-function applyTheme(t) {
-  document.documentElement.setAttribute("data-theme", t);
-}
-
 /* ================= الإقلاع ================= */
 (async function boot() {
-  const saved = localStorage.getItem("ds-theme") ||
-    (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  applyTheme(saved);
-
-  /* مزامنة رقم الاستعلامات من ملف البيانات */
-  const infoLink = $("[data-tel-info]");
-  if (infoLink) {
-    infoLink.setAttribute("href", telHref(SITE.infoPhone));
-    infoLink.querySelector("span").textContent = `استعلامات: ${fmtPhone(SITE.infoPhone)}`;
-  }
-
   const year = $("#year");
   if (year) year.textContent = fmtNum(new Date().getFullYear());
 
