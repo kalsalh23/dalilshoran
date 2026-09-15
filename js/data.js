@@ -396,7 +396,8 @@ const FAQ = [
    ============================================================ */
 const PACKAGES = [
   {
-    id: "free", name: "الباقة المجانية", price: "مجاناً", period: "للأبد",
+    id: "free", name: "الباقة المجانية", description: "الباقة الأساسية — الظهور في القوائم والخريطة",
+    price: "مجاناً", period: "للأبد",
     color: "#428177",
     features: [
       "إدراج الاسم والتخصص داخل قائمة القسم",
@@ -407,7 +408,8 @@ const PACKAGES = [
     cta: "سجّل جهتك", featured: false,
   },
   {
-    id: "pro", name: "الباقة الاحترافية", price: "حسب الاتفاق", period: "شهرياً",
+    id: "pro", name: "الباقة الاحترافية", description: "إبراز صفحتك بأدوات إضافية واتصال أسرع",
+    price: "حسب الاتفاق", period: "شهرياً",
     color: "#988561",
     features: [
       "بطاقة مميزة بلون وشعار خاص",
@@ -418,7 +420,8 @@ const PACKAGES = [
     cta: "اشترك الآن", featured: false,
   },
   {
-    id: "gold", name: "الباقة الذهبية", price: "حسب الاتفاق", period: "شهرياً",
+    id: "gold", name: "الباقة الذهبية", description: "أعلى ظهور وشارة ذهبية مميزة في الدليل",
+    price: "حسب الاتفاق", period: "شهرياً",
     color: "#b9a779",
     features: [
       "شارة ذهبية وتمييز كامل في القوائم",
@@ -429,6 +432,15 @@ const PACKAGES = [
     cta: "اشترك الآن", featured: true,
   },
 ];
+
+/* ---------- بيانات المطوّر (بطاقة المطوّر في «عن المنصة» والتذييل) ---------- */
+SITE.developer = {
+  name: "كوساي الصالح",
+  title: "مطوّر وتقني المنصة",
+  phone: SITE.infoPhone,
+  instagram: "",
+  facebook: "",
+};
 
 /* ---------- أدوات وصول سريعة للبيانات ---------- */
 function entitiesByType(type) {

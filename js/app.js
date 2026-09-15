@@ -67,6 +67,14 @@ const ICONS = {
   sparkles: '<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/>',
   moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/>',
   shieldCheck: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/>',
+  home: '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+  help: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
+  code: '<path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/>',
+  badgeCheck: '<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/>',
+  instagram: '<rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>',
+  facebook: '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>',
+  arrowUpRight: '<line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>',
+  searchX: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><path d="m8 8 6 6"/><path d="m14 8-6 6"/>',
 };
 const icon = (n, cls = "") =>
   `<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ICONS.info}</svg>`;
@@ -89,7 +97,7 @@ function typeBadge(e) {
   return `<a class="badge badge-blue" href="#/${routeSlug(e.type)}" style="--tc:${t.color}">${icon(t.icon)} ${t.label}</a>`;
 }
 
-function entityCard(e, { rank = false, callLabel = "اتصال" } = {}) {
+function entityCard(e, { rank = false } = {}) {
   const t = TYPES[e.type];
   const avatar = e.type === "doctor"
     ? `<span class="entity-avatar" style="--tc:${t.color}">${esc(initials(e.name))}</span>`
@@ -105,30 +113,25 @@ function entityCard(e, { rank = false, callLabel = "اتصال" } = {}) {
   if (e.type === "doctor") meta.push(`<span>${icon("briefcase")} خبرة ${fmtNum(e.exp)} سنة</span>`);
   if (e.owner) meta.push(`<span>${icon("user")} ${esc(e.owner)}</span>`);
   meta.push(`<span>${icon("clock")} ${esc(e.hours)}</span>`);
+  meta.push(`<span>${icon("phone")} <span dir="ltr">${fmtPhone(e.phone)}</span></span>`);
 
   const services = (e.services || []).slice(0, 3).map((s) => `<span class="mini-tag">${esc(s)}</span>`).join("");
   const extra = (e.services || []).length > 3 ? `<span class="mini-tag">+${fmtNum((e.services || []).length - 3)}</span>` : "";
 
   return `
-  <article class="entity-card" style="--tc:${t.color}">
-    ${rank && e.featured && e.rank ? `<span class="rank-ribbon">${fmtNum(e.rank)}</span>` : ""}
+  <a class="entity-card" href="#/entity/${e.id}" style="--tc:${t.color}">
+    ${rank && e.featured && e.rank ? `<span class="rank-ribbon">${icon("star")} ${fmtNum(e.rank)}</span>` : ""}
     <div class="entity-top">
       ${avatar}
       <div class="entity-id">
-        <h3><a href="#/entity/${e.id}">${esc(e.name)}</a></h3>
+        <h3>${esc(e.name)}</h3>
         ${e.spec ? `<span class="spec">${esc(e.spec)} — ${esc(e.degree || "")}</span>` : `<span class="spec">${esc(t.label)}</span>`}
       </div>
     </div>
     ${badges.length ? `<div class="entity-badges">${badges.join("")}</div>` : ""}
     <div class="entity-meta">${meta.join("")}</div>
     ${services ? `<div class="entity-services">${services}${extra}</div>` : ""}
-    <div class="entity-actions">
-      <a class="btn btn-primary btn-sm" href="#/entity/${e.id}">${icon("doc")} التفاصيل</a>
-      <a class="btn btn-ghost btn-sm" href="${telHref(e.phone)}">${icon("phone")} ${callLabel}</a>
-      ${e.whatsapp ? `<a class="icon-call" href="${waHref(e.phone)}" target="_blank" rel="noopener" title="واتساب" aria-label="واتساب">${icon("chat")}</a>` : ""}
-      <button class="icon-call" type="button" data-copy="${esc(e.phone)}" title="نسخ الرقم" aria-label="نسخ الرقم">${icon("copy")}</button>
-    </div>
-  </article>`;
+  </a>`;
 }
 
 function isOnCallToday(id) {
@@ -239,40 +242,7 @@ function fallbackCopy(text, done) {
 
 /* ================= العرض: الرئيسية ================= */
 function viewHome() {
-  const doctors = entitiesByType("doctor").length;
-  const pharmacies = entitiesByType("pharmacy").length;
-  const centers = ENTITIES.filter((e) => ["hospital", "lab", "radiology", "health-center"].includes(e.type)).length;
   const todayName = DAYS[todayIdx()];
-  const oncallToday = oncallPharmacies(todayName);
-
-  const oncallMini = oncallToday.length
-    ? oncallToday.map((p) => `
-        <div class="oncall-mini-item">
-          ${icon("pill")} <strong>${esc(p.name)}</strong>
-          <span>${fmtPhone(p.phone)}</span>
-        </div>`).join("")
-    : `<p class="oncall-empty">لا توجد مناوبة مسجلة اليوم — راجع جدول الأسبوع.</p>`;
-
-  const services = [
-    { key: "doctor", href: "#/doctors", desc: "اختيار التخصص والاتصال" },
-    { key: "pharmacy", href: "#/pharmacies", desc: "أقرب صيدلية إليك" },
-    { key: "oncall", href: "#/oncall", desc: "جدول اليوم والليلة", label: "صيدليات مناوبة", color: "#E5484D", icon: "ambulance" },
-    { key: "hospital", href: "#/hospitals", desc: "طوارئ واستقبال" },
-    { key: "lab", href: "#/labs", desc: "تحاليل وفحوصات" },
-    { key: "radiology", href: "#/radiology", desc: "أشعة وسونار" },
-    { key: "health-center", href: "#/health-centers", desc: "تطعيمات ورعاية أولية" },
-  ].map((s) => {
-    if (s.key === "oncall") {
-      return `<a class="service-tile" style="--tc:${s.color}" href="${s.href}">
-        <span class="service-ic">${icon(s.icon)}</span><b>${s.label}</b><small>${s.desc}</small>
-        <span class="service-count">${fmtNum(7)} أيام</span></a>`;
-    }
-    const t = TYPES[s.key];
-    const count = entitiesByType(s.key).length;
-    return `<a class="service-tile" style="--tc:${t.color}" href="${s.href}">
-      <span class="service-ic">${icon(t.icon)}</span><b>${t.plural}</b><small>${s.desc}</small>
-      <span class="service-count">${fmtNum(count)} ${count === 1 ? "جهة" : "جهات"}</span></a>`;
-  }).join("");
 
   const featuredDoctors = featuredBy("doctor", 5).map((d) => entityCard(d, { rank: true })).join("");
   const featuredPharmacies = featuredBy("pharmacy", 5).map((p) => entityCard(p, { rank: true })).join("");
@@ -303,45 +273,19 @@ function viewHome() {
       <div class="hero-search">
         <div class="hero-search-box">
           ${icon("search")}
-          <input type="search" id="heroSearch" placeholder="ابحث: تخصص، اسم طبيب، صيدلية، تحاليل…" autocomplete="off" aria-label="بحث في الدليل" />
-          <a class="btn btn-primary btn-sm" href="#/doctors" id="heroSearchBtn">تصفّح</a>
+          <input type="search" id="heroSearch" placeholder="ابحث عن طبيب، اختصاص، صيدلية أو خدمة طبية…" autocomplete="off" aria-label="بحث في الدليل" />
+          <a class="btn btn-primary hero-search-btn" href="#/search" id="heroSearchBtn">بحث</a>
         </div>
         <div class="hero-suggest" id="heroSuggest" hidden></div>
       </div>
       <div class="hero-chips">
-        <a class="hero-chip is-amber" href="#/oncall">${icon("ambulance")} مناوبة اليوم</a>
-        <a class="hero-chip" href="#/doctors?spec=${encodeURIComponent("أطفال")}">أطفال</a>
-        <a class="hero-chip" href="#/doctors?spec=${encodeURIComponent("أسنان")}">أسنان</a>
-        <a class="hero-chip" href="#/labs">تحاليل مخبرية</a>
-        <a class="hero-chip" href="#/radiology">أشعة وسونار</a>
-        <a class="hero-chip" href="#/ask">اسأل طبياً</a>
+        <a class="hero-chip" href="#/doctors">الأطباء</a>
+        <a class="hero-chip" href="#/pharmacies">الصيدليات</a>
+        <a class="hero-chip" href="#/hospitals">المشافي</a>
+        <a class="hero-chip" href="#/health-centers">المراكز الطبية</a>
+        <a class="hero-chip" href="#/oncall">الصيدليات المناوبة</a>
       </div>
     </div>
-
-    <div class="home-top">
-      <div class="side-card">
-        <div class="side-card-head">${icon("clock")} صيدليات المناوبة <span class="today">${todayName}</span></div>
-        <div class="oncall-mini">${oncallMini}</div>
-        <div style="margin-top:12px"><a class="btn btn-ghost btn-sm btn-block" href="#/oncall">جدول الأسبوع كاملاً</a></div>
-      </div>
-      <div class="side-card">
-        <div class="side-card-head">${icon("alert")} أرقام الطوارئ</div>
-        <div class="emergency-list">
-          ${SITE.emergency.map((em) => `
-            <a class="emergency-item" href="tel:${em.num}" title="${esc(em.label)}">
-              ${icon(em.icon)}<b>${em.num}</b><small>${esc(em.label)}</small>
-            </a>`).join("")}
-        </div>
-        <p class="map-note">${icon("info")} اضغط على الرقم للاتصال المباشر.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="section container">
-    <div class="section-head">
-      <div><h2>الخدمات الطبية في صوران</h2><p>اختر القسم الذي تحتاجه وتصفّح الجهات المسجلة داخل المدينة</p></div>
-    </div>
-    <div class="services-grid">${services}</div>
   </section>
 
   <section class="section container">
@@ -382,31 +326,13 @@ function viewHome() {
     <p class="map-note">${icon("info")} المواقع تقريبية لأغراض التوجيه، والعنوان الدقيق مذكور في صفحة كل جهة.</p>
   </section>
 
-  <section class="container">
+  <section class="container" style="padding-bottom:40px">
     <div class="cta-band cta-blue">
       <div>
         <h3>عندك سؤال صحي؟ اسأل أهل الاختصاص</h3>
         <p>مكتبة إرشادات طبية موثوقة باللغة العربية، وإن لم تجد إجابتك فأرسل سؤالك وسيراجعه فريق الدليل.</p>
       </div>
-      <a class="btn btn-amber btn-lg" href="#/ask">${icon("chat")} اسأل الآن</a>
-    </div>
-  </section>
-
-  <section class="section container">
-    <div class="section-head">
-      <div><h2>إرشادات وأسئلة شائعة</h2><p>معلومات توعوية عامة — لا تُغني عن استشارة الطبيب</p></div>
-      <a class="section-link" href="#/ask">كل الأسئلة ${icon("arrowLeft")}</a>
-    </div>
-    <div class="accordion">${faqPreview}</div>
-  </section>
-
-  <section class="container" style="padding-bottom:52px">
-    <div class="cta-band cta-amber">
-      <div>
-        <h3>هل تمارس مهنة طبية في صوران؟</h3>
-        <p>سجّل عيادتك أو صيدليتك أو منشأتك مجاناً في دليل المدينة، ووصل أهالي صوران بخدماتك مباشرة.</p>
-      </div>
-      <a class="btn btn-ghost btn-lg" style="background:rgba(255,255,255,.92);border:0;color:#7A3E00" href="#/packages">أضف جهتك ${icon("plus")}</a>
+      <a class="btn btn-gold btn-lg" href="#/ask">${icon("chat")} اسأل الآن</a>
     </div>
   </section>`;
 }
@@ -573,11 +499,11 @@ function viewOncall(params) {
     </button>`).join("");
 
   const cards = list.length ? list.map((p) => `
-    <article class="entity-card" style="--tc:${TYPES.pharmacy.color}">
+    <a class="entity-card" style="--tc:${TYPES.pharmacy.color}" href="#/entity/${p.id}">
       <div class="entity-top">
         <span class="entity-avatar" style="--tc:${TYPES.pharmacy.color}">${icon("pill")}</span>
         <div class="entity-id">
-          <h3><a href="#/entity/${p.id}">${esc(p.name)}</a></h3>
+          <h3>${esc(p.name)}</h3>
           <span class="spec">${esc(p.area)} — ${esc(p.owner || "")}</span>
         </div>
         ${p.shift24 ? `<span class="badge badge-open" style="margin-inline-start:auto">${icon("clock")} 24 ساعة</span>` : ""}
@@ -585,14 +511,9 @@ function viewOncall(params) {
       <div class="entity-meta">
         <span>${icon("pin")} <b>${esc(p.address)}</b></span>
         <span>${icon("clock")} أوقات الدوام: ${esc(p.hours)}</span>
+        <span>${icon("phone")} <span dir="ltr">${fmtPhone(p.phone)}</span></span>
       </div>
-      <div class="entity-actions">
-        <a class="btn btn-primary btn-sm" href="${telHref(p.phone)}">${icon("phone")} ${fmtPhone(p.phone)}</a>
-        ${p.whatsapp ? `<a class="icon-call" href="${waHref(p.phone)}" target="_blank" rel="noopener" title="واتساب">${icon("chat")}</a>` : ""}
-        <button class="icon-call" type="button" data-copy="${esc(p.phone)}" title="نسخ الرقم">${icon("copy")}</button>
-        <a class="btn btn-ghost btn-sm" href="#/entity/${p.id}">التفاصيل</a>
-      </div>
-    </article>`).join("")
+    </a>`).join("")
     : `<div class="empty-state">${icon("pill")}<h3>لا توجد صيدليات مناوبة مسجلة</h3><p>راجع جدول بقية الأيام أو تواصل مع الاستعلامات.</p></div>`;
 
   return `
@@ -608,6 +529,9 @@ function viewOncall(params) {
   <div class="container" style="padding:26px 0 56px">
     <div class="day-tabs" role="tablist" aria-label="أيام الأسبوع">${tabs}</div>
     <div class="note-box">${icon("info")}<p>${note}</p></div>
+    <div class="emg-strip">
+      ${SITE.emergency.map((em) => `<a class="emg-pill" href="tel:${em.num}">${icon(em.icon)} ${esc(em.label)} <b>${em.num}</b></a>`).join("")}
+    </div>
     <div class="cards-grid" style="margin-top:20px">${cards}</div>
   </div>`;
 }
@@ -853,36 +777,78 @@ function bindAsk() {
   }
 }
 
-/* ================= العرض: نتائج البحث ================= */
+/* ================= العرض: نتائج البحث (نمط SearchPage) ================= */
 function viewSearch(params) {
   const q = params.get("q") || "";
   const { entities, faqs } = searchAll(q);
   const total = entities.length + faqs.length;
+
+  const groups = {};
+  entities.forEach((e) => { (groups[e.type] = groups[e.type] || []).push(e); });
+
+  const groupSections = Object.entries(groups).map(([type, items]) => {
+    const t = TYPES[type];
+    return `
+    <section class="s-group">
+      <h2 class="group-title"><span class="g-sq" style="--tc:${t.color}"></span>${t.plural} <span class="g-count">(${fmtNum(items.length)})</span></h2>
+      <div class="s-rows">
+        ${items.map((e) => `
+          <a class="result-row" href="#/entity/${e.id}">
+            <span class="r-icon" style="--tc:${t.color}">${icon(t.icon)}</span>
+            <span class="r-body">
+              <b>${esc(e.name)}</b>
+              <small>${esc(e.spec || t.label)}${e.area ? " — " + esc(e.area) : ""}</small>
+            </span>
+          </a>`).join("")}
+      </div>
+    </section>`;
+  }).join("");
+
+  const faqSection = faqs.length ? `
+    <section class="s-group">
+      <h2 class="group-title"><span class="g-sq" style="--tc:var(--gold-dark)"></span>أسئلة وأجوبة <span class="g-count">(${fmtNum(faqs.length)})</span></h2>
+      <div class="s-rows">
+        ${faqs.map((f) => `
+          <a class="result-row" href="#/ask">
+            <span class="r-icon" style="--tc:var(--gold-dark)">${icon("doc")}</span>
+            <span class="r-body"><b>${esc(f.q)}</b><small>${esc(f.cat)}</small></span>
+          </a>`).join("")}
+      </div>
+    </section>` : "";
+
   return `
-  <section class="page-hero">
-    <div class="container">
-      <nav class="breadcrumb" aria-label="مسار التنقل">
-        <a href="#/">الرئيسية</a> ${icon("chevLeft")} <span>نتائج البحث</span>
-      </nav>
-      <h1>${icon("search")} نتائج البحث عن: «${esc(q)}»</h1>
-      <p>${total ? fmtNum(total) + " نتيجة مطابقة" : "لا توجد نتائج مطابقة — جرّب كلمات أعم مثل «أطفال» أو «تحاليل»."}</p>
+  <div class="container page-wrap search-page">
+    <h1 class="page-title">البحث في دليل صوران الطبي</h1>
+    <form class="search-big" id="searchBigForm">
+      ${icon("search")}
+      <input id="searchBigInput" type="search" placeholder="ابحث عن طبيب، اختصاص، عيادة، صيدلية أو خدمة طبية..." value="${esc(q)}" autocomplete="off" />
+      <button class="btn btn-primary" type="submit">بحث</button>
+    </form>
+
+    <div class="s-groups">
+      ${!q.trim() ? `<p class="s-hint">اكتب كلمة بحث للبدء.</p>` : total ? groupSections + faqSection : `
+      <div class="empty-state s-empty">
+        ${icon("searchX")}
+        <h3>لا توجد نتائج لـ «${esc(q)}»</h3>
+        <p>جرّب كلمات بحث أخرى أو تصفح الأقسام الرئيسية.</p>
+        <div class="chip-row" style="justify-content:center;margin-top:12px">
+          <a class="chip" href="#/doctors">الأطباء</a>
+          <a class="chip" href="#/pharmacies">الصيدليات</a>
+          <a class="chip" href="#/oncall">الصيدليات المناوبة</a>
+          <a class="chip" href="#/ask">اسأل</a>
+        </div>
+      </div>`}
     </div>
-  </section>
-  <div class="container page-wrap">
-    ${entities.length ? `
-      <div class="section-head"><div><h2>جهات مطابقة (${fmtNum(entities.length)})</h2></div></div>
-      <div class="cards-grid" style="margin-bottom:36px">${entities.map((e) => entityCard(e)).join("")}</div>` : ""}
-    ${faqs.length ? `
-      <div class="section-head"><div><h2>إرشادات مطابقة (${fmtNum(faqs.length)})</h2></div></div>
-      <div class="accordion">${faqs.map((f) => `
-        <details class="acc-item">
-          <summary><span class="acc-q">؟</span> ${esc(f.q)} <span class="acc-cat">${esc(f.cat)}</span>${icon("chevDown", "chev")}</summary>
-          <div class="acc-body"><p>${esc(f.a)}</p></div>
-        </details>`).join("")}</div>` : ""}
-    ${!total ? `
-      <div class="empty-state">${icon("search")}<h3>لم نجد ما تبحث عنه</h3>
-        <p>تصفّح الأقسام من القائمة أعلاه أو <a href="#/ask">أرسل سؤالك</a> لفريق الدليل.</p></div>` : ""}
   </div>`;
+}
+
+function bindSearch() {
+  const form = $("#searchBigForm");
+  if (form) form.addEventListener("submit", (ev) => {
+    ev.preventDefault();
+    const v = $("#searchBigInput").value.trim();
+    location.hash = "#/search?q=" + encodeURIComponent(v);
+  });
 }
 
 /* ================= الصفحات الثابتة ================= */
@@ -927,12 +893,35 @@ function viewAbout() {
         </div>`).join("")}
     </div>
 
-    <div class="dev-card">
-      <div>
-        <h3>تطوير المنصة وإدارتها</h3>
-        <p>مشروع مجتمعي يُطوَّر ويُدار من فريق متطوع من أبناء المدينة، بالتنسيق مع أصحاب الجهات الطبية.</p>
+    <div class="dev-feature">
+      <div class="dev-inner">
+        <span class="dev-blob b1"></span>
+        <span class="dev-blob b2"></span>
+        <div class="dev-head">
+          <span class="dev-ic">${icon("code")}</span>
+          <div>
+            <p class="dev-tag">بطاقة المطوّر</p>
+            <h3>مطوّر وتقني دليل صوران الطبي</h3>
+          </div>
+        </div>
+        <div class="dev-body">
+          <div class="dev-avatar">
+            <span>${esc((SITE.developer.name || "م").trim().slice(0, 1))}</span>
+            <span class="dev-badge">${icon("badgeCheck")}</span>
+          </div>
+          <div class="dev-info">
+            <p class="dev-name">${esc(SITE.developer.name)}</p>
+            <p class="dev-role">${esc(SITE.developer.title || "مطوّر المنصة")}</p>
+            <p class="dev-desc">تطوير وإشراف فني كامل على المنصة — للدعم الفني والاستفسارات التقنية تواصل مباشرة عبر القنوات التالية.</p>
+            <div class="dev-actions">
+              <a class="dev-btn dev-btn-phone" href="tel:${esc(SITE.developer.phone)}">${icon("phone")} <span dir="ltr">${fmtPhone(SITE.developer.phone)}</span></a>
+              <a class="dev-btn dev-btn-wa" href="${waHref(SITE.developer.phone)}" target="_blank" rel="noopener">${icon("chat")} واتساب</a>
+              ${SITE.developer.instagram ? `<a class="dev-btn dev-btn-ig" href="${esc(SITE.developer.instagram)}" target="_blank" rel="noopener">${icon("instagram")} إنستغرام</a>` : ""}
+              ${SITE.developer.facebook ? `<a class="dev-btn dev-btn-fb" href="${esc(SITE.developer.facebook)}" target="_blank" rel="noopener">${icon("facebook")} فيسبوك</a>` : ""}
+            </div>
+          </div>
+        </div>
       </div>
-      <a class="btn btn-gold" href="#/contact">${icon("mail")} تواصل مع الفريق</a>
     </div>
 
     <div class="card support-card">
@@ -949,31 +938,25 @@ function viewAbout() {
 
 function viewPackages() {
   return `
-  <section class="page-hero">
-    <div class="container">
-      <nav class="breadcrumb"><a href="#/">الرئيسية</a> ${icon("chevLeft")} <span>باقات الاشتراك</span></nav>
-      <h1>${icon("crown")} باقات الجهات الطبية</h1>
-      <p>تصفّح الدليل مجاني دائماً للأهالي. أما باقات الاشتراك فهي للجهات الطبية الراغبة بتعزيز ظهورها ودعم استمرار المشروع.</p>
+  <div class="container page-wrap plans-page">
+    <div class="plans-head">
+      <h1>باقات الاشتراك</h1>
+      <p>ارتقِ بظهور صفحتك في دليل صوران الطبي — يُفعّل الاشتراك لمدة شهر كامل من تاريخ الموافقة.</p>
+      <p class="plans-login">لديك اشتراك فعّال؟ <a href="#/login">تسجيل دخول الجهة ←</a></p>
     </div>
-  </section>
-  <div class="container page-wrap">
-    <div class="packages-grid">
+    <div class="plans-grid">
       ${PACKAGES.map((p) => `
-        <article class="package-card ${p.featured ? "is-featured" : ""}" style="--pc:${p.color}">
-          ${p.featured ? `<span class="package-flag">الأكثر اختياراً</span>` : ""}
+        <a class="plan-card ${p.featured ? "is-gold" : ""}" href="#/contact">
+          <span class="plan-ic ${p.id}">${icon(p.id === "free" ? "lock" : p.id === "pro" ? "sparkles" : "crown")}</span>
           <h3>${esc(p.name)}</h3>
-          <p class="pkg-sub">${p.id === "free" ? "لكل جهة طبية في المدينة" : p.id === "plus" ? "للعيادات والصيدليات" : "للمشافي والمخابر والمنشآت"}</p>
-          <div class="pkg-price"><b>${esc(p.price)}</b><span>${esc(p.period)}</span></div>
-          <ul class="pkg-features">
+          <p class="plan-desc">${esc(p.description)}</p>
+          <ul class="plan-features">
             ${p.features.map((f) => `<li>${icon("check")} ${esc(f)}</li>`).join("")}
           </ul>
-          <a class="btn ${p.featured ? "btn-primary" : "btn-ghost"} btn-block" href="#/contact">${esc(p.cta)}</a>
-        </article>`).join("")}
+          <span class="plan-cta ${p.id === "free" ? "is-free" : ""}">${p.id === "free" ? "الباقة الأساسية لكل الجهات" : "اطلب الترقية " + icon("arrowUpRight")}</span>
+        </a>`).join("")}
     </div>
-    <div class="note-box" style="margin-top:26px">
-      ${icon("info")}
-      <p>الاشتراك اختياري ولا يؤثر على صحة أو ترتيب بيانات الجهات غير المشتركة داخل القوائم. للتفاصيل والأسعار <a href="#/contact">تواصل معنا</a>.</p>
-    </div>
+    <p class="plans-note">لم تجد جهتك في الدليل؟ تواصل مع الإدارة لإضافتها أولاً، ثم قدّم طلب الترقية.</p>
   </div>`;
 }
 
@@ -1268,7 +1251,7 @@ const ROUTES = [
   { re: /^\/health-centers$/, key: "health-centers", title: "المراكز الصحية", view: (q) => viewList("health-center", q), after: () => bindList("health-center") },
   { re: /^\/entity\/([A-Za-z0-9-]+)$/, key: "", title: "تفاصيل الجهة", view: (q, m) => viewEntity(m[1]), after: (q, m) => afterEntity(m[1]) },
   { re: /^\/ask$/, key: "ask", title: "اسأل طبياً", view: viewAsk, after: bindAsk },
-  { re: /^\/search$/, key: "", title: "نتائج البحث", view: viewSearch },
+  { re: /^\/search$/, key: "", title: "البحث", view: viewSearch, after: () => bindSearch() },
   { re: /^\/about$/, key: "about", title: "عن المنصة", view: viewAbout },
   { re: /^\/contact$/, key: "contact", title: "تواصل معنا", view: viewContact, after: bindContact },
   { re: /^\/packages$/, key: "", title: "باقات الاشتراك", view: viewPackages },
@@ -1353,6 +1336,8 @@ function render() {
 function setActiveNav(key) {
   $$(".mainnav > a").forEach((a) =>
     a.classList.toggle("active", a.getAttribute("data-route") === key));
+  $$(".bottom-nav a").forEach((a) =>
+    a.classList.toggle("active", a.getAttribute("data-route") === key));
 }
 
 /* ================= الترويسة: قائمة، ثيم، بحث، إشعارات ================= */
@@ -1389,76 +1374,13 @@ function initHeader() {
     }
   });
 
-  /* البحث الشامل */
-  $("#btnSearch").addEventListener("click", openSearch);
+  /* اختصار لوحة المفاتيح: فتح صفحة البحث */
   document.addEventListener("keydown", (ev) => {
-    if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === "k") { ev.preventDefault(); openSearch(); }
-    if (ev.key === "Escape") closeSearch();
-  });
-  $$("#searchOverlay [data-close-search]").forEach((el) => el.addEventListener("click", closeSearch));
-
-  const gInput = $("#globalSearch");
-  gInput.addEventListener("input", () => renderGlobalResults(gInput.value));
-  gInput.addEventListener("keydown", (ev) => {
-    if (ev.key === "Enter") {
-      const first = $("#searchResults [data-go]");
-      if (first) { location.hash = first.getAttribute("data-go"); closeSearch(); }
-      else if (gInput.value.trim().length >= 2) { location.hash = "#/search?q=" + encodeURIComponent(gInput.value.trim()); closeSearch(); }
+    if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === "k") {
+      ev.preventDefault();
+      location.hash = "#/search";
     }
   });
-  $("#searchResults").addEventListener("click", (ev) => {
-    const b = ev.target.closest("[data-go]");
-    if (b) { location.hash = b.getAttribute("data-go"); closeSearch(); }
-  });
-}
-
-function openSearch() {
-  const ov = $("#searchOverlay");
-  ov.hidden = false;
-  const g = $("#globalSearch");
-  g.value = "";
-  renderGlobalResults("");
-  setTimeout(() => g.focus(), 30);
-  document.body.style.overflow = "hidden";
-}
-function closeSearch() {
-  const ov = $("#searchOverlay");
-  if (!ov.hidden) { ov.hidden = true; document.body.style.overflow = ""; }
-}
-
-function renderGlobalResults(qRaw) {
-  const box = $("#searchResults");
-  const q = String(qRaw || "").trim();
-  if (q.length < 2) {
-    box.innerHTML = `<p class="search-hint">اكتب حرفين على الأقل… مثال: «أطفال»، «صيدلية»، «تحاليل».<br>
-      أو تصفّح: <a href="#/doctors">الأطباء</a> · <a href="#/pharmacies">الصيدليات</a> · <a href="#/oncall">المناوبة</a> · <a href="#/ask">اسأل طبياً</a></p>`;
-    return;
-  }
-  const { entities, faqs } = searchAll(q);
-  const parts = [];
-  if (entities.length) {
-    parts.push(`<div class="result-group-label">جهات (${fmtNum(entities.length)})</div>`);
-    parts.push(entities.slice(0, 7).map((e) => `
-      <button class="suggest-item" type="button" data-go="#/entity/${e.id}">
-        <span class="s-icon" style="color:${TYPES[e.type].color}">${icon(TYPES[e.type].icon)}</span>
-        <span><strong>${esc(e.name)}</strong><small>${esc(e.spec || TYPES[e.type].label)} — ${esc(e.area)}</small></span>
-      </button>`).join(""));
-  }
-  if (faqs.length) {
-    parts.push(`<div class="result-group-label">إرشادات (${fmtNum(faqs.length)})</div>`);
-    parts.push(faqs.slice(0, 4).map((f) => `
-      <button class="suggest-item" type="button" data-go="#/ask">
-        <span class="s-icon">${icon("doc")}</span>
-        <span><strong>${esc(f.q)}</strong><small>${esc(f.cat)}</small></span>
-      </button>`).join(""));
-  }
-  box.innerHTML = parts.join("") ||
-    `<p class="search-hint">لا نتائج لـ«${esc(q)}». <a href="#/search?q=${encodeURIComponent(q)}">عرض البحث الكامل ←</a></p>`
-    + (q.length >= 2 ? `<div class="result-group-label">هل تقصد؟</div>
-      <button class="suggest-item" type="button" data-go="#/search?q=${encodeURIComponent(q)}">
-        <span class="s-icon">${icon("search")}</span>
-        <span><strong>عرض كل نتائج «${esc(q)}» في صفحة مخصصة</strong></span>
-      </button>` : "");
 }
 
 /* ================= الإقلاع ================= */
