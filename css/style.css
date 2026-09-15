@@ -1419,6 +1419,11 @@ a.entity-card:hover { color: var(--ink); }
 .hero-search-box .btn, .hero-search-btn { height: 36px; padding: 0 18px; font-size: 13.5px; border-radius: var(--r-sm); box-shadow: none; }
 .toolbar .search-field { padding: 6px 12px; }
 .toolbar .search-field input { font-size: 13.5px; }
+/* على الجوال يتحول شريط الأدوات لعمود فيصبح flex-basis ارتفاعاً — نلغيه */
+@media (max-width: 640px) {
+  .toolbar .search-field { flex: 0 0 auto; }
+  .ask-layout .toolbar .search-field { flex: 0 0 auto; }
+}
 .search-big input { height: 46px; font-size: 14px; }
 .search-big .btn { height: 34px; padding: 0 18px; }
 .search-head input { font-size: 14px; }
