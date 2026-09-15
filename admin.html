@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>لوحة إدارة دليل صوران — خاصة بمدير النظام</title>
+  <meta name="theme-color" content="#054239" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body class="adm-body">
+
+  <!-- شاشة الدخول -->
+  <div class="adm-login" id="admLogin" hidden>
+    <div class="adm-login-card">
+      <span class="adm-login-ic">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+      </span>
+      <h1>لوحة إدارة دليل صوران</h1>
+      <p>هذه اللوحة خاصة بمدير النظام — دخول بحساب الإدارة فقط</p>
+      <form id="admLoginForm" novalidate>
+        <input id="admUser" type="text" dir="ltr" placeholder="بريد المدير" autocomplete="username" />
+        <input id="admPass" type="password" dir="ltr" placeholder="كلمة السر" autocomplete="current-password" />
+        <p class="adm-login-err" id="admLoginErr" hidden>بيانات الدخول غير صحيحة أو الحساب ليس مديراً</p>
+        <button class="btn btn-primary btn-block" type="submit">دخول اللوحة</button>
+      </form>
+      <a class="adm-back" href="/">← العودة إلى الموقع</a>
+    </div>
+  </div>
+
+  <!-- التطبيق -->
+  <div class="adm-app" id="admApp" hidden>
+    <aside class="adm-side">
+      <div class="adm-brand">
+        <strong>دليل صوران</strong>
+        <small>لوحة إدارة النظام</small>
+      </div>
+      <nav class="adm-nav" id="admNav">
+        <button data-tab="overview" type="button">نظرة عامة</button>
+        <button data-tab="entities" type="button">الجهات</button>
+        <button data-tab="accounts" type="button">حسابات الجهات</button>
+        <button data-tab="ads" type="button">الإعلانات</button>
+        <button data-tab="questions" type="button">أسئلة الزوار</button>
+        <button data-tab="messages" type="button">رسائل التواصل</button>
+      </nav>
+      <div class="adm-side-foot">
+        <p class="adm-who" id="admWho" dir="ltr"></p>
+        <button class="adm-logout" id="admLogout" type="button">تسجيل الخروج</button>
+        <a class="adm-site-link" href="/">عرض الموقع ←</a>
+      </div>
+    </aside>
+    <main class="adm-main" id="admMain"></main>
+  </div>
+
+  <div class="toast-wrap" id="admToast" aria-live="polite"></div>
+
+  <script src="js/config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
