@@ -435,11 +435,11 @@ const PACKAGES = [
 
 /* ---------- بيانات المطوّر (بطاقة المطوّر في «عن المنصة» والتذييل) ---------- */
 SITE.developer = {
-  name: "كوساي الصالح",
+  name: "م. قصي مهند الصالح",
   title: "مطوّر وتقني المنصة",
-  phone: SITE.infoPhone,
-  instagram: "",
-  facebook: "",
+  phone: "+963952639157",
+  instagram: "https://www.instagram.com/kosai_al_saleh?igsh=cWM0dzEzaThqN2sz",
+  facebook: "https://www.facebook.com/share/17m6YZ1NKS/",
 };
 
 /* ---------- أدوات وصول سريعة للبيانات ---------- */

@@ -15,8 +15,12 @@ const esc = (s) =>
 
 const fmtNum = (n) => Number(n).toLocaleString("ar-EG");
 const fmtPhone = (p) => String(p).replace(/^(\d{4})(\d{3})(\d{3})$/, "$1 $2 $3");
-const telHref = (p) => "tel:+963" + String(p).replace(/^0/, "");
-const waHref = (p) => "https://wa.me/963" + String(p).replace(/^0/, "");
+const telHref = (p) => "tel:+963" + String(p).replace(/^\+?963/, "").replace(/^0/, "");
+const waHref = (p) => "https://wa.me/963" + String(p).replace(/^\+?963/, "").replace(/^0/, "");
+const mapsLink = (lat, lng, address) =>
+  lat && lng
+    ? "https://www.google.com/maps?q=" + lat + "," + lng
+    : "https://www.google.com/maps?q=" + encodeURIComponent(address || "صوران");
 
 const todayIdx = () => new Date().getDay();
 const initials = (name) =>
@@ -97,42 +101,45 @@ function typeBadge(e) {
   return `<a class="badge badge-blue" href="#/${routeSlug(e.type)}" style="--tc:${t.color}">${icon(t.icon)} ${t.label}</a>`;
 }
 
-function entityCard(e, { rank = false } = {}) {
+function entityCard(e, { rank = false, hours = false } = {}) {
   const t = TYPES[e.type];
-  const avatar = e.type === "doctor"
-    ? `<span class="entity-avatar" style="--tc:${t.color}">${esc(initials(e.name))}</span>`
-    : `<span class="entity-avatar" style="--tc:${t.color}">${icon(t.icon)}</span>`;
-
-  const badges = [];
-  if (e.type === "pharmacy" && e.shift24) badges.push(`<span class="badge badge-open">${icon("clock")} 24 ساعة</span>`);
-  if (e.type === "pharmacy" && isOnCallToday(e.id)) badges.push(`<span class="badge badge-amber">${icon("star")} مناوبة اليوم</span>`);
-  if (e.type === "hospital" && /24/.test(e.hours || "")) badges.push(`<span class="badge badge-rose">${icon("activity")} طوارئ 24</span>`);
-
-  const meta = [];
-  meta.push(`<span>${icon("pin")} <b>${esc(e.area)}</b></span>`);
-  if (e.type === "doctor") meta.push(`<span>${icon("briefcase")} خبرة ${fmtNum(e.exp)} سنة</span>`);
-  if (e.owner) meta.push(`<span>${icon("user")} ${esc(e.owner)}</span>`);
-  meta.push(`<span>${icon("clock")} ${esc(e.hours)}</span>`);
-  meta.push(`<span>${icon("phone")} <span dir="ltr">${fmtPhone(e.phone)}</span></span>`);
-
-  const services = (e.services || []).slice(0, 3).map((s) => `<span class="mini-tag">${esc(s)}</span>`).join("");
-  const extra = (e.services || []).length > 3 ? `<span class="mini-tag">+${fmtNum((e.services || []).length - 3)}</span>` : "";
+  const addr = [e.area, e.address].filter(Boolean).join(" — ");
 
   return `
-  <a class="entity-card" href="#/entity/${e.id}" style="--tc:${t.color}">
-    ${rank && e.featured && e.rank ? `<span class="rank-ribbon">${icon("star")} ${fmtNum(e.rank)}</span>` : ""}
-    <div class="entity-top">
-      ${avatar}
-      <div class="entity-id">
-        <h3>${esc(e.name)}</h3>
-        ${e.spec ? `<span class="spec">${esc(e.spec)} — ${esc(e.degree || "")}</span>` : `<span class="spec">${esc(t.label)}</span>`}
+  <article class="entity-card" data-go="#/entity/${e.id}" style="--tc:${t.color}" tabindex="0" role="link" aria-label="${esc(e.name)}">
+    ${e.featured && rank !== false && e.rank ? `<span class="rank-ribbon">${icon("star")} ${fmtNum(e.rank)}</span>` : ""}
+    <div class="ec-flex">
+      <div class="ec-media">${icon(t.icon)}</div>
+      <div class="ec-body">
+        <p class="ec-name">${esc(e.name)}</p>
+        <p class="ec-spec"><span class="ec-dot"></span>${esc(e.spec || t.label)}</p>
+        ${e.type === "doctor" && e.exp ? `<p class="ec-exp">خبرة ${fmtNum(e.exp)} سنوات</p>` : ""}
+        ${addr ? `<p class="ec-addr">${icon("pin")} <span>${esc(addr)}</span></p>` : ""}
+        ${hours ? `<p class="ec-hours">${icon("clock")} ${esc(e.hours)}</p>` : ""}
+        <div class="ec-meta2">
+          ${e.phone ? `<span class="ec-phone" dir="ltr">${icon("phone")} ${fmtPhone(e.phone)}</span>` : ""}
+          <a class="ec-map" data-stop href="${mapsLink(e.lat, e.lng, addr)}" target="_blank" rel="noopener">${icon("pin")} الموقع</a>
+        </div>
+      </div>
+      <div class="ec-side">
+        <span class="ec-arrow">${icon("arrowLeft")}</span>
+        <span class="ec-view">عرض</span>
       </div>
     </div>
-    ${badges.length ? `<div class="entity-badges">${badges.join("")}</div>` : ""}
-    <div class="entity-meta">${meta.join("")}</div>
-    ${services ? `<div class="entity-services">${services}${extra}</div>` : ""}
-  </a>`;
+  </article>`;
 }
+
+/* الضغط على البطاقة كاملة يفتح التفاصيل — عدا الروابط الداخلية الموسومة data-stop */
+document.addEventListener("click", (ev) => {
+  const go = ev.target.closest("[data-go]");
+  if (!go || ev.target.closest("[data-stop]")) return;
+  location.hash = go.getAttribute("data-go");
+});
+document.addEventListener("keydown", (ev) => {
+  if (ev.key !== "Enter") return;
+  const go = ev.target.closest("[data-go][role='link']");
+  if (go && !ev.target.closest("[data-stop]")) location.hash = go.getAttribute("data-go");
+});
 
 function isOnCallToday(id) {
   return (ONCALL[DAYS[todayIdx()]] || []).includes(id);
@@ -267,9 +274,7 @@ function viewHome() {
   return `
   <section class="container">
     <div class="hero">
-      <span class="hero-badge">${icon("sparkles")} الدليل الطبي الرسمي لمدينة صوران — نسخة تجريبية</span>
-      <h1>كل الخدمات الصحية في <em>صوران</em>… أقرب من أن تبحث عنها</h1>
-      <p class="hero-sub">أطباء وعيادات، صيدليات ومناوبة، مشافي ومخابر ومراكز صحية — كلها في دليل واحد محلي، بأرقام صحيحة ومواقع على الخريطة.</p>
+      <h1>كل ما تحتاجه من خدمات طبية في مدينة صوران — في مكان واحد</h1>
       <div class="hero-search">
         <div class="hero-search-box">
           ${icon("search")}
@@ -498,22 +503,7 @@ function viewOncall(params) {
       ${d}${i === today ? '<span class="t-badge">اليوم</span>' : ""}
     </button>`).join("");
 
-  const cards = list.length ? list.map((p) => `
-    <a class="entity-card" style="--tc:${TYPES.pharmacy.color}" href="#/entity/${p.id}">
-      <div class="entity-top">
-        <span class="entity-avatar" style="--tc:${TYPES.pharmacy.color}">${icon("pill")}</span>
-        <div class="entity-id">
-          <h3>${esc(p.name)}</h3>
-          <span class="spec">${esc(p.area)} — ${esc(p.owner || "")}</span>
-        </div>
-        ${p.shift24 ? `<span class="badge badge-open" style="margin-inline-start:auto">${icon("clock")} 24 ساعة</span>` : ""}
-      </div>
-      <div class="entity-meta">
-        <span>${icon("pin")} <b>${esc(p.address)}</b></span>
-        <span>${icon("clock")} أوقات الدوام: ${esc(p.hours)}</span>
-        <span>${icon("phone")} <span dir="ltr">${fmtPhone(p.phone)}</span></span>
-      </div>
-    </a>`).join("")
+  const cards = list.length ? list.map((p) => entityCard(p, { hours: true })).join("")
     : `<div class="empty-state">${icon("pill")}<h3>لا توجد صيدليات مناوبة مسجلة</h3><p>راجع جدول بقية الأيام أو تواصل مع الاستعلامات.</p></div>`;
 
   return `
@@ -566,19 +556,21 @@ function viewEntity(id) {
         <a href="#/">الرئيسية</a> ${icon("chevLeft")} <a href="#/${routeSlug(e.type)}">${t.plural}</a> ${icon("chevLeft")} <span>${esc(e.name)}</span>
       </nav>
       <div class="detail-card" style="--tc:${t.color}">
+        <div class="detail-banner"></div>
         <div class="detail-main">
           <span class="detail-avatar" style="--tc:${t.color}">${icon(t.icon)}</span>
           <div class="detail-title">
             <h1>${esc(e.name)}</h1>
             <p class="sub">${e.spec ? esc(e.spec) + " — " : ""}${esc(e.degree || t.label)}${e.owner ? " · " + esc(e.owner) : ""}</p>
-            <div class="entity-badges" style="margin-top:10px">${badges.join("")}</div>
+            <div class="entity-badges">${badges.join("")}</div>
           </div>
-          <div class="detail-actions">
-            <a class="btn btn-primary" href="${telHref(e.phone)}">${icon("phone")} اتصال مباشر</a>
-            ${e.whatsapp ? `<a class="btn btn-ghost" href="${waHref(e.phone)}" target="_blank" rel="noopener">${icon("chat")} واتساب</a>` : ""}
-            <button class="btn btn-ghost" type="button" data-copy="${esc(e.phone)}">${icon("copy")} نسخ الرقم</button>
-            <button class="btn btn-ghost btn-icon" type="button" id="btnShare" title="مشاركة">${icon("share")}</button>
-          </div>
+        </div>
+        <div class="detail-actions">
+          <a class="btn btn-primary" href="${telHref(e.phone)}">${icon("phone")} اتصال</a>
+          ${e.whatsapp ? `<a class="btn btn-ghost" href="${waHref(e.phone)}" target="_blank" rel="noopener">${icon("chat")} واتساب</a>` : ""}
+          <a class="btn btn-outline" href="${mapsLink(e.lat, e.lng, e.address)}" target="_blank" rel="noopener">${icon("pin")} الموقع</a>
+          <button class="btn btn-ghost" type="button" data-copy="${esc(e.phone)}">${icon("copy")} نسخ الرقم</button>
+          <button class="btn btn-ghost btn-icon" type="button" id="btnShare" title="مشاركة" aria-label="مشاركة">${icon("share")}</button>
         </div>
         <div class="detail-info">
           <div class="info-box">${icon("pin")}
@@ -596,7 +588,7 @@ function viewEntity(id) {
             <div><h4>الصفة</h4><p>${esc(e.degree)}</p><small>${esc(e.spec)}</small></div>
           </div>` : ""}
         </div>
-        ${e.note ? `<div class="note-box" style="margin-top:16px">${icon("info")}<p>${esc(e.note)}</p></div>` : ""}
+        ${e.note ? `<div style="padding:0 22px 20px"><div class="note-box">${icon("info")}<p>${esc(e.note)}</p></div></div>` : ""}
       </div>
     </div>
   </section>
@@ -854,12 +846,18 @@ function bindSearch() {
 /* ================= الصفحات الثابتة ================= */
 function viewAbout() {
   const features = [
-    { ic: "stetho", t: "دليل طبي موثّق", d: "الأطباء والعيادات والمشافي والصيدليات والمراكز الصحية في مكان واحد." },
-    { ic: "pin", t: "مواقع على الخريطة", d: "موقع كل جهة على الخريطة مع أقرب طريق للوصول." },
-    { ic: "moon", t: "الصيدليات المناوبة", d: "جدول المناوبة اليومي لمعرفة الصيدلية المفتوحة وقت الحاجة." },
-    { ic: "chat", t: "اسأل دليل صوران", d: "قاعدة أسئلة وأجوبة صحية ونصائح طبية موثوقة ومبسطة." },
-    { ic: "crown", t: "باقات للجهات", d: "باقات اشتراك شهرية تُبرز الجهة وتضاعف ظهورها في الدليل." },
-    { ic: "shieldCheck", t: "بيانات محدّثة", d: "أرقام الهواتف وساعات الدوام تُراجع وتُحدّث باستمرار من فريق المنصة." },
+    { ic: "stetho", t: "الأطباء والعيادات", d: "دليل كامل للأطباء مع التخصصات وسنوات الخبرة وأرقام التواصل المباشر." },
+    { ic: "pill", t: "الصيدليات", d: "صيدليات المدينة مع أوقات الدوام وشارة «تعمل 24 ساعة»." },
+    { ic: "moon", t: "صيدليات المناوبة", d: "جدول المناوبة الأسبوعي — اعرف الصيدلية المفتوحة اليوم فوراً." },
+    { ic: "hospital", t: "المشافي والمراكز", d: "المشافي والمراكز الصحية والمخابر ومراكز الأشعة في مكان واحد." },
+    { ic: "map", t: "خريطة تفاعلية", d: "مواقع كل الجهات على خريطة المدينة مع أقصر طريق للوصول." },
+    { ic: "chat", t: "اسأل طبياً", d: "إرشادات صحية موثوقة ومبسطة، وإرسال أسئلتك لفريق الدليل مباشرة." },
+  ];
+  const stats = [
+    { n: fmtNum(ENTITIES.length), l: "جهة طبية" },
+    { n: fmtNum(entitiesByType("doctor").length), l: "طبيب وعيادة" },
+    { n: fmtNum(entitiesByType("pharmacy").length), l: "صيدلية" },
+    { n: "6", l: "أقسام طبية" },
   ];
   return `
   <div class="container page-wrap">
@@ -870,7 +868,15 @@ function viewAbout() {
     <div class="about-hero">
       <span class="pill-badge">${icon("sparkles")} عن المنصة</span>
       <h1>دليل صوران الطبي</h1>
-      <p>منصة رقمية شاملة تجمع كل الخدمات الصحية في مدينة صوران — من الطبيب المناسب إلى الصيدلية المناوبة — في تجربة واحدة سريعة وسهلة من هاتفك.</p>
+      <p>منصة مجتمعية مجانية تجمع كل الخدمات الصحية في مدينة صوران — أطباء، صيدليات، مشافي، مخابر، أشعة ومراكز صحية — في مكان واحد، ببيانات محدّثة وخريطة تفاعلية وجدول مناوبة أسبوعي.</p>
+    </div>
+
+    <div class="about-stats">
+      ${stats.map((s) => `
+      <div class="about-stat">
+        <b>${s.n}</b>
+        <span>${s.l}</span>
+      </div>`).join("")}
     </div>
 
     <div class="card about-card">
@@ -912,10 +918,9 @@ function viewAbout() {
           <div class="dev-info">
             <p class="dev-name">${esc(SITE.developer.name)}</p>
             <p class="dev-role">${esc(SITE.developer.title || "مطوّر المنصة")}</p>
-            <p class="dev-desc">تطوير وإشراف فني كامل على المنصة — للدعم الفني والاستفسارات التقنية تواصل مباشرة عبر القنوات التالية.</p>
+            <p class="dev-desc">تطوير وإشراف فني كامل على المنصة — للإبلاغ عن خطأ في البيانات أو إضافة جهة جديدة أو الاستفسارات التقنية، تواصل مباشرة عبر القنوات التالية.</p>
             <div class="dev-actions">
               <a class="dev-btn dev-btn-phone" href="tel:${esc(SITE.developer.phone)}">${icon("phone")} <span dir="ltr">${fmtPhone(SITE.developer.phone)}</span></a>
-              <a class="dev-btn dev-btn-wa" href="${waHref(SITE.developer.phone)}" target="_blank" rel="noopener">${icon("chat")} واتساب</a>
               ${SITE.developer.instagram ? `<a class="dev-btn dev-btn-ig" href="${esc(SITE.developer.instagram)}" target="_blank" rel="noopener">${icon("instagram")} إنستغرام</a>` : ""}
               ${SITE.developer.facebook ? `<a class="dev-btn dev-btn-fb" href="${esc(SITE.developer.facebook)}" target="_blank" rel="noopener">${icon("facebook")} فيسبوك</a>` : ""}
             </div>
@@ -927,10 +932,10 @@ function viewAbout() {
     <div class="card support-card">
       <div class="support-row">
         <div>
-          <p class="support-title">دعم المنصة والإدارة</p>
-          <p class="support-sub">للإبلاغ عن خطأ في البيانات أو إضافة جهة جديدة أو الاستفسار عن الباقات.</p>
+          <p class="support-title">إضافة جهة أو تعديل بيانات</p>
+          <p class="support-sub">لإضافة جهة طبية جديدة للدليل أو تصحيح أي بيانات، تواصل مباشرة مع مطوّر المنصة عبر بطاقة المطوّر أعلاه أو الهاتف المجاور.</p>
         </div>
-        <a class="support-btn" href="tel:${SITE.infoPhone}">${icon("phone")} <span>${fmtPhone(SITE.infoPhone)}</span></a>
+        <a class="support-btn" href="tel:${esc(SITE.developer.phone)}">${icon("phone")} <span dir="ltr">${fmtPhone(SITE.developer.phone)}</span></a>
       </div>
     </div>
   </div>`;
@@ -946,7 +951,7 @@ function viewPackages() {
     </div>
     <div class="plans-grid">
       ${PACKAGES.map((p) => `
-        <a class="plan-card ${p.featured ? "is-gold" : ""}" href="#/contact">
+        <a class="plan-card ${p.featured ? "is-gold" : ""}" href="#/about">
           <span class="plan-ic ${p.id}">${icon(p.id === "free" ? "lock" : p.id === "pro" ? "sparkles" : "crown")}</span>
           <h3>${esc(p.name)}</h3>
           <p class="plan-desc">${esc(p.description)}</p>
@@ -988,87 +993,6 @@ function viewLogin() {
   </section>`;
 }
 
-function viewContact() {
-  return `
-  <section class="page-hero">
-    <div class="container">
-      <nav class="breadcrumb"><a href="#/">الرئيسية</a> ${icon("chevLeft")} <span>تواصل معنا</span></nav>
-      <h1>${icon("mail")} تواصل معنا</h1>
-      <p>ملاحظة على بيانات جهة؟ طلب إضافة؟ استفسار عن الاشتراك؟ فريق الدليل يرحّب برسائلك.</p>
-    </div>
-  </section>
-  <div class="container page-wrap">
-    <div class="ask-layout">
-      <div class="form-card">
-        <h3>أرسل رسالتك</h3>
-        <p>نجيب عادة خلال يوم عمل واحد. للحالات الطارئة لا تستخدم هذا النموذج — اتصل بالإسعاف.</p>
-        <form id="contactForm" class="form-grid" novalidate>
-          <div class="field">
-            <label for="ctName">الاسم</label>
-            <input id="ctName" type="text" placeholder="اسمك الكريم" required />
-          </div>
-          <div class="field">
-            <label for="ctPhone">رقم الهاتف أو البريد</label>
-            <input id="ctPhone" type="text" placeholder="كيف نصل إليك؟" required />
-          </div>
-          <div class="field">
-            <label for="ctTopic">الموضوع</label>
-            <select id="ctTopic">
-              <option>تصحيح بيانات جهة</option>
-              <option>إضافة جهة جديدة</option>
-              <option>استفسار عن الباقات</option>
-              <option>ملاحظة عامة</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="ctText">الرسالة</label>
-            <textarea id="ctText" placeholder="اكتب رسالتك هنا…" required></textarea>
-          </div>
-          <button class="btn btn-primary btn-block" type="submit">${icon("send")} إرسال</button>
-        </form>
-      </div>
-      <aside>
-        <div class="info-box" style="--tc:var(--brand-600)">${icon("phone")}
-          <div><h4>هاتف الاستعلامات</h4><p dir="ltr" style="text-align:end">${fmtPhone(SITE.infoPhone)}</p><small>${esc(SITE.workingHours)}</small></div>
-        </div>
-        <div class="info-box" style="--tc:var(--mint-500);margin-top:12px">${icon("mail")}
-          <div><h4>البريد الإلكتروني</h4><p dir="ltr" style="text-align:end">${esc(SITE.email)}</p></div>
-        </div>
-        <div class="info-box" style="--tc:var(--accent-600);margin-top:12px">${icon("pin")}
-          <div><h4>نطاق الخدمة</h4><p>مدينة صوران وضواحيها</p><small>${esc(SITE.region)}</small></div>
-        </div>
-        <div class="note-box" style="margin-top:12px">
-          ${icon("info")}
-          <p style="font-size:13.5px">أنت صاحب جهة طبية في صوران؟ <a href="#/packages">اطّلع على باقات الظهور</a> أو أرسل بياناتك لتضاف مجاناً إلى الباقة الأساسية.</p>
-        </div>
-      </aside>
-    </div>
-  </div>`;
-}
-
-function bindContact() {
-  const form = $("#contactForm");
-  if (!form) return;
-  form.addEventListener("submit", async (ev) => {
-    ev.preventDefault();
-    const msg = $("#ctText").value.trim();
-    if (msg.length < 10) { showToast("اكتب رسالة أوضح (10 أحرف على الأقل)", "warn"); return; }
-    const topic = $("#ctTopic").value;
-    const name = $("#ctName").value.trim();
-    const contact = $("#ctPhone").value.trim();
-    let arr = [];
-    try { arr = JSON.parse(localStorage.getItem("ds-messages") || "[]"); } catch (_) {}
-    arr.unshift({ topic, name, contact, msg, date: new Date().toLocaleDateString("ar-SY") });
-    localStorage.setItem("ds-messages", JSON.stringify(arr.slice(0, 20)));
-    const sent = await supabaseInsert("messages", { topic, name, contact, body: msg });
-    form.reset();
-    showToast(
-      sent ? "تم إرسال رسالتك — شكراً لتواصلك" : "حُفظت رسالتك محلياً (تعذّر الاتصال بالخادم)",
-      sent ? "ok" : "warn",
-    );
-  });
-}
-
 function view404() {
   return `
   <div class="container page-wrap">
@@ -1099,7 +1023,7 @@ function viewPrivacy() {
       <li><strong>تفضيل الوضع الليلي</strong> يُحفظ على جهازك فقط.</li>
     </ul>
     <h2>بيانات الجهات الطبية</h2>
-    <p>تُنشر بيانات الجهات (الاسم، التخصص، الهاتف، العنوان، أوقات العمل) بموافقة أصحابها ولأغراض الدليل فقط. صاحب الجهة يستطيع طلب تعديل أو حذف بياناته عبر <a href="#/contact">صفحة التواصل</a>.</p>
+    <p>تُنشر بيانات الجهات (الاسم، التخصص، الهاتف، العنوان، أوقات العمل) بموافقة أصحابها ولأغراض الدليل فقط. صاحب الجهة يستطيع طلب تعديل أو حذف بياناته عبر <a href="#/about">صفحة عن المنصة</a>.</p>
     <h2>حقوقك</h2>
     <p>يمكنك في أي وقت حذف أسئلتك المحفوظة محلياً من زر الحذف المرفق بكل سؤال، أو مسح بيانات الموقع من إعدادات المتصفح.</p>
   `);
@@ -1161,7 +1085,7 @@ function viewContentPolicy() {
       <li>أي جهة تُثبت معلومات مضللة عن مؤهلاتها تُوقف بياناتها حتى التحقق.</li>
     </ul>
     <h2>الإبلاغ عن محتوى</h2>
-    <p>رصدتَ معلومة خاطئة أو إرشاداً مثيراً للشك؟ أبلغنا عبر <a href="#/contact">صفحة التواصل</a> وسيُراجع المحتوى خلال يومي عمل.</p>
+    <p>رصدتَ معلومة خاطئة أو إرشاداً مثيراً للشك؟ أبلغنا عبر <a href="#/about">صفحة عن المنصة</a> وسيُراجع المحتوى خلال يومي عمل.</p>
   `);
 }
 
@@ -1239,6 +1163,195 @@ async function supabaseInsert(table, payload) {
   }
 }
 
+/* ================= لوحة التحكم (جلسة الجهة/الإدارة) ================= */
+function getSession() {
+  try { return JSON.parse(sessionStorage.getItem("ds-session") || "null"); } catch (_) { return null; }
+}
+
+async function dashApi(path, method = "GET") {
+  const s = getSession();
+  const H = supabaseHeaders();
+  if (!s || !H) return null;
+  try {
+    const r = await fetch(window.SUPABASE_CONFIG.url + path, {
+      method,
+      headers: { ...H, Authorization: "Bearer " + s.access_token },
+    });
+    if (r.status === 401 || r.status === 403) {
+      sessionStorage.removeItem("ds-session");
+      showToast("انتهت الجلسة — سجّل الدخول مجدداً", "warn");
+      location.hash = "#/login";
+      return null;
+    }
+    return r.ok ? r.json() : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function viewDashboard() {
+  const s = getSession();
+  if (!s) return viewLogin();
+  return `
+  <div class="container page-wrap dash-page">
+    <div class="card dash-head">
+      <span class="dash-av">${icon("shieldCheck")}</span>
+      <div class="dash-head-info">
+        <h1>لوحة التحكم</h1>
+        <p dir="ltr">${esc(s.email || "")}</p>
+      </div>
+      <div class="dash-head-actions">
+        <button class="btn btn-outline btn-sm" id="dashLogout" type="button">${icon("x")} خروج</button>
+        <a class="btn btn-primary btn-sm" href="#/">${icon("home")} عرض الموقع</a>
+      </div>
+    </div>
+
+    <div class="dash-stats">
+      <div class="card dash-stat"><span class="ds-ic ds-blue">${icon("doc")}</span><div><b id="dsQ">—</b><span>أسئلة الزوار</span></div></div>
+      <div class="card dash-stat"><span class="ds-ic ds-gold">${icon("mail")}</span><div><b id="dsM">—</b><span>رسائل التواصل</span></div></div>
+      <div class="card dash-stat"><span class="ds-ic ds-green">${icon("building")}</span><div><b id="dsE">—</b><span>جهات مسجلة</span></div></div>
+    </div>
+
+    <div class="card dash-section">
+      <h3>${icon("chat")} أسئلة الزوار</h3>
+      <div id="dashQuestions" class="dash-list"><p class="s-hint">جارٍ التحميل…</p></div>
+    </div>
+
+    <div class="card dash-section">
+      <h3>${icon("mail")} رسائل التواصل</h3>
+      <div id="dashMessages" class="dash-list"><p class="s-hint">جارٍ التحميل…</p></div>
+    </div>
+
+    <div class="card dash-section">
+      <h3>${icon("building")} الجهات المسجلة</h3>
+      <div id="dashEntities" class="dash-list"><p class="s-hint">جارٍ التحميل…</p></div>
+    </div>
+  </div>`;
+}
+
+async function loadDashboard() {
+  if (!getSession()) return;
+  const qs = await dashApi("/rest/v1/questions?select=*&order=created_at.desc");
+  const ms = await dashApi("/rest/v1/messages?select=*&order=created_at.desc");
+  const es = await dashApi("/rest/v1/entities?select=id,name,type,area,phone&order=sort_order.asc,id.asc");
+
+  const qEl = $("#dsQ"), mEl = $("#dsM"), eEl = $("#dsE");
+  if (qEl) qEl.textContent = fmtNum(qs ? qs.length : 0);
+  if (mEl) mEl.textContent = fmtNum(ms ? ms.length : 0);
+  if (eEl) eEl.textContent = fmtNum(es ? es.length : 0);
+
+  const qList = $("#dashQuestions");
+  if (qList) qList.innerHTML = (qs && qs.length) ? qs.map((q) => `
+    <div class="dash-item">
+      <div class="di-body">
+        <p class="di-main">${esc(q.question)}</p>
+        <p class="di-meta">${[q.name, q.phone, new Date(q.created_at).toLocaleDateString("ar-SY")].filter(Boolean).map(esc).join(" · ")}</p>
+      </div>
+      <button class="dash-del" type="button" data-del-q="${esc(q.id)}" aria-label="حذف السؤال">${icon("x")}</button>
+    </div>`).join("") : `<p class="s-hint">لا توجد أسئلة بعد.</p>`;
+
+  const mList = $("#dashMessages");
+  if (mList) mList.innerHTML = (ms && ms.length) ? ms.map((m) => `
+    <div class="dash-item">
+      <div class="di-body">
+        <p class="di-main"><span class="badge badge-blue">${esc(m.topic || "رسالة")}</span> ${esc(m.body)}</p>
+        <p class="di-meta">${[m.name, m.contact, new Date(m.created_at).toLocaleDateString("ar-SY")].filter(Boolean).map(esc).join(" · ")}</p>
+      </div>
+      <button class="dash-del" type="button" data-del-m="${esc(m.id)}" aria-label="حذف الرسالة">${icon("x")}</button>
+    </div>`).join("") : `<p class="s-hint">لا توجد رسائل بعد.</p>`;
+
+  const eList = $("#dashEntities");
+  if (eList) eList.innerHTML = (es && es.length) ? es.map((e) => `
+    <div class="dash-item">
+      <div class="di-body">
+        <p class="di-main">${esc(e.name)}</p>
+        <p class="di-meta">${esc(TYPES[e.type] ? TYPES[e.type].label : e.type)}${e.area ? " · " + esc(e.area) : ""}</p>
+      </div>
+      <a class="dash-view" href="#/entity/${esc(e.id)}">عرض</a>
+    </div>`).join("") : `<p class="s-hint">لا توجد جهات.</p>`;
+}
+
+function bindDashboard() {
+  if (!getSession()) return;
+  loadDashboard();
+  const out = $("#dashLogout");
+  if (out) out.addEventListener("click", () => {
+    sessionStorage.removeItem("ds-session");
+    showToast("تم تسجيل الخروج");
+    location.hash = "#/login";
+  });
+  const page = $(".dash-page");
+  if (page) page.addEventListener("click", async (ev) => {
+    const dq = ev.target.closest("[data-del-q]");
+    const dm = ev.target.closest("[data-del-m]");
+    if (dq) {
+      const ok = await dashApi("/rest/v1/questions?id=eq." + dq.getAttribute("data-del-q"), "DELETE");
+      showToast(ok ? "تم حذف السؤال" : "تعذر الحذف", ok ? "ok" : "err");
+      if (ok) loadDashboard();
+    }
+    if (dm) {
+      const ok = await dashApi("/rest/v1/messages?id=eq." + dm.getAttribute("data-del-m"), "DELETE");
+      showToast(ok ? "تم حذف الرسالة" : "تعذر الحذف", ok ? "ok" : "err");
+      if (ok) loadDashboard();
+    }
+  });
+}
+
+/* ربط نموذج الدخول — يُستخدم في صفحة الدخول ولوحة التحكم عند انتهاء الجلسة */
+function bindLoginForm() {
+  const f = $("#loginForm");
+  if (!f) return;
+  f.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const user = $("#lgUser").value.trim();
+    const pass = $("#lgPass").value;
+    const errEl = $("#loginError");
+    if (errEl) errEl.hidden = true;
+    if (!user || !pass) return showToast("أدخل البريد وكلمة السر", "warn");
+    const cfg = window.SUPABASE_CONFIG;
+    if (!cfg || !cfg.url || !cfg.anonKey) return showToast("نظام الدخول غير مهيأ بعد", "warn");
+    try {
+      const r = await fetch(cfg.url + "/auth/v1/token?grant_type=password", {
+        method: "POST",
+        headers: { apikey: cfg.anonKey, "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user, password: pass }),
+      });
+      if (r.ok) {
+        const s = await r.json();
+        try {
+          sessionStorage.setItem("ds-session", JSON.stringify({
+            access_token: s.access_token,
+            refresh_token: s.refresh_token,
+            expires_at: s.expires_at,
+            email: (s.user && s.user.email) || user,
+          }));
+        } catch (_) {}
+        showToast("تم تسجيل الدخول بنجاح — مرحباً بك");
+        location.hash = "#/dashboard";
+      } else {
+        if (errEl) errEl.hidden = false;
+        showToast("بيانات الدخول غير صحيحة أو الحساب غير مُنشأ بعد", "err");
+      }
+    } catch (_) {
+      showToast("تعذّر الاتصال بخدمة الدخول", "warn");
+    }
+  });
+}
+
+/* زر «دخول الجهة / لوحة التحكم» في الترويسة حسب الجلسة */
+function updateEntityBtn() {
+  const btn = $("#entityBtn");
+  if (!btn) return;
+  const label = btn.querySelector("span");
+  if (getSession()) {
+    btn.setAttribute("href", "#/dashboard");
+    if (label) label.textContent = "لوحة التحكم";
+  } else {
+    btn.setAttribute("href", "#/login");
+    if (label) label.textContent = "دخول الجهة";
+  }
+}
+
 /* ================= التوجيه ================= */
 const ROUTES = [
   { re: /^\/$/, key: "home", title: "الرئيسية", view: () => viewHome(), after: afterHome },
@@ -1253,38 +1366,9 @@ const ROUTES = [
   { re: /^\/ask$/, key: "ask", title: "اسأل طبياً", view: viewAsk, after: bindAsk },
   { re: /^\/search$/, key: "", title: "البحث", view: viewSearch, after: () => bindSearch() },
   { re: /^\/about$/, key: "about", title: "عن المنصة", view: viewAbout },
-  { re: /^\/contact$/, key: "contact", title: "تواصل معنا", view: viewContact, after: bindContact },
   { re: /^\/packages$/, key: "", title: "باقات الاشتراك", view: viewPackages },
-  { re: /^\/login$/, key: "login", title: "دخول الجهة", view: viewLogin, after: () => {
-      const f = $("#loginForm");
-      if (f) f.addEventListener("submit", async (ev) => {
-        ev.preventDefault();
-        const user = $("#lgUser").value.trim();
-        const pass = $("#lgPass").value;
-        const errEl = $("#loginError");
-        if (errEl) errEl.hidden = true;
-        if (!user || !pass) return showToast("أدخل البريد وكلمة السر", "warn");
-        const cfg = window.SUPABASE_CONFIG;
-        if (!cfg || !cfg.url || !cfg.anonKey) return showToast("نظام الدخول غير مهيأ بعد", "warn");
-        try {
-          const r = await fetch(cfg.url + "/auth/v1/token?grant_type=password", {
-            method: "POST",
-            headers: { apikey: cfg.anonKey, "Content-Type": "application/json" },
-            body: JSON.stringify({ email: user, password: pass }),
-          });
-          if (r.ok) {
-            const s = await r.json();
-            try { sessionStorage.setItem("ds-session", JSON.stringify({ email: s.user && s.user.email || user })); } catch (_) {}
-            showToast("تم تسجيل الدخول بنجاح — مرحباً بك");
-          } else {
-            if (errEl) errEl.hidden = false;
-            showToast("بيانات الدخول غير صحيحة أو الحساب غير مُنشأ بعد", "err");
-          }
-        } catch (_) {
-          showToast("تعذّر الاتصال بخدمة الدخول", "warn");
-        }
-      });
-    } },
+  { re: /^\/dashboard$/, key: "dashboard", title: "لوحة التحكم", view: viewDashboard, after: () => { getSession() ? bindDashboard() : bindLoginForm(); } },
+  { re: /^\/login$/, key: "login", title: "دخول الجهة", view: viewLogin, after: () => bindLoginForm() },
   { re: /^\/privacy$/, key: "", title: "سياسة الخصوصية", view: viewPrivacy },
   { re: /^\/terms$/, key: "", title: "شروط الاستخدام", view: viewTerms },
   { re: /^\/disclaimer$/, key: "", title: "إخلاء المسؤولية الطبية", view: viewDisclaimer },
@@ -1328,6 +1412,7 @@ function render() {
   view.innerHTML = route.view(q, m || []);
   document.title = `${route.title} — ${SITE.name}`;
   setActiveNav(route.key || navKeyFor(path));
+  updateEntityBtn();
   window.scrollTo({ top: 0 });
   if (route.after) route.after(q, m || []);
   lastRendered = path;
