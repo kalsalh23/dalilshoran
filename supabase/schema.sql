@@ -66,6 +66,19 @@ create table if not exists public.messages (
   created_at timestamptz not null default now()
 );
 
+-- ---------- الإعلانات (تُدار بالكامل من لوحة التحكم) ----------
+create table if not exists public.ads (
+  id         uuid primary key default gen_random_uuid(),
+  title      text not null,
+  body       text,
+  image_url  text,
+  link_url   text,
+  placement  text not null default 'home' check (placement in ('home','detail','all')),
+  active     boolean not null default true,
+  sort_order integer not null default 100,
+  created_at timestamptz not null default now()
+);
+
 -- ============================================================
 -- أمان الصفوف (RLS)
 -- ============================================================
@@ -74,18 +87,40 @@ alter table public.oncall    enable row level security;
 alter table public.faq       enable row level security;
 alter table public.questions enable row level security;
 alter table public.messages  enable row level security;
+alter table public.ads       enable row level security;
 
 drop policy if exists "entities_public_select"  on public.entities;
 drop policy if exists "oncall_public_select"    on public.oncall;
 drop policy if exists "faq_public_select"       on public.faq;
 drop policy if exists "questions_public_insert" on public.questions;
 drop policy if exists "messages_public_insert"  on public.messages;
+drop policy if exists "ads_public_select"       on public.ads;
 
 -- القراءة العامة للدليل
 create policy "entities_public_select"  on public.entities  for select to anon, authenticated using (active);
 create policy "oncall_public_select"    on public.oncall    for select to anon, authenticated using (true);
 create policy "faq_public_select"       on public.faq       for select to anon, authenticated using (true);
+create policy "ads_public_select"       on public.ads       for select to anon, authenticated using (active);
 
 -- الإدخال فقط (بدون قراءة) لحماية خصوصية المرسلين
 create policy "questions_public_insert" on public.questions for insert to anon with check (true);
 create policy "messages_public_insert"  on public.messages  for insert to anon with check (true);
+
+-- ============================================================
+-- صلاحيات لوحة التحكم (مستخدم مسجّل = أدمن)
+-- انظر أيضاً: admin-policies.sql و admin-full.sql
+-- ============================================================
+create policy "entities_admin_select"  on public.entities  for select  to authenticated using (true);
+create policy "entities_admin_insert"  on public.entities  for insert  to authenticated with check (true);
+create policy "entities_admin_update"  on public.entities  for update  to authenticated using (true);
+create policy "entities_admin_delete"  on public.entities  for delete  to authenticated using (true);
+create policy "oncall_admin_insert"    on public.oncall    for insert  to authenticated with check (true);
+create policy "oncall_admin_delete"    on public.oncall    for delete  to authenticated using (true);
+create policy "ads_admin_select"       on public.ads       for select  to authenticated using (true);
+create policy "ads_admin_insert"       on public.ads       for insert  to authenticated with check (true);
+create policy "ads_admin_update"       on public.ads       for update  to authenticated using (true);
+create policy "ads_admin_delete"       on public.ads       for delete  to authenticated using (true);
+create policy "questions_admin_select" on public.questions for select  to authenticated using (true);
+create policy "questions_admin_delete" on public.questions for delete  to authenticated using (true);
+create policy "messages_admin_select"  on public.messages  for select  to authenticated using (true);
+create policy "messages_admin_delete"  on public.messages  for delete  to authenticated using (true);

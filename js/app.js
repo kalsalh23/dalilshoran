@@ -89,6 +89,7 @@ const state = {
   oncallDay: todayIdx(),
   askCat: "الكل",
   askQuery: "",
+  dashTab: "entities",
   filters: {},
 };
 ["doctor", "pharmacy", "hospital", "lab", "radiology", "health-center"].forEach((t) => {
@@ -280,6 +281,8 @@ function viewHome() {
       </div>
     </div>
   </section>
+
+  ${adsStrip("home") ? `<section class="container" style="margin-top:14px">${adsStrip("home")}</section>` : ""}
 
   <section class="section container">
     <div class="section-head">
@@ -582,6 +585,7 @@ function viewEntity(id) {
   </section>
 
   <div class="container page-wrap">
+    ${adsStrip("detail") ? `<div style="margin-bottom:20px">${adsStrip("detail")}</div>` : ""}
     ${services ? `
     <div class="detail-section">
       <div class="section-head"><div><h2>${e.type === "doctor" ? "التخصصات والخدمات" : "الخدمات المتوفرة"}</h2></div></div>
@@ -1096,7 +1100,7 @@ function supabaseHeaders() {
   return { apikey: cfg.anonKey, Authorization: "Bearer " + cfg.anonKey };
 }
 
-/* تحميل الجهات والمناوبة والأسئلة من Supabase — عند الفشل تبقى بيانات data.js */
+/* تحميل الجهات والمناوبة والأسئلة والإعلانات من Supabase — عند الفشل تبقى بيانات data.js */
 async function loadRemoteData() {
   const H = supabaseHeaders();
   if (!H) return false;
@@ -1105,10 +1109,11 @@ async function loadRemoteData() {
       .then((r) => (r.ok ? r.json() : null))
       .catch(() => null);
 
-  const [ent, onc, faq] = await Promise.all([
+  const [ent, onc, faq, ads] = await Promise.all([
     get("/rest/v1/entities?select=*&order=sort_order.asc,id.asc"),
     get("/rest/v1/oncall?select=*"),
     get("/rest/v1/faq?select=*&order=sort_order.asc,id.asc"),
+    get("/rest/v1/ads?select=*&active=eq.true&order=sort_order.asc,created_at.asc"),
   ]);
 
   let used = false;
@@ -1132,7 +1137,29 @@ async function loadRemoteData() {
     FAQ.push(...faq);
     used = true;
   }
+  if (Array.isArray(ads)) {
+    ADS.length = 0;
+    ADS.push(...ads);
+  }
   return used;
+}
+
+/* شريط الإعلانات — يُستخدم في الرئيسية وصفحات التفاصيل */
+function adBanner(a) {
+  return `
+  <a class="ad-banner" href="${esc(a.link_url || "#")}" ${a.link_url ? 'target="_blank" rel="noopener"' : ""}>
+    ${a.image_url ? `<img src="${esc(a.image_url)}" alt="" loading="lazy" />` : ""}
+    <span class="ad-body">
+      <span class="ad-tag">${icon("sparkles")} إعلان</span>
+      <b>${esc(a.title)}</b>
+      ${a.body ? `<small>${esc(a.body)}</small>` : ""}
+    </span>
+    ${a.link_url ? `<span class="ad-go">${icon("arrowLeft")}</span>` : ""}
+  </a>`;
+}
+function adsStrip(placement) {
+  const list = (window.ADS || ADS).filter((a) => a.placement === placement || a.placement === "all");
+  return list.length ? `<div class="ads-strip">${list.map(adBanner).join("")}</div>` : "";
 }
 
 /* إدخال سجل (سؤال/رسالة) في Supabase — أفضل جهد، يعود false عند الفشل */
@@ -1156,22 +1183,42 @@ function getSession() {
   try { return JSON.parse(sessionStorage.getItem("ds-session") || "null"); } catch (_) { return null; }
 }
 
-async function dashApi(path, method = "GET") {
-  const s = getSession();
+async function dashApi(path, method = "GET", body = null) {
   const H = supabaseHeaders();
+  let s = getSession();
   if (!s || !H) return null;
+  const cfg = window.SUPABASE_CONFIG;
+  const call = (tok) => fetch(cfg.url + path, {
+    method,
+    headers: { ...H, Authorization: "Bearer " + tok, ...(body ? { "Content-Type": "application/json" } : {}) },
+    body: body ? JSON.stringify(body) : undefined,
+  });
   try {
-    const r = await fetch(window.SUPABASE_CONFIG.url + path, {
-      method,
-      headers: { ...H, Authorization: "Bearer " + s.access_token },
-    });
+    let r = await call(s.access_token);
+    /* انتهت صلاحية الجلسة — تجديد صامت عبر refresh_token ثم إعادة المحاولة مرة */
+    if (r.status === 401 && s.refresh_token) {
+      const rr = await fetch(cfg.url + "/auth/v1/token?grant_type=refresh_token", {
+        method: "POST",
+        headers: { apikey: cfg.anonKey, "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh_token: s.refresh_token }),
+      });
+      if (rr.ok) {
+        const ns = await rr.json();
+        s = { ...s, access_token: ns.access_token, refresh_token: ns.refresh_token, expires_at: ns.expires_at };
+        try { sessionStorage.setItem("ds-session", JSON.stringify(s)); } catch (_) {}
+        r = await call(s.access_token);
+      }
+    }
     if (r.status === 401 || r.status === 403) {
       sessionStorage.removeItem("ds-session");
       showToast("انتهت الجلسة — سجّل الدخول مجدداً", "warn");
       location.hash = "#/login";
       return null;
     }
-    return r.ok ? r.json() : null;
+    if (r.status === 204) return true;
+    const txt = await r.text();
+    if (!r.ok) return null;
+    return txt ? JSON.parse(txt) : true;
   } catch (_) {
     return null;
   }
@@ -1180,12 +1227,19 @@ async function dashApi(path, method = "GET") {
 function viewDashboard() {
   const s = getSession();
   if (!s) return viewLogin();
+  const tab = state.dashTab || "entities";
+  const tabs = [
+    ["entities", "building", "الجهات"],
+    ["ads", "sparkles", "الإعلانات"],
+    ["questions", "chat", "أسئلة الزوار"],
+    ["messages", "mail", "رسائل التواصل"],
+  ];
   return `
   <div class="container page-wrap dash-page">
     <div class="card dash-head">
       <span class="dash-av">${icon("shieldCheck")}</span>
       <div class="dash-head-info">
-        <h1>لوحة التحكم</h1>
+        <h1>لوحة التحكم الشاملة</h1>
         <p dir="ltr">${esc(s.email || "")}</p>
       </div>
       <div class="dash-head-actions">
@@ -1195,94 +1249,445 @@ function viewDashboard() {
     </div>
 
     <div class="dash-stats">
-      <div class="card dash-stat"><span class="ds-ic ds-blue">${icon("doc")}</span><div><b id="dsQ">—</b><span>أسئلة الزوار</span></div></div>
-      <div class="card dash-stat"><span class="ds-ic ds-gold">${icon("mail")}</span><div><b id="dsM">—</b><span>رسائل التواصل</span></div></div>
-      <div class="card dash-stat"><span class="ds-ic ds-green">${icon("building")}</span><div><b id="dsE">—</b><span>جهات مسجلة</span></div></div>
+      <div class="card dash-stat"><span class="ds-ic ds-green">${icon("building")}</span><div><b id="dsE">—</b><span>جهة مسجلة</span></div></div>
+      <div class="card dash-stat"><span class="ds-ic ds-gold">${icon("sparkles")}</span><div><b id="dsA">—</b><span>إعلان</span></div></div>
+      <div class="card dash-stat"><span class="ds-ic ds-blue">${icon("chat")}</span><div><b id="dsQ">—</b><span>سؤال زائر</span></div></div>
+      <div class="card dash-stat"><span class="ds-ic ds-gold">${icon("mail")}</span><div><b id="dsM">—</b><span>رسالة تواصل</span></div></div>
     </div>
 
-    <div class="card dash-section">
-      <h3>${icon("chat")} أسئلة الزوار</h3>
-      <div id="dashQuestions" class="dash-list"><p class="s-hint">جارٍ التحميل…</p></div>
+    <div class="dash-tabs" role="tablist" aria-label="أقسام اللوحة">
+      ${tabs.map(([k, ic, label]) => `
+        <button class="dash-tab ${tab === k ? "active" : ""}" type="button" role="tab" data-tab="${k}">${icon(ic)} ${label}</button>`).join("")}
     </div>
 
-    <div class="card dash-section">
-      <h3>${icon("mail")} رسائل التواصل</h3>
-      <div id="dashMessages" class="dash-list"><p class="s-hint">جارٍ التحميل…</p></div>
-    </div>
-
-    <div class="card dash-section">
-      <h3>${icon("building")} الجهات المسجلة</h3>
-      <div id="dashEntities" class="dash-list"><p class="s-hint">جارٍ التحميل…</p></div>
-    </div>
+    <div id="dashBody"><p class="s-hint">جارٍ التحميل…</p></div>
   </div>`;
 }
 
-async function loadDashboard() {
-  if (!getSession()) return;
+/* إحصائيات اللوحة — أعداد سريعة */
+async function loadDashStats() {
+  const [qs, ms, es, as] = await Promise.all([
+    dashApi("/rest/v1/questions?select=id"),
+    dashApi("/rest/v1/messages?select=id"),
+    dashApi("/rest/v1/entities?select=id"),
+    dashApi("/rest/v1/ads?select=id"),
+  ]);
+  const set = (id, v) => { const el = $("#" + id); if (el) el.textContent = fmtNum(Array.isArray(v) ? v.length : 0); };
+  set("dsQ", qs); set("dsM", ms); set("dsE", es); set("dsA", as);
+}
+
+const dashErr = (msg) => `
+  <div class="empty-state">${icon("alert")}<h3>${esc(msg)}</h3><p>قد تكون الجلسة منتهية — سجّل الدخول من جديد.</p></div>`;
+
+/* ---------- تبويب الجهات ---------- */
+async function renderEntitiesTab(el) {
+  const list = await dashApi("/rest/v1/entities?select=*&order=sort_order.asc,id.asc");
+  if (!Array.isArray(list)) { el.innerHTML = dashErr("تعذر تحميل الجهات"); return; }
+  const st = $("#dsE"); if (st) st.textContent = fmtNum(list.length);
+  el.innerHTML = `
+    <div class="dash-toolbar">
+      <button class="btn btn-primary btn-sm" type="button" id="btnAddEntity">${icon("plus")} إضافة جهة جديدة</button>
+      <span class="dash-hint">الحفظ يظهر في الموقع فوراً — الإيقاف يخفي الجهة دون حذفها</span>
+    </div>
+    <div id="entityFormWrap"></div>
+    <div class="dash-list">
+      ${list.length ? list.map((e) => `
+      <div class="dash-item">
+        <div class="di-body">
+          <p class="di-main">${esc(e.name)} <span class="badge badge-blue">${esc(TYPES[e.type] ? TYPES[e.type].label : e.type)}</span>${e.featured ? ' <span class="badge badge-amber">مميزة</span>' : ""}${e.active ? "" : ' <span class="badge badge-rose">موقوفة</span>'}</p>
+          <p class="di-meta">${[e.spec, e.area, e.phone].filter(Boolean).map(esc).join(" · ")}</p>
+        </div>
+        <div class="di-actions">
+          <button class="dash-btn" type="button" data-ent-edit="${esc(e.id)}">${icon("doc")} تعديل</button>
+          <button class="dash-btn" type="button" data-ent-toggle="${esc(e.id)}" data-active="${e.active ? 1 : 0}">${e.active ? "إيقاف" : "تفعيل"}</button>
+          <button class="dash-btn danger" type="button" data-ent-del="${esc(e.id)}">${icon("x")} حذف</button>
+        </div>
+      </div>`).join("") : `<p class="s-hint">لا توجد جهات.</p>`}
+    </div>`;
+}
+
+function openEntityForm(wrap, e, oncallDays) {
+  const isNew = !e;
+  const v = e || { type: "doctor", active: true, sort_order: 100, services: [], lat: SITE.center[0], lng: SITE.center[1] };
+  wrap.innerHTML = `
+  <div class="card entity-form">
+    <h3>${isNew ? icon("plus") + " إضافة جهة جديدة" : icon("doc") + " تعديل: " + esc(e.name)}</h3>
+    <form id="entForm" class="ef-grid" novalidate>
+      <input type="hidden" id="efId" value="${esc(e ? e.id : "")}" />
+      <label>النوع
+        <select id="efType">
+          ${Object.entries(TYPES).map(([k, t]) => `<option value="${k}" ${v.type === k ? "selected" : ""}>${esc(t.label)}</option>`).join("")}
+        </select>
+      </label>
+      <label>الاسم *
+        <input id="efName" required value="${esc(v.name || "")}" placeholder="د. / صيدلية / مشفى…" />
+      </label>
+      <label>التخصص
+        <input id="efSpec" value="${esc(v.spec || "")}" placeholder="طب عام، باطنية…" />
+      </label>
+      <label>الصفة / الدرجة
+        <input id="efDegree" value="${esc(v.degree || "")}" placeholder="أخصائي، طبيب عام…" />
+      </label>
+      <label>سنوات الخبرة
+        <input id="efExp" type="number" min="0" value="${v.exp ?? ""}" />
+      </label>
+      <label>المنطقة
+        <input id="efArea" value="${esc(v.area || "")}" placeholder="وسط المدينة…" />
+      </label>
+      <label>العنوان
+        <input id="efAddress" value="${esc(v.address || "")}" />
+      </label>
+      <label>الهاتف
+        <input id="efPhone" dir="ltr" value="${esc(v.phone || "")}" placeholder="09XX XXX XXX" />
+      </label>
+      <label>أوقات العمل
+        <input id="efHours" value="${esc(v.hours || "")}" placeholder="يومياً 10 ص – 8 م" />
+      </label>
+      <label>الترتيب (الأصغر أولاً)
+        <input id="efSort" type="number" value="${v.sort_order ?? 100}" />
+      </label>
+      <div class="ef-full ef-checks">
+        <label><input type="checkbox" id="efWa" ${v.whatsapp ? "checked" : ""}/> واتساب</label>
+        <label><input type="checkbox" id="efFeat" ${v.featured ? "checked" : ""}/> جهة مميزة</label>
+        <label><input type="checkbox" id="ef24" ${v.shift24 ? "checked" : ""}/> تعمل 24 ساعة</label>
+        <label><input type="checkbox" id="efActive" ${v.active ? "checked" : ""}/> نشطة في الموقع</label>
+      </div>
+      <label class="ef-full">الخدمات (افصل بينها بفاصلة)
+        <input id="efServices" value="${esc((v.services || []).join("، "))}" placeholder="فحص عام، متابعة ضغط…" />
+      </label>
+      <label class="ef-full">نبذة
+        <textarea id="efNote" rows="2">${esc(v.note || "")}</textarea>
+      </label>
+      <label>خط العرض lat
+        <input id="efLat" dir="ltr" value="${v.lat ?? ""}" />
+      </label>
+      <label>خط الطول lng
+        <input id="efLng" dir="ltr" value="${v.lng ?? ""}" />
+      </label>
+      <div class="ef-full" id="efOncallWrap">
+        <p class="ef-oncall-title">أيام المناوبة (للصيدليات)</p>
+        <div class="ef-days">
+          ${DAYS.map((d) => `<label class="ef-day"><input type="checkbox" value="${esc(d)}" data-day ${(oncallDays || []).includes(d) ? "checked" : ""}/> ${esc(d)}</label>`).join("")}
+        </div>
+      </div>
+      <div class="ef-full ef-actions">
+        <button class="btn btn-primary" type="submit">${isNew ? icon("plus") + " إضافة الجهة" : icon("check") + " حفظ التعديلات"}</button>
+        <button class="btn btn-ghost" type="button" id="efCancel">إلغاء</button>
+      </div>
+    </form>
+  </div>`;
+  const typeSel = $("#efType");
+  const syncOncall = () => { const w = $("#efOncallWrap"); if (w) w.hidden = typeSel.value !== "pharmacy"; };
+  typeSel.addEventListener("change", syncOncall);
+  syncOncall();
+  $("#efCancel").addEventListener("click", () => { wrap.innerHTML = ""; });
+  wrap.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function saveEntity(form) {
+  const id = $("#efId").value.trim();
+  const type = $("#efType").value;
+  const name = $("#efName").value.trim();
+  if (!name) return showToast("اكتب اسم الجهة", "warn");
+  const so = Number($("#efSort").value) || 100;
+  const num = (sel) => ($(sel).value.trim() === "" ? null : Number($(sel).value));
+  const payload = {
+    id: id || "e" + Date.now().toString(36),
+    type,
+    name,
+    spec: $("#efSpec").value.trim() || null,
+    degree: $("#efDegree").value.trim() || null,
+    exp: num("#efExp"),
+    area: $("#efArea").value.trim() || null,
+    address: $("#efAddress").value.trim() || null,
+    phone: $("#efPhone").value.trim() || null,
+    whatsapp: $("#efWa").checked,
+    hours: $("#efHours").value.trim() || null,
+    featured: $("#efFeat").checked,
+    shift24: $("#ef24").checked,
+    active: $("#efActive").checked,
+    rank: so,
+    sort_order: so,
+    services: $("#efServices").value.split(/[,،]/).map((x) => x.trim()).filter(Boolean),
+    note: $("#efNote").value.trim() || null,
+    lat: num("#efLat"),
+    lng: num("#efLng"),
+  };
+  const saved = id
+    ? await dashApi("/rest/v1/entities?id=eq." + encodeURIComponent(id), "PATCH", payload)
+    : await dashApi("/rest/v1/entities", "POST", payload);
+  if (saved === null) return showToast("تعذر الحفظ — تحقق من الجلسة وأعد المحاولة", "err");
+  /* جدول المناوبة للصيدليات */
+  if (type === "pharmacy") {
+    const days = $$("#efOncallWrap [data-day]:checked").map((c) => c.value);
+    await dashApi("/rest/v1/oncall?pharmacy_id=eq." + encodeURIComponent(payload.id), "DELETE");
+    if (days.length) await dashApi("/rest/v1/oncall", "POST", days.map((d) => ({ day: d, pharmacy_id: payload.id })));
+  }
+  showToast(id ? "تم حفظ التعديلات" : "تمت إضافة الجهة — ظاهرة في الموقع الآن", "ok");
+  loadRemoteData();
+  return true;
+}
+
+/* ---------- تبويب الإعلانات ---------- */
+const PLACEMENT_LABEL = { home: "الرئيسية", detail: "صفحات التفاصيل", all: "كل الصفحات" };
+
+async function renderAdsTab(el) {
+  const list = await dashApi("/rest/v1/ads?select=*&order=sort_order.asc,created_at.desc");
+  if (!Array.isArray(list)) { el.innerHTML = dashErr("تعذر تحميل الإعلانات"); return; }
+  const st = $("#dsA"); if (st) st.textContent = fmtNum(list.length);
+  el.innerHTML = `
+    <div class="dash-toolbar">
+      <button class="btn btn-primary btn-sm" type="button" id="btnAddAd">${icon("plus")} إعلان جديد</button>
+      <span class="dash-hint">الإعلان النشط يظهر مباشرة في مكانه بالموقع</span>
+    </div>
+    <div id="adFormWrap"></div>
+    <div class="dash-list">
+      ${list.length ? list.map((a) => `
+      <div class="dash-item">
+        <div class="di-body">
+          <p class="di-main">${esc(a.title)} <span class="badge badge-blue">${esc(PLACEMENT_LABEL[a.placement] || a.placement)}</span>${a.active ? "" : ' <span class="badge badge-rose">موقوف</span>'}</p>
+          <p class="di-meta">${[a.body, a.link_url].filter(Boolean).map(esc).join(" · ")}</p>
+        </div>
+        <div class="di-actions">
+          <button class="dash-btn" type="button" data-ad-edit="${esc(a.id)}">${icon("doc")} تعديل</button>
+          <button class="dash-btn" type="button" data-ad-toggle="${esc(a.id)}" data-active="${a.active ? 1 : 0}">${a.active ? "إيقاف" : "تفعيل"}</button>
+          <button class="dash-btn danger" type="button" data-ad-del="${esc(a.id)}">${icon("x")} حذف</button>
+        </div>
+      </div>`).join("") : `<p class="s-hint">لا توجد إعلانات بعد — أضف أول إعلان.</p>`}
+    </div>`;
+}
+
+function openAdForm(wrap, a) {
+  const isNew = !a;
+  const v = a || { placement: "home", active: true, sort_order: 100 };
+  wrap.innerHTML = `
+  <div class="card entity-form">
+    <h3>${isNew ? icon("plus") + " إعلان جديد" : icon("doc") + " تعديل الإعلان"}</h3>
+    <form id="adForm" class="ef-grid" novalidate>
+      <input type="hidden" id="afId" value="${esc(a ? a.id : "")}" />
+      <label class="ef-full">عنوان الإعلان *
+        <input id="afTitle" required value="${esc(v.title || "")}" placeholder="عرض خاص / خدمة جديدة…" />
+      </label>
+      <label class="ef-full">النص
+        <input id="afBody" value="${esc(v.body || "")}" placeholder="تفاصيل قصيرة تظهر تحت العنوان" />
+      </label>
+      <label>رابط الصورة (اختياري)
+        <input id="afImg" dir="ltr" value="${esc(v.image_url || "")}" placeholder="https://…" />
+      </label>
+      <label>رابط الانتقال (اختياري)
+        <input id="afLink" dir="ltr" value="${esc(v.link_url || "")}" placeholder="https://wa.me/…" />
+      </label>
+      <label>مكان الظهور
+        <select id="afPlacement">
+          <option value="home" ${v.placement === "home" ? "selected" : ""}>الصفحة الرئيسية</option>
+          <option value="detail" ${v.placement === "detail" ? "selected" : ""}>صفحات تفاصيل الجهات</option>
+          <option value="all" ${v.placement === "all" ? "selected" : ""}>كل الصفحات</option>
+        </select>
+      </label>
+      <label>الترتيب
+        <input id="afSort" type="number" value="${v.sort_order ?? 100}" />
+      </label>
+      <div class="ef-full ef-checks">
+        <label><input type="checkbox" id="afActive" ${v.active ? "checked" : ""}/> نشط (ظاهر في الموقع)</label>
+      </div>
+      <div class="ef-full ef-actions">
+        <button class="btn btn-primary" type="submit">${isNew ? icon("plus") + " نشر الإعلان" : icon("check") + " حفظ التعديلات"}</button>
+        <button class="btn btn-ghost" type="button" id="afCancel">إلغاء</button>
+      </div>
+    </form>
+  </div>`;
+  $("#afCancel").addEventListener("click", () => { wrap.innerHTML = ""; });
+  wrap.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function saveAd(form) {
+  const id = $("#afId").value.trim();
+  const title = $("#afTitle").value.trim();
+  if (!title) return showToast("اكتب عنوان الإعلان", "warn");
+  const payload = {
+    title,
+    body: $("#afBody").value.trim() || null,
+    image_url: $("#afImg").value.trim() || null,
+    link_url: $("#afLink").value.trim() || null,
+    placement: $("#afPlacement").value,
+    active: $("#afActive").checked,
+    sort_order: Number($("#afSort").value) || 100,
+  };
+  const saved = id
+    ? await dashApi("/rest/v1/ads?id=eq." + encodeURIComponent(id), "PATCH", payload)
+    : await dashApi("/rest/v1/ads", "POST", payload);
+  if (saved === null) return showToast("تعذر الحفظ — تحقق من الجلسة وأعد المحاولة", "err");
+  showToast(id ? "تم حفظ الإعلان" : "تم نشر الإعلان — ظاهر في الموقع الآن", "ok");
+  loadRemoteData();
+  return true;
+}
+
+/* ---------- تبويبا الأسئلة والرسائل ---------- */
+async function renderQuestionsTab(el) {
   const qs = await dashApi("/rest/v1/questions?select=*&order=created_at.desc");
-  const ms = await dashApi("/rest/v1/messages?select=*&order=created_at.desc");
-  const es = await dashApi("/rest/v1/entities?select=id,name,type,area,phone&order=sort_order.asc,id.asc");
-
-  const qEl = $("#dsQ"), mEl = $("#dsM"), eEl = $("#dsE");
-  if (qEl) qEl.textContent = fmtNum(qs ? qs.length : 0);
-  if (mEl) mEl.textContent = fmtNum(ms ? ms.length : 0);
-  if (eEl) eEl.textContent = fmtNum(es ? es.length : 0);
-
-  const qList = $("#dashQuestions");
-  if (qList) qList.innerHTML = (qs && qs.length) ? qs.map((q) => `
+  if (!Array.isArray(qs)) { el.innerHTML = dashErr("تعذر تحميل الأسئلة"); return; }
+  const st = $("#dsQ"); if (st) st.textContent = fmtNum(qs.length);
+  el.innerHTML = `<div class="dash-list">${qs.length ? qs.map((q) => `
     <div class="dash-item">
       <div class="di-body">
         <p class="di-main">${esc(q.question)}</p>
-        <p class="di-meta">${[q.name, q.phone, new Date(q.created_at).toLocaleDateString("ar-SY")].filter(Boolean).map(esc).join(" · ")}</p>
+        <p class="di-meta">${[q.name, q.phone, q.created_at ? new Date(q.created_at).toLocaleDateString("ar-SY") : ""].filter(Boolean).map(esc).join(" · ")}</p>
       </div>
-      <button class="dash-del" type="button" data-del-q="${esc(q.id)}" aria-label="حذف السؤال">${icon("x")}</button>
-    </div>`).join("") : `<p class="s-hint">لا توجد أسئلة بعد.</p>`;
+      <button class="dash-btn danger" type="button" data-del-q="${esc(q.id)}">${icon("x")} حذف</button>
+    </div>`).join("") : `<p class="s-hint">لا توجد أسئلة بعد.</p>`}</div>`;
+}
 
-  const mList = $("#dashMessages");
-  if (mList) mList.innerHTML = (ms && ms.length) ? ms.map((m) => `
+async function renderMessagesTab(el) {
+  const ms = await dashApi("/rest/v1/messages?select=*&order=created_at.desc");
+  if (!Array.isArray(ms)) { el.innerHTML = dashErr("تعذر تحميل الرسائل"); return; }
+  const st = $("#dsM"); if (st) st.textContent = fmtNum(ms.length);
+  el.innerHTML = `<div class="dash-list">${ms.length ? ms.map((m) => `
     <div class="dash-item">
       <div class="di-body">
         <p class="di-main"><span class="badge badge-blue">${esc(m.topic || "رسالة")}</span> ${esc(m.body)}</p>
-        <p class="di-meta">${[m.name, m.contact, new Date(m.created_at).toLocaleDateString("ar-SY")].filter(Boolean).map(esc).join(" · ")}</p>
+        <p class="di-meta">${[m.name, m.contact, m.created_at ? new Date(m.created_at).toLocaleDateString("ar-SY") : ""].filter(Boolean).map(esc).join(" · ")}</p>
       </div>
-      <button class="dash-del" type="button" data-del-m="${esc(m.id)}" aria-label="حذف الرسالة">${icon("x")}</button>
-    </div>`).join("") : `<p class="s-hint">لا توجد رسائل بعد.</p>`;
-
-  const eList = $("#dashEntities");
-  if (eList) eList.innerHTML = (es && es.length) ? es.map((e) => `
-    <div class="dash-item">
-      <div class="di-body">
-        <p class="di-main">${esc(e.name)}</p>
-        <p class="di-meta">${esc(TYPES[e.type] ? TYPES[e.type].label : e.type)}${e.area ? " · " + esc(e.area) : ""}</p>
-      </div>
-      <a class="dash-view" href="#/entity/${esc(e.id)}">عرض</a>
-    </div>`).join("") : `<p class="s-hint">لا توجد جهات.</p>`;
+      <button class="dash-btn danger" type="button" data-del-m="${esc(m.id)}">${icon("x")} حذف</button>
+    </div>`).join("") : `<p class="s-hint">لا توجد رسائل بعد.</p>`}</div>`;
 }
 
 function bindDashboard() {
   if (!getSession()) return;
-  loadDashboard();
   const out = $("#dashLogout");
   if (out) out.addEventListener("click", () => {
     sessionStorage.removeItem("ds-session");
     showToast("تم تسجيل الخروج");
     location.hash = "#/login";
   });
+
   const page = $(".dash-page");
-  if (page) page.addEventListener("click", async (ev) => {
+  if (!page) return;
+
+  const renderTab = async () => {
+    const body = $("#dashBody");
+    if (!body) return;
+    body.innerHTML = `<p class="s-hint">جارٍ التحميل…</p>`;
+    const tab = state.dashTab || "entities";
+    if (tab === "ads") await renderAdsTab(body);
+    else if (tab === "questions") await renderQuestionsTab(body);
+    else if (tab === "messages") await renderMessagesTab(body);
+    else await renderEntitiesTab(body);
+  };
+
+  page.addEventListener("click", async (ev) => {
+    const tb = ev.target.closest("[data-tab]");
+    if (tb) {
+      state.dashTab = tb.getAttribute("data-tab");
+      $$(".dash-tab").forEach((b) => b.classList.toggle("active", b === tb));
+      renderTab();
+      return;
+    }
+
+    /* ---------- إجراءات الجهات ---------- */
+    if (ev.target.closest("#btnAddEntity")) {
+      openEntityForm($("#entityFormWrap"), null, []);
+      return;
+    }
+    const ee = ev.target.closest("[data-ent-edit]");
+    if (ee) {
+      const id = ee.getAttribute("data-ent-edit");
+      showToast("جارٍ فتح النموذج…");
+      const rows = await dashApi("/rest/v1/entities?id=eq." + encodeURIComponent(id));
+      const e = Array.isArray(rows) ? rows[0] : null;
+      if (!e) return showToast("تعذر جلب بيانات الجهة", "err");
+      let days = [];
+      if (e.type === "pharmacy") {
+        const oc = await dashApi("/rest/v1/oncall?pharmacy_id=eq." + encodeURIComponent(id) + "&select=day");
+        if (Array.isArray(oc)) days = oc.map((r) => r.day);
+      }
+      openEntityForm($("#entityFormWrap"), e, days);
+      return;
+    }
+    const et = ev.target.closest("[data-ent-toggle]");
+    if (et) {
+      const id = et.getAttribute("data-ent-toggle");
+      const active = et.getAttribute("data-active") !== "1";
+      const ok = await dashApi("/rest/v1/entities?id=eq." + encodeURIComponent(id), "PATCH", { active });
+      showToast(ok ? (active ? "تم تفعيل الجهة" : "تم إيقاف الجهة") : "تعذر التنفيذ", ok ? "ok" : "err");
+      if (ok) { loadRemoteData(); renderTab(); }
+      return;
+    }
+    const ed = ev.target.closest("[data-ent-del]");
+    if (ed) {
+      const id = ed.getAttribute("data-ent-del");
+      if (!confirm("حذف هذه الجهة نهائياً؟ سيُحذف معها جدول مناوبتها إن وجد.")) return;
+      const ok = await dashApi("/rest/v1/entities?id=eq." + encodeURIComponent(id), "DELETE");
+      showToast(ok ? "تم حذف الجهة" : "تعذر الحذف", ok ? "ok" : "err");
+      if (ok) { loadRemoteData(); renderTab(); }
+      return;
+    }
+
+    /* ---------- إجراءات الإعلانات ---------- */
+    if (ev.target.closest("#btnAddAd")) {
+      openAdForm($("#adFormWrap"), null);
+      return;
+    }
+    const ae = ev.target.closest("[data-ad-edit]");
+    if (ae) {
+      const id = ae.getAttribute("data-ad-edit");
+      const rows = await dashApi("/rest/v1/ads?id=eq." + encodeURIComponent(id));
+      const a = Array.isArray(rows) ? rows[0] : null;
+      if (!a) return showToast("تعذر جلب بيانات الإعلان", "err");
+      openAdForm($("#adFormWrap"), a);
+      return;
+    }
+    const at = ev.target.closest("[data-ad-toggle]");
+    if (at) {
+      const id = at.getAttribute("data-ad-toggle");
+      const active = at.getAttribute("data-active") !== "1";
+      const ok = await dashApi("/rest/v1/ads?id=eq." + encodeURIComponent(id), "PATCH", { active });
+      showToast(ok ? (active ? "تم تفعيل الإعلان" : "تم إيقاف الإعلان") : "تعذر التنفيذ", ok ? "ok" : "err");
+      if (ok) { loadRemoteData(); renderTab(); }
+      return;
+    }
+    const ad = ev.target.closest("[data-ad-del]");
+    if (ad) {
+      const id = ad.getAttribute("data-ad-del");
+      if (!confirm("حذف هذا الإعلان نهائياً؟")) return;
+      const ok = await dashApi("/rest/v1/ads?id=eq." + encodeURIComponent(id), "DELETE");
+      showToast(ok ? "تم حذف الإعلان" : "تعذر الحذف", ok ? "ok" : "err");
+      if (ok) { loadRemoteData(); renderTab(); }
+      return;
+    }
+
+    /* ---------- حذف الأسئلة والرسائل ---------- */
     const dq = ev.target.closest("[data-del-q]");
-    const dm = ev.target.closest("[data-del-m]");
     if (dq) {
       const ok = await dashApi("/rest/v1/questions?id=eq." + dq.getAttribute("data-del-q"), "DELETE");
       showToast(ok ? "تم حذف السؤال" : "تعذر الحذف", ok ? "ok" : "err");
-      if (ok) loadDashboard();
+      if (ok) renderTab();
+      return;
     }
+    const dm = ev.target.closest("[data-del-m]");
     if (dm) {
       const ok = await dashApi("/rest/v1/messages?id=eq." + dm.getAttribute("data-del-m"), "DELETE");
       showToast(ok ? "تم حذف الرسالة" : "تعذر الحذف", ok ? "ok" : "err");
-      if (ok) loadDashboard();
+      if (ok) renderTab();
+      return;
     }
   });
+
+  page.addEventListener("submit", async (ev) => {
+    if (ev.target.id === "entForm") {
+      ev.preventDefault();
+      const done = await saveEntity(ev.target);
+      if (done) renderTab();
+      return;
+    }
+    if (ev.target.id === "adForm") {
+      ev.preventDefault();
+      const done = await saveAd(ev.target);
+      if (done) renderTab();
+    }
+  });
+
+  loadDashStats();
+  renderTab();
 }
 
 /* ربط نموذج الدخول — يُستخدم في صفحة الدخول ولوحة التحكم عند انتهاء الجلسة */

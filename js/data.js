@@ -442,6 +442,11 @@ SITE.developer = {
   facebook: "https://www.facebook.com/share/17m6YZ1NKS/",
 };
 
+/* ---------- الإعلانات — تُحمَّل من جدول ads في Supabase عند الإقلاع ----------
+   يُدار هذا الجدول بالكامل من لوحة التحكم (#/dashboard → تبويب الإعلانات).
+   المصفوفة هنا فارغة افتراضياً وتُملأ حيّاً من قاعدة البيانات. */
+const ADS = [];
+
 /* ---------- أدوات وصول سريعة للبيانات ---------- */
 function entitiesByType(type) {
   return ENTITIES.filter((e) => e.type === type);
