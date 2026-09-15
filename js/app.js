@@ -15,8 +15,8 @@ const esc = (s) =>
 
 const fmtNum = (n) => Number(n).toLocaleString("ar-EG");
 const fmtPhone = (p) => String(p).replace(/^(\d{4})(\d{3})(\d{3})$/, "$1 $2 $3");
-const telHref = (p) => "tel:+963" + String(p).replace(/^\+?963/, "").replace(/^0/, "");
-const waHref = (p) => "https://wa.me/963" + String(p).replace(/^\+?963/, "").replace(/^0/, "");
+  const telHref = (p) => "tel:+963" + String(p).replace(/^\+?963/, "").replace(/^0/, "");
+  const waHref = (p, text) => "https://wa.me/963" + String(p).replace(/^\+?963/, "").replace(/^0/, "") + (text ? "?text=" + encodeURIComponent(text) : "");
 const mapsLink = (lat, lng, address) =>
   lat && lng
     ? "https://www.google.com/maps?q=" + lat + "," + lng
@@ -942,18 +942,22 @@ function viewPackages() {
       <p class="plans-login">لديك اشتراك فعّال؟ <a href="#/login">تسجيل دخول الجهة ←</a></p>
     </div>
     <div class="plans-grid">
-      ${PACKAGES.map((p) => `
-        <a class="plan-card ${p.featured ? "is-gold" : ""}" href="#/about">
+      ${PACKAGES.map((p) => {
+        const waMsg = waHref(SITE.developer.phone, "مرحباً، أرغب بالاشتراك في «" + p.name + "» في دليل صوران الطبي");
+        const inner = `
           <span class="plan-ic ${p.id}">${icon(p.id === "free" ? "lock" : p.id === "pro" ? "sparkles" : "crown")}</span>
           <h3>${esc(p.name)}</h3>
           <p class="plan-desc">${esc(p.description)}</p>
           <ul class="plan-features">
             ${p.features.map((f) => `<li>${icon("check")} ${esc(f)}</li>`).join("")}
           </ul>
-          <span class="plan-cta ${p.id === "free" ? "is-free" : ""}">${p.id === "free" ? "الباقة الأساسية لكل الجهات" : "اطلب الترقية " + icon("arrowUpRight")}</span>
-        </a>`).join("")}
+          <span class="plan-cta ${p.id === "free" ? "is-free" : ""}">${p.id === "free" ? "الباقة الأساسية لكل الجهات" : icon("chat") + " اطلب الاشتراك عبر واتساب"}</span>`;
+        return p.id === "free"
+          ? `<article class="plan-card">${inner}</article>`
+          : `<a class="plan-card ${p.featured ? "is-gold" : ""}" href="${waMsg}" target="_blank" rel="noopener">${inner}</a>`;
+      }).join("")}
     </div>
-    <p class="plans-note">لم تجد جهتك في الدليل؟ تواصل مع الإدارة لإضافتها أولاً، ثم قدّم طلب الترقية.</p>
+    <p class="plans-note">لم تجد جهتك في الدليل؟ <a href="${waHref(SITE.developer.phone, "مرحباً، أرغب بإضافة جهتي إلى دليل صوران الطبي")}" target="_blank" rel="noopener">تواصل مع الإدارة</a> لإضافتها أولاً، ثم قدّم طلب الترقية.</p>
   </div>`;
 }
 
