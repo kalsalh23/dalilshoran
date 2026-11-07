@@ -646,13 +646,14 @@ function viewList(type, params) {
    - doctors: search + specialization only
    - pharmacies: search + area only
    - labs (المخابر): area filter only
+   - hospitals (المشافي): area filter only
    - others: search + area + sort */
   const specs = [...new Set(entitiesByType(type).map((e) => e.spec).filter(Boolean))].sort();
   const areas = [...new Set(entitiesByType(type).map((e) => e.area).filter(Boolean))].sort();
   const showSpec = specs.length && type === "doctor";
-  const showSearch = type !== "lab";
-  const showArea = areas.length && (type === "pharmacy" || type === "lab" || type !== "doctor");
-  const showSort = type !== "doctor" && type !== "pharmacy" && type !== "lab";
+  const showSearch = type !== "lab" && type !== "hospital";
+  const showArea = areas.length && (type === "pharmacy" || type === "lab" || type === "hospital" || type !== "doctor");
+  const showSort = type !== "doctor" && type !== "pharmacy" && type !== "lab" && type !== "hospital";
   const ph = type === "doctor" ? "ابحث باسم الطبيب أو التخصص…"
     : type === "pharmacy" ? "ابحث باسم الصيدلية…"
     : "ابحث بالاسم…";
