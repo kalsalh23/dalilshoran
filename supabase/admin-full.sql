@@ -1,4 +1,4 @@
--- ============================================================
+﻿-- ============================================================
 -- ترقية لوحة التحكم الشاملة — أُنفذت فعلياً على القاعدة الحية
 -- 1) صلاحيات الأدمن الكاملة على الجهات والمناوبة
 -- 2) جدول الإعلانات (ads) مع سياساته
@@ -43,3 +43,6 @@ create policy "ads_admin_select"  on public.ads for select to authenticated usin
 create policy "ads_admin_insert"  on public.ads for insert to authenticated with check (true);
 create policy "ads_admin_update"  on public.ads for update to authenticated using (true);
 create policy "ads_admin_delete"  on public.ads for delete to authenticated using (true);
+
+-- ---------- 1b) صورة الجهة (image_url) ----------
+alter table public.entities add column if not exists image_url text;

@@ -23,6 +23,7 @@ create table if not exists public.entities (
   lng         double precision,
   shift24     boolean not null default false,
   owner       text,
+  image_url   text,
   sort_order  integer not null default 100,
   active      boolean not null default true,
   created_at  timestamptz not null default now()

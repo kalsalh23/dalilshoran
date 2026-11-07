@@ -102,7 +102,7 @@ function typeBadge(e) {
   return `<a class="badge badge-blue" href="#/${routeSlug(e.type)}" style="--tc:${t.color}">${icon(t.icon)} ${t.label}</a>`;
 }
 
-function entityCard(e, { rank = false, hours = false } = {}) {
+function entityCard(e, { rank = false, hours = false, image = false } = {}) {
   const t = TYPES[e.type];
   const addr = [e.area, e.address].filter(Boolean).join(" — ");
 
@@ -110,7 +110,7 @@ function entityCard(e, { rank = false, hours = false } = {}) {
   <article class="entity-card" data-go="#/entity/${e.id}" style="--tc:${t.color}" tabindex="0" role="link" aria-label="${esc(e.name)}">
     ${e.featured && rank !== false && e.rank ? `<span class="rank-ribbon">${icon("star")} ${fmtNum(e.rank)}</span>` : ""}
     <div class="ec-flex">
-      <div class="ec-media">${icon(t.icon)}</div>
+      <div class="ec-media">${e.image_url ? `<img src="${esc(e.image_url)}" alt="${esc(e.name)}" loading="lazy" />` : icon(t.icon)}</div>
       <div class="ec-body">
         <p class="ec-name">${esc(e.name)}</p>
         <p class="ec-spec"><span class="ec-dot"></span>${esc(e.spec || t.label)}</p>
@@ -141,7 +141,7 @@ function entityCardMin(e, { rank = false } = {}) {
   <article class="entity-card entity-card--min" data-go="#/entity/${e.id}" style="--tc:${t.color}" tabindex="0" role="link" aria-label="${esc(e.name)}">
     ${e.featured && rank !== false && e.rank ? `<span class="rank-ribbon">${icon("star")} ${fmtNum(e.rank)}</span>` : ""}
     <div class="ec-min">
-      <div class="ec-media ec-media--lg">${icon(t.icon)}</div>
+      <div class="ec-media ec-media--lg">${e.image_url ? `<img src="${esc(e.image_url)}" alt="${esc(e.name)}" loading="lazy" />` : icon(t.icon)}</div>
       <div class="ec-min-body">
         <p class="ec-name">${esc(e.name)}</p>
         <p class="ec-spec"><span class="ec-dot"></span>${esc(e.spec || t.label)}</p>
@@ -152,6 +152,40 @@ function entityCardMin(e, { rank = false } = {}) {
           <a class="ec-call" data-stop href="${telHref(e.phone)}" dir="ltr" aria-label="اتصال بـ ${esc(e.name)}">
             ${icon("phone")} اتصال
           </a>` : `<span class="ec-call ec-call--muted">${icon("pin")} Site</span>`}
+      </div>
+    </div>
+  </article>`;
+}
+
+/* Fleming: rectangular on-call pharmacy card — image on the right,
+   details on the left. Used on the home "on-call today" strip and the
+   on-call schedule page. Falls back to the type glyph when no image. */
+function oncallCard(p) {
+  const t = TYPES.pharmacy;
+  const addr = [p.area, p.address].filter(Boolean).join(" — ");
+  return `
+  <article class="oncall-card" data-go="#/entity/${p.id}" tabindex="0" role="link" aria-label="${esc(p.name)}">
+    <div class="oc-media">
+      ${p.image_url
+        ? `<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" />`
+        : `<div class="oc-media-fallback">${icon("pill")}</div>`}
+    </div>
+    <div class="oc-body">
+      <div class="oc-head">
+        <p class="oc-name">${esc(p.name)}</p>
+        <span class="oc-badge">${icon("ambulance")} مناوبة</span>
+      </div>
+      <p class="oc-spec"><span class="ec-dot"></span>${esc(p.spec || t.label)}</p>
+      ${addr ? `<p class="oc-addr">${icon("pin")} <span>${esc(addr)}</span></p>` : ""}
+      ${p.hours ? `<p class="oc-hours">${icon("clock")} ${esc(p.hours)}</p>` : ""}
+      <div class="oc-meta">
+        ${p.phone ? `
+          <a class="oc-call" data-stop href="${telHref(p.phone)}" dir="ltr" aria-label="اتصال بـ ${esc(p.name)}">
+            ${icon("phone")} ${fmtPhone(p.phone)}
+          </a>` : ""}
+        <a class="oc-map" data-stop href="${mapsLink(p.lat, p.lng, addr)}" target="_blank" rel="noopener">
+          ${icon("pin")} Site
+        </a>
       </div>
     </div>
   </article>`;
@@ -332,13 +366,7 @@ return `
     </div>
     <div class="oncall-today-card">
       <div class="oncall-mini">
-        ${todayOncall.length ? todayOncall.map((p) => `
-          <a class="oncall-mini-item" href="${telHref(p.phone)}">
-            <span class="oncall-ic">${icon("pill")}</span>
-            <span class="oncall-name">${esc(p.name)}</span>
-            <span class="oncall-phone" dir="ltr">${fmtPhone(p.phone)}</span>
-            <span class="oncall-badge">${icon("ambulance")} مناوبة</span>
-          </a>`).join("") : `<p class="oncall-empty">لا توجد صيدليات مناوبة مسجلة لهذا اليوم — راجع جدول بقية أيام.</p>`}
+        ${todayOncall.length ? todayOncall.map((p) => oncallCard(p)).join("") : `<p class="oncall-empty">لا توجد صيدليات مناوبة مسجلة لهذا اليوم — راجع جدول بقية أيام.</p>`}
       </div>
     </div>
   </section>
@@ -579,7 +607,7 @@ function viewOncall(params) {
       ${d}${i === today ? '<span class="t-badge">اليوم</span>' : ""}
     </button>`).join("");
 
-  const cards = list.length ? list.map((p) => entityCard(p, { hours: true })).join("")
+  const cards = list.length ? list.map((p) => oncallCard(p)).join("")
     : `<div class="empty-state">${icon("pill")}<h3>لا توجد صيدليات مناوبة مسجلة</h3><p>راجع جدول بقية الأيام أو تواصل مع الاستعلامات.</p></div>`;
 
 return `
@@ -630,7 +658,7 @@ function viewEntity(id) {
       <div class="detail-card" style="--tc:${t.color}">
         <div class="detail-banner"></div>
         <div class="detail-main">
-          <span class="detail-avatar" style="--tc:${t.color}">${icon(t.icon)}</span>
+          <span class="detail-avatar" style="--tc:${t.color}">${e.image_url ? `<img src="${esc(e.image_url)}" alt="${esc(e.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />` : icon(t.icon)}</span>
           <div class="detail-title">
             <h1>${esc(e.name)}</h1>
             <p class="sub">${e.spec ? esc(e.spec) + " — " : ""}${esc(e.degree || t.label)}${e.owner ? " · " + esc(e.owner) : ""}</p>
@@ -1413,6 +1441,7 @@ async function bindDashboard() {
       <label>المنطقة<input id="owArea" value="${esc(e.area || "")}" /></label>
       <label>العنوان<input id="owAddress" value="${esc(e.address || "")}" /></label>
       <label>الهاتف<input id="owPhone" dir="ltr" value="${esc(e.phone || "")}" /></label>
+      <label class="ef-full">صورة الجهة (URL رابط الصورة)<input id="owImage" dir="ltr" value="${esc(e.image_url || "")}" placeholder="https://..." /></label>
       <label>أوقات العمل<input id="owHours" value="${esc(e.hours || "")}" /></label>
       <div class="ef-full ef-checks">
         <label><input type="checkbox" id="owWa" ${e.whatsapp ? "checked" : ""}/> متاحون على واتساب</label>
@@ -1445,6 +1474,7 @@ async function bindDashboard() {
       area: $("#owArea").value.trim() || null,
       address: $("#owAddress").value.trim() || null,
       phone: $("#owPhone").value.trim() || null,
+      image_url: $("#owImage").value.trim() || null,
       whatsapp: $("#owWa").checked,
       hours: $("#owHours").value.trim() || null,
       services: $("#owServices").value.split(/[,،]/).map((x) => x.trim()).filter(Boolean),
