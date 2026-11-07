@@ -1719,6 +1719,7 @@ function navKeyFor(path) {
 
 let lastRendered = "";
 function render() {
+  try {
   const { path, q } = parseHash();
   destroyMap();
   const route = ROUTES.find((r) => r.re.test(path));
@@ -1739,8 +1740,9 @@ function render() {
   setActiveNav(route.key || navKeyFor(path));
   updateEntityBtn();
   window.scrollTo({ top: 0 });
-  if (route.after) route.after(q, m || []);
+  try { if (route.after) route.after(q, m || []); } catch (ae) { console.error(ae); }
   lastRendered = path;
+  } catch (err) { showBootError(err); }
 }
 
 function setActiveNav(key) {
@@ -1777,9 +1779,19 @@ function initHeader() {
   });
 }
 
+function showBootError(err) {
+  var view = document.getElementById("view");
+  if (!view) return;
+  var msg = (err && (err.stack || err.message)) ? String(err.stack || err.message) : String(err || "Unknown error");
+  var safe = msg.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  view.innerHTML = '<section class="container" style="padding:24px 0 40px"><div class="empty-state" style="display:block;text-align:right"><h2 style="margin:0 0 8px">حدث خطأ أثناء تحميل الصفحة</h2><p style="margin:0 0 10px;color:#666">حدّث الصفحة (Ctrl+F5). إذا استمر الخطأ أرسِل هذه التفاصيل:</p><pre dir="ltr" style="text-align:left;white-space:pre-wrap;word-break:break-word;margin:0;font-size:12px;line-height:1.45;background:#f8f9fa;border:1px solid #e5e7eb;border-radius:10px;padding:12px;max-height:45vh;overflow:auto">' + safe + '</pre></div></section>';
+}
+window.addEventListener("error", function(e){ try{ showBootError(e && (e.error || e.message)); }catch(_){} });
+window.addEventListener("unhandledrejection", function(e){ try{ showBootError(e && e.reason); }catch(_){} });
 /* ================= الإقلاع ================= */
 (async function boot() {
-  const year = $("#year");
+  try {
+  const year = $(\
   if (year) year.textContent = fmtNum(new Date().getFullYear());
 
   initHeader();
@@ -1789,4 +1801,5 @@ function initHeader() {
   /* جلب البيانات الحية من Supabase — عند الفشل تُستخدم بيانات data.js */
   try { await loadRemoteData(); } catch (_) {}
   render();
+  } catch (err) { showBootError(err); }
 })();
