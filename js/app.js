@@ -572,15 +572,19 @@ function viewList(type, params) {
   /* Fleming: each type has its own filter set
    - doctors: search + specialization only
    - pharmacies: search + area only
+   - labs (المخابر): area filter only
    - others: search + area + sort */
   const specs = [...new Set(entitiesByType(type).map((e) => e.spec).filter(Boolean))].sort();
   const areas = [...new Set(entitiesByType(type).map((e) => e.area).filter(Boolean))].sort();
   const showSpec = specs.length && type === "doctor";
-  const showArea = areas.length && (type === "pharmacy" || type !== "doctor");
-  const showSort = type !== "doctor" && type !== "pharmacy";
+  const showSearch = type !== "lab";
+  const showArea = areas.length && (type === "pharmacy" || type === "lab" || type !== "doctor");
+  const showSort = type !== "doctor" && type !== "pharmacy" && type !== "lab";
   const ph = type === "doctor" ? "ابحث باسم الطبيب أو التخصص…"
     : type === "pharmacy" ? "ابحث باسم الصيدلية…"
     : "ابحث بالاسم…";
+
+  const searchField = showSearch ? `<div class="search-field">${icon("search")}<input id="fQ" type="search" placeholder="${ph}" value="${esc(f.q)}" /></div>` : "";
 
   const specSel = showSpec ? `
     <select id="fSpec" aria-label="تصفية حسب التخصص">
@@ -599,7 +603,6 @@ function viewList(type, params) {
       <option value="featured" ${f.sort === "featured" ? "selected" : ""}>المميزون أولاً</option>
       <option value="name" ${f.sort === "name" ? "selected" : ""}>الاسم (أ-ي)</option>
     </select>` : "";
-
   const clearBtn = (f.q || f.spec || f.area) ? `<button class="btn btn-ghost btn-sm" id="fClear" type="button">${icon("searchX")} مسح التصفية</button>` : "";
 
   return `
@@ -614,7 +617,7 @@ function viewList(type, params) {
   </section>
   <div class="container">
     <div class="toolbar">
-      <div class="search-field">${icon("search")}<input id="fQ" type="search" placeholder="${ph}" value="${esc(f.q)}" /></div>
+      ${searchField}
       ${specSel}
       ${areaSel}
       ${sortSel}
