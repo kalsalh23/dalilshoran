@@ -456,30 +456,19 @@ function bindOncallCarousel() {
   const track = carousel.querySelector(".oc-track");
   const cards = track ? Array.from(track.querySelectorAll(":scope > article")) : [];
   const total = Number(carousel.getAttribute("data-total") || cards.length);
-  if (total <= 2) {
-    // not enough for a rotating carousel — render dots only, no auto-rotate
-    const dotsEl = $("#oncallDots");
-    if (dotsEl && cards.length) {
-      dotsEl.innerHTML = cards.map((_, i) =>
-        `<button class="scroll-dot active" data-i="${i}" aria-label="العنصر ${i + 1}"></button>`).join("");
-    }
-    return;
-  }
+  if (total === 0) return;
 
   const dotsEl = $("#oncallDots");
   const prevBtn = carousel.querySelector(".oc-arrow-prev");
   const nextBtn = carousel.querySelector(".oc-arrow-next");
 
-  // 2 cards visible per viewport; each step advances by one card
   const visible = 2;
-  const step = () => {
-    const cw = cards[0].offsetWidth;
-    const gap = 14;
-    return { cw, gap, advance: cw + gap };
-  };
+  const gap = 14;
+  // each step advances by one card
+  const advance = () => cards[0].offsetWidth + gap;
+  const maxIndex = Math.max(0, total - 1);
 
   let index = 0;
-  const maxIndex = Math.max(0, total - 1);
 
   const renderDots = () => {
     const pages = Math.ceil(total / visible);
@@ -489,8 +478,7 @@ function bindOncallCarousel() {
 
   const setIndex = (i) => {
     index = Math.max(0, Math.min(maxIndex, i));
-    const { advance } = step();
-    track.style.transform = `translateX(${-index * advance}px)`;
+    track.style.transform = `translateX(${-index * advance()}px)`;
     const pages = Math.ceil(total / visible);
     const activePage = Math.floor(index / visible);
     dotsEl.querySelectorAll(".scroll-dot").forEach((d, i) =>
@@ -507,8 +495,7 @@ function bindOncallCarousel() {
   dotsEl.addEventListener("click", (ev) => {
     const b = ev.target.closest(".scroll-dot");
     if (!b) return;
-    const page = +b.dataset.i;
-    setIndex(page * visible);
+    setIndex(+b.dataset.i * visible);
     restartAuto();
   });
 
