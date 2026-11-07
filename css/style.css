@@ -1599,7 +1599,10 @@ a.entity-card:hover { color: var(--ink); }
   border-radius: var(--r-2xl);
   box-shadow: var(--shadow-card);
 }
-#oncallCarousel, .oc-carousel {
+#featuredDoctorsCarousel .doctor-feature-card .oc-badge {
+  background: color-mix(in srgb, #b45309 14%, transparent);
+  color: #92400e;
+}
   position: relative;
   overflow: hidden;
   padding: 4px 8px;

@@ -1,4 +1,4 @@
-﻿/* ============================================================
+/* ============================================================
    دليل صوران الطبي — منطق التطبيق (بدون أي مكتبات خارجية)
    توجيه هاش | بحث شامل | خريطة Leaflet | وضع ليلي | مناوبة
    ============================================================ */
@@ -130,9 +130,36 @@ function entityCard(e, { rank = false, hours = false, image = false } = {}) {
   </article>`;
 }
 
-/* Fleming: minimal horizontal card for home featured sections —
-   carousel with dot indicators, reduced details: avatar + name + spec + call only.
-   Area / phone text / map link removed from card; they live on the detail page. */
+/* Fleming: rectangular featured doctor card — image on the right,
+   details on the left. Swipe carousel on home. */
+function doctorFeatureCard(d) {
+  const t = TYPES.doctor;
+  const addr = [d.area, d.address].filter(Boolean).join(" — ");
+  return `
+  <article class="oncall-card doctor-feature-card" data-go="#/entity/${d.id}" tabindex="0" role="link" aria-label="${esc(d.name)}">
+    <div class="oc-media">
+      ${d.image_url
+        ? `<img src="${esc(d.image_url)}" alt="${esc(d.name)}" loading="lazy" />`
+        : `<div class="oc-media-fallback">${icon("steth")}</div>`}
+    </div>
+    <div class="oc-body">
+      <div class="oc-head">
+        <p class="oc-name">${esc(d.name)}</p>
+        ${d.featured ? `<span class="oc-badge">${icon("star")} مميز</span>` : ""}
+      </div>
+      <p class="oc-spec"><span class="ec-dot"></span>${esc(d.spec || t.label)}</p>
+      ${d.degree ? `<p class="oc-hours">${icon("doc")} ${esc(d.degree)}${d.exp ? ` · خبرة ${fmtNum(d.exp)} سنوات` : ""}</p>` : (d.exp ? `<p class="oc-hours">${icon("doc")} خبرة ${fmtNum(d.exp)} سنوات</p>` : "")}
+      ${addr ? `<p class="oc-addr">${icon("pin")} <span>${esc(addr)}</span></p>` : ""}
+      ${d.hours ? `<p class="oc-hours">${icon("clock")} ${esc(d.hours)}</p>` : ""}
+      <div class="oc-meta">
+        ${d.phone ? `
+          <a class="oc-call" data-stop href="${telHref(d.phone)}" dir="ltr" aria-label="اتصال بـ ${esc(d.name)}">
+            ${icon("phone")} ${fmtPhone(d.phone)}
+      </div>
+    </div>
+  </article>`;
+}
+
 function entityCardMin(e, { rank = false } = {}) {
   const t = TYPES[e.type];
   const addr = [e.area, e.address].filter(Boolean).join(" — ");
@@ -319,7 +346,10 @@ function fallbackCopy(text, done) {
 function viewHome() {
   const todayName = DAYS[todayIdx()];
 
-  const featuredDoctors = featuredBy("doctor", 5).map((d) => entityCardMin(d, { rank: true })).join("");
+  const featuredDoctors = featuredBy("doctor", 8);
+  const featuredDoctorsHtml = featuredDoctors.length
+    ? featuredDoctors.map((d) => doctorFeatureCard(d)).join("")
+    : `<p class="oncall-empty">لا يوجد أطباء مميزون حالياً.</p>`;
   const featuredPharmacies = featuredBy("pharmacy", 5).map((p) => entityCardMin(p, { rank: true })).join("");
 
   const todayOncall = oncallPharmacies(todayName);
@@ -373,6 +403,22 @@ return `
       </div>
     </div>
   </section>
+
+  ${featuredDoctors.length ? `
+  <section class="section container">
+    <div class="section-head">
+      <div><h2>الأطباء المميزون</h2><p>أسماء وتفاصيل مع صورة — اسحب للتنقل بين الأطباء</p></div>
+      <a class="section-link" href="#/doctors">كل الأطباء ${icon("arrowLeft")}</a>
+    </div>
+    <div class="oncall-today-card">
+      <div class="oc-carousel" id="featuredDoctorsCarousel" data-total="${featuredDoctors.length}">
+        <div class="oc-track">
+          ${featuredDoctorsHtml}
+        </div>
+        <div class="oc-dots" id="featuredDoctorsDots"></div>
+      </div>
+    </div>
+  </section>` : ""}
 
   <section class="section container">
     <div class="section-head">
@@ -440,77 +486,66 @@ function afterHome() {
   }
 
   mountMap("homeMap", ENTITIES);
-  bindScrollDots("featuredDocsScroll", "featuredDocsDots");
-  bindScrollDots("featuredPharmScroll", "featuredPharmDots");
+  bindFeaturedDoctorsCarousel();
   bindOncallCarousel();
 }
 
-/* Fleming: on-call pharmacy carousel — shows 2 pharmacies at a time,
-   prev/next arrows + dots, and auto-advances every 10 seconds.
-   Pauses on user interaction. */
-function bindOncallCarousel() {
-  const carousel = $("#oncallCarousel");
+/* Swipe carousel for on-call / featured sections: RTL-aware, dots, auto-advance */
+function bindCarousel(id, dotsId) {
+  const carousel = $("#" + id);
   if (!carousel) return;
   const track = carousel.querySelector(".oc-track");
-  const cards = track ? Array.from(track.querySelectorAll(":scope > article")) : [];
-  const total = Number(carousel.getAttribute("data-total") || cards.length);
-  if (total === 0) return;
+  if (!track) return;
+  const cards = Array.from(track.querySelectorAll(".oncall-card"));
+  const total = cards.length;
+  if (total <= 1) return;
 
-  const dotsEl = $("#oncallDots");
+  const dotsEl = dotsId ? $("#" + dotsId) : null;
+  let visible = 2;
+  function computeVisible() { visible = window.matchMedia("(max-width: 640px)").matches ? 1 : 2; }
+  computeVisible();
+  let index = 0, timer = null, hover = false, dragging = false, dragStartX = 0, dragDelta = 0;
 
-  const visible = 2;
-  const gap = 14;
-  // each step advances by one full page (2 cards)
-  const advance = () => cards[0].offsetWidth * visible + gap * (visible - 1);
-  const maxIndex = Math.max(0, total - visible);
-
-  let index = 0;
-
-  const renderDots = () => {
-    const pages = Math.ceil(total / visible);
-    dotsEl.innerHTML = Array.from({ length: pages }, (_, i) =>
-      `<button class="scroll-dot ${i === 0 ? "active" : ""}" data-i="${i}" aria-label="الصفحة ${i + 1}"></button>`).join("");
-  };
-
-  const setIndex = (i) => {
-    index = Math.max(0, Math.min(maxIndex, i));
-    track.style.transform = `translateX(${-index * advance()}px)`;
-    const activePage = Math.floor(index / visible);
-    dotsEl.querySelectorAll(".scroll-dot").forEach((d, i) =>
-      d.classList.toggle("active", i === activePage));
-    prevBtn.setAttribute("aria-disabled", index === 0 ? "true" : "false");
-    nextBtn.setAttribute("aria-disabled", index === maxIndex ? "true" : "false");
-  };
-
-  const next = () => setIndex(index + visible);
-  const prev = () => setIndex(index - visible);
-
-  nextBtn.addEventListener("click", () => { next(); restartAuto(); });
-  prevBtn.addEventListener("click", () => { prev(); restartAuto(); });
-  dotsEl.addEventListener("click", (ev) => {
-    const b = ev.target.closest(".scroll-dot");
-    if (!b) return;
-    setIndex(+b.dataset.i * visible);
-    restartAuto();
-  });
-
-  track.addEventListener("mouseenter", () => pauseAuto());
-  track.addEventListener("touchstart", () => pauseAuto(), { passive: true });
-  carousel.addEventListener("mouseleave", () => restartAuto());
-
-  renderDots();
-  setIndex(0);
-
-  let autoTimer = null;
-  function startAuto() {
-    pauseAuto();
-    autoTimer = setInterval(next, 10000);
+  function maxIndex() { return Math.max(0, total - visible); }
+  function buildDots() {
+    if (!dotsEl) return;
+    const mx = maxIndex();
+    dotsEl.innerHTML = Array.from({ length: mx + 1 })
+      .map((_, i) => `<button class="oc-dot${i === Math.min(index, mx) ? " is-active" : ""}" type="button" aria-label="شريحة ${i + 1}" data-i="${i}"></button>`).join("");
   }
-  function pauseAuto() { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } }
-  function restartAuto() { startAuto(); }
-  startAuto();
+  buildDots();
+  function cardWidth() {
+    const c = cards[0]; if (!c) return 0;
+    const style = getComputedStyle(track);
+    const gap = parseFloat(style.gap || style.columnGap || 0) || 0;
+    return c.getBoundingClientRect().width + gap;
+  }
+  function goTo(i, animate = true) {
+    index = Math.max(0, Math.min(i, maxIndex()));
+    const offset = cardWidth() * index;
+    const dir = (document.dir || "rtl") === "rtl" ? 1 : -1;
+    track.style.transition = animate ? "transform .45s cubic-bezier(.4,0,.2,1)" : "none";
+    track.style.transform = `translateX(${dir * offset}px)`;
+    if (dotsEl) dotsEl.querySelectorAll(".oc-dot").forEach((d, j) => d.classList.toggle("is-active", j === index));
+  }
+  function next() { goTo(index >= maxIndex() ? 0 : index + 1); }
+  function start() { stop(); timer = setInterval(() => { if (!hover && !dragging) next(); }, 4500); }
+  function stop() { if (timer) { clearInterval(timer); timer = null; } }
+  carousel.addEventListener("mouseenter", () => { hover = true; });
+  carousel.addEventListener("mouseleave", () => { hover = false; });
+  if (dotsEl) dotsEl.addEventListener("click", (e) => { const d = e.target.closest("[data-i]"); if (d) { goTo(parseInt(d.dataset.i, 10)); start(); } });
+  const onDown = (x) => { dragging = true; dragStartX = x; dragDelta = 0; track.style.transition = "none"; stop(); };
+  const onMove = (x) => { if (!dragging) return; dragDelta = x - dragStartX; const base = cardWidth() * index; const dir = (document.dir || "rtl") === "rtl" ? 1 : -1; track.style.transform = `translateX(${dir * base + dragDelta}px)`; };
+  const onUp = () => { if (!dragging) return; dragging = false; const threshold = Math.min(80, cardWidth() * 0.2); if (Math.abs(dragDelta) > threshold) { const rtl = (document.dir || "rtl") === "rtl"; if ((rtl && dragDelta < 0) || (!rtl && dragDelta > 0)) goTo(index + 1); else goTo(index - 1); } else goTo(index); start(); };
+  carousel.addEventListener("pointerdown", (e) => { if (e.target.closest("a,button,input")) return; carousel.setPointerCapture(e.pointerId); onDown(e.clientX); });
+  carousel.addEventListener("pointermove", (e) => onMove(e.clientX));
+  carousel.addEventListener("pointerup", onUp);
+  carousel.addEventListener("pointercancel", onUp);
+  window.addEventListener("resize", () => { computeVisible(); index = Math.min(index, maxIndex()); buildDots(); goTo(index, false); });
+  goTo(0, false); start();
 }
-
+function bindOncallCarousel() { bindCarousel("oncallCarousel", "oncallDots"); }
+function bindFeaturedDoctorsCarousel() { bindCarousel("featuredDoctorsCarousel", "featuredDoctorsDots"); }
 /* Fleming: carousel dot indicators — show how many cards are visible and which is active */
 function bindScrollDots(scrollId, dotsId) {
   const scroll = $("#" + scrollId);
