@@ -1934,3 +1934,49 @@ a.entity-card:hover { color: var(--ink); }
 @media (max-width: 640px) {
   .oncall-page { padding-inline: 20px; }
 }
+
+/* featured page (mobile-friendly) */
+.featured-page{background:var(--bg,#f6f8fa);min-height:calc(100vh - var(--header-h,64px));}
+.featured-head{display:flex;align-items:flex-start;gap:12px;padding:14px 0 4px;}
+.featured-back{width:40px;height:40px;flex:none;display:inline-flex;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--ink);}
+.featured-head h1{margin:0;font-size:22px;line-height:1.25;display:flex;align-items:center;gap:8px;color:var(--ink);}
+.featured-head h1 .ic{color:var(--gold,#d97706);}
+.featured-head p{margin:4px 0 0;color:var(--muted);font-size:13.5px;}
+.fdoc-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+@media (min-width:700px){.fdoc-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+.fdoc-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-card);cursor:pointer;display:flex;flex-direction:column;}
+.fdoc-media{position:relative;aspect-ratio:16/10;background:linear-gradient(135deg,var(--primary-soft,#e6f4f1),var(--surface));overflow:hidden;}
+.fdoc-media img{width:100%;height:100%;object-fit:cover;display:block;}
+.fdoc-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:44px;}
+.fdoc-fallback .ic{width:44px;height:44px;}
+.fdoc-body{padding:14px 14px 16px;display:flex;flex-direction:column;gap:6px;}
+.fdoc-name{margin:0;font-size:18px;font-weight:800;color:var(--ink);line-height:1.35;}
+.fdoc-spec{margin:0;display:flex;align-items:center;gap:6px;color:var(--primary-dark,var(--primary));font-weight:700;font-size:14px;}
+.fdoc-spec .ic{width:16px;height:16px;}
+.fdoc-meta{margin:0;display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;line-height:1.5;}
+.fdoc-meta .ic{width:15px;height:15px;flex:none;}
+.fdoc-actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.fdoc-call{flex:1 1 180px;justify-content:center;}
+.fdoc-open{flex:0 0 auto;}
+.featured-pharm-grid .entity-card{border-radius:16px;}
+
+/* featured doctors home carousel — same structure as on-call, different color */
+.featured-doctors-shell{
+  background:linear-gradient(135deg,#eef4ff 0%,#f8fbff 55%,#eef8f4 100%);
+  border-color:rgba(37,99,235,.16);
+  box-shadow:0 12px 34px rgba(37,99,235,.08);
+}
+.featured-docs-carousel .oc-dots .scroll-dot.active,
+#featuredDoctorsDots .oc-dot.is-active{background:#2563eb;width:22px;border-radius:999px;}
+.featured-doc-card{border-right:4px solid #2563eb;}
+.featured-doc-card:hover{border-color:rgba(37,99,235,.28);box-shadow:0 12px 28px rgba(37,99,235,.10);}
+.featured-doc-media{background:linear-gradient(135deg,#dbeafe,#eff6ff);}
+.featured-doc-media .oc-media-fallback{color:#2563eb;}
+.featured-doc-badge{background:linear-gradient(135deg,#dbeafe,#e0ecff);color:#1d4ed8;}
+.featured-doc-card .ec-dot{background:#2563eb;}
+.featured-doc-card .oc-addr .ic,
+.featured-doc-card .oc-hours .ic{color:#2563eb;}
+.featured-doc-card .oc-call{background:#2563eb;border-color:#2563eb;color:#fff;}
+.featured-doc-card .oc-call:hover{background:#1d4ed8;border-color:#1d4ed8;}
+.featured-doc-open{background:#f8fbff;border-color:rgba(37,99,235,.18);color:#1d4ed8;}
+.featured-doc-open:hover{background:#eff6ff;border-color:#2563eb;color:#1d4ed8;}

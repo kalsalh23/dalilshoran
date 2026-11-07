@@ -160,6 +160,33 @@ function entityCardMin(e, { rank = false } = {}) {
 /* Fleming: rectangular on-call pharmacy card — image on the right,
    details on the left. Used on the home "on-call today" strip and the
    on-call schedule page. Falls back to the type glyph when no image. */
+function featuredDoctorCarouselCard(d) {
+  const t = TYPES[d.type] || TYPES.doctor;
+  const addr = [d.area, d.address].filter(Boolean).join(" — ");
+  const rank = d.rank ? `<span class="oc-badge featured-doc-badge">${icon("star")} مميز${Number(d.rank) ? " · " + fmtNum(d.rank) : ""}</span>` : `<span class="oc-badge featured-doc-badge">${icon("star")} مميز</span>`;
+  return `
+  <article class="oncall-card featured-doc-card" data-go="#/entity/${d.id}" tabindex="0" role="link" aria-label="${esc(d.name)}">
+    <div class="oc-media featured-doc-media">
+      ${d.image_url
+        ? `<img src="${esc(d.image_url)}" alt="${esc(d.name)}" loading="lazy" />`
+        : `<div class="oc-media-fallback">${icon(t.icon || "steth")}</div>`}
+    </div>
+    <div class="oc-body">
+      <div class="oc-head">
+        <p class="oc-name">${esc(d.name)}</p>
+        ${rank}
+      </div>
+      <p class="oc-spec"><span class="ec-dot"></span>${esc(d.spec || t.label)}</p>
+      ${d.exp ? `<p class="oc-hours">${icon("briefcase")} خبرة ${fmtNum(d.exp)} سنة</p>` : ""}
+      ${addr ? `<p class="oc-addr">${icon("pin")} <span>${esc(addr)}</span></p>` : ""}
+      ${d.hours ? `<p class="oc-hours">${icon("clock")} ${esc(d.hours)}</p>` : ""}
+      <div class="oc-meta">
+        ${d.phone ? `<a class="oc-call" data-stop href="${telHref(d.phone)}" dir="ltr" aria-label="اتصال بـ ${esc(d.name)}">${icon("phone")} ${fmtPhone(d.phone)}</a>` : ""}
+        <a class="oc-map featured-doc-open" data-stop href="#/entity/${d.id}">${icon("arrowLeft")} التفاصيل</a>
+      </div>
+    </div>
+  </article>`;
+}
 function oncallCard(p) {
   const t = TYPES.pharmacy;
   const addr = [p.area, p.address].filter(Boolean).join(" — ");
@@ -323,7 +350,7 @@ function viewHome() {
   const todayName = DAYS[todayIdx()];
   const featuredDoctors = typeof featuredBy === "function" ? featuredBy("doctor", 8) : ENTITIES.filter((e)=>e && e.type==="doctor").slice(0,8);
   const featuredDoctorsHtml = featuredDoctors.length
-    ? `<div class="cards-grid" style="margin-top:12px">${featuredDoctors.map((d) => entityCardMin(d, { rank: true })).join("")}</div>`
+    ? featuredDoctors.map((d) => featuredDoctorCarouselCard(d)).join("")
     : `<p class="oncall-empty">لا يوجد أطباء مميزون حالياً.</p>`;
   const featuredPharmacies = (typeof featuredBy === "function" ? featuredBy("pharmacy", 5) : ENTITIES.filter((e)=>e && e.type==="pharmacy").slice(0,5)).map((p) => entityCardMin(p, { rank: true })).join("");
   const todayOncall = typeof oncallPharmacies === "function" ? oncallPharmacies(todayName) : [];
@@ -379,10 +406,17 @@ function viewHome() {
   ${featuredDoctors.length ? `
   <section class="section container">
     <div class="section-head">
-      <div><h2>الأطباء المميزون</h2><p>أسماء وتفاصيل سريعة — اضغط للملف الكامل</p></div>
+      <div><h2>الأطباء المميزون</h2><p>اسحب للتنقل بين الأطباء المميزين — اضغط للتفاصيل</p></div>
       <a class="section-link" href="#/doctors">كل الأطباء ${icon("arrowLeft")}</a>
     </div>
-    ${featuredDoctorsHtml}
+    <div class="oncall-today-card featured-doctors-shell">
+      <div class="oc-carousel featured-docs-carousel" id="featuredDoctorsCarousel" data-total="${featuredDoctors.length}">
+        <div class="oc-track">
+          ${featuredDoctorsHtml}
+        </div>
+        <div class="oc-dots" id="featuredDoctorsDots"></div>
+      </div>
+    </div>
   </section>` : ""}
 
   <section class="section container">
