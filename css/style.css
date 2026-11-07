@@ -323,9 +323,9 @@ input, select, textarea { font-family: inherit; }
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 14px 22px;
+  padding: 9px 22px;
   border-radius: var(--r-lg);
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 900;
   color: var(--ink-soft);
   background: var(--surface);
