@@ -1,11 +1,11 @@
 /* ============================================================
-   دليل صوران الطبي — منطق التطبيق (بدون أي مكتبات خارجية)
-   توجيه هاش | بحث شامل | خريطة Leaflet | وضع ليلي | مناوبة
+   Ø¯Ù„ÙŠÙ„ ØµÙˆØ±Ø§Ù† Ø§Ù„Ø·Ø¨ÙŠ â€” Ù…Ù†Ø·Ù‚ Ø§Ù„ØªØ·Ø¨ÙŠÙ‚ (Ø¨Ø¯ÙˆÙ† Ø£ÙŠ Ù…ÙƒØªØ¨Ø§Øª Ø®Ø§Ø±Ø¬ÙŠØ©)
+   ØªÙˆØ¬ÙŠÙ‡ Ù‡Ø§Ø´ | Ø¨Ø­Ø« Ø´Ø§Ù…Ù„ | Ø®Ø±ÙŠØ·Ø© Leaflet | ÙˆØ¶Ø¹ Ù„ÙŠÙ„ÙŠ | Ù…Ù†Ø§ÙˆØ¨Ø©
    ============================================================ */
 
 "use strict";
 
-/* ================= أدوات عامة ================= */
+/* ================= Ø£Ø¯ÙˆØ§Øª Ø¹Ø§Ù…Ø© ================= */
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 
@@ -20,13 +20,13 @@ const fmtPhone = (p) => String(p).replace(/^(\d{4})(\d{3})(\d{3})$/, "$1 $2 $3")
 const mapsLink = (lat, lng, address) =>
   lat && lng
     ? "https://www.google.com/maps?q=" + lat + "," + lng
-    : "https://www.google.com/maps?q=" + encodeURIComponent(address || "صوران");
+    : "https://www.google.com/maps?q=" + encodeURIComponent(address || "ØµÙˆØ±Ø§Ù†");
 
 const todayIdx = () => new Date().getDay();
 const initials = (name) =>
-  String(name).replace(/^د\.\s*/, "").split(/\s+/).slice(0, 2).map((w) => w[0]).join("");
+  String(name).replace(/^Ø¯\.\s*/, "").split(/\s+/).slice(0, 2).map((w) => w[0]).join("");
 
-/* ================= الأيقونات ================= */
+/* ================= Ø§Ù„Ø£ÙŠÙ‚ÙˆÙ†Ø§Øª ================= */
 const ICONS = {
   search: '<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>',
   phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>',
@@ -83,11 +83,11 @@ const ICONS = {
 const icon = (n, cls = "") =>
   `<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ICONS.info}</svg>`;
 
-/* ================= الحالة العامة ================= */
+/* ================= Ø§Ù„Ø­Ø§Ù„Ø© Ø§Ù„Ø¹Ø§Ù…Ø© ================= */
 const state = {
   map: null,
   oncallDay: todayIdx(),
-  askCat: "الكل",
+  askCat: "Ø§Ù„ÙƒÙ„",
   askQuery: "",
   dashTab: "entities",
   filters: {},
@@ -96,7 +96,7 @@ const state = {
   state.filters[t] = { q: "", spec: "", area: "", sort: "featured" };
 });
 
-/* ================= مكوّنات مشتركة ================= */
+/* ================= Ù…ÙƒÙˆÙ‘Ù†Ø§Øª Ù…Ø´ØªØ±ÙƒØ© ================= */
 function typeBadge(e) {
   const t = TYPES[e.type];
   return `<a class="badge badge-blue" href="#/${routeSlug(e.type)}" style="--tc:${t.color}">${icon(t.icon)} ${t.label}</a>`;
@@ -104,7 +104,7 @@ function typeBadge(e) {
 
 function entityCard(e, { rank = false, hours = false, image = false } = {}) {
   const t = TYPES[e.type];
-  const addr = [e.area, e.address].filter(Boolean).join(" — ");
+  const addr = [e.area, e.address].filter(Boolean).join(" â€” ");
 
   return `
   <article class="entity-card" data-go="#/entity/${e.id}" style="--tc:${t.color}" tabindex="0" role="link" aria-label="${esc(e.name)}">
@@ -114,27 +114,27 @@ function entityCard(e, { rank = false, hours = false, image = false } = {}) {
       <div class="ec-body">
         <p class="ec-name">${esc(e.name)}</p>
         <p class="ec-spec"><span class="ec-dot"></span>${esc(e.spec || t.label)}</p>
-        ${e.type === "doctor" && e.exp ? `<p class="ec-exp">خبرة ${fmtNum(e.exp)} سنوات</p>` : ""}
+        ${e.type === "doctor" && e.exp ? `<p class="ec-exp">Ø®Ø¨Ø±Ø© ${fmtNum(e.exp)} Ø³Ù†ÙˆØ§Øª</p>` : ""}
         ${addr ? `<p class="ec-addr">${icon("pin")} <span>${esc(addr)}</span></p>` : ""}
         ${hours ? `<p class="ec-hours">${icon("clock")} ${esc(e.hours)}</p>` : ""}
         <div class="ec-meta2">
           ${e.phone ? `<span class="ec-phone" dir="ltr">${icon("phone")} ${fmtPhone(e.phone)}</span>` : ""}
-          <a class="ec-map" data-stop href="${mapsLink(e.lat, e.lng, addr)}" target="_blank" rel="noopener">${icon("pin")} الموقع</a>
+          <a class="ec-map" data-stop href="${mapsLink(e.lat, e.lng, addr)}" target="_blank" rel="noopener">${icon("pin")} Ø§Ù„Ù…ÙˆÙ‚Ø¹</a>
         </div>
       </div>
       <div class="ec-side">
         <span class="ec-arrow">${icon("arrowLeft")}</span>
-        <span class="ec-view">عرض</span>
+        <span class="ec-view">Ø¹Ø±Ø¶</span>
       </div>
     </div>
   </article>`;
 }
 
-/* Fleming: rectangular featured doctor card — image on the right,
+/* Fleming: rectangular featured doctor card â€” image on the right,
    details on the left. Swipe carousel on home. */
 function doctorFeatureCard(d) {
   const t = TYPES.doctor;
-  const addr = [d.area, d.address].filter(Boolean).join(" — ");
+  const addr = [d.area, d.address].filter(Boolean).join(" â€” ");
   return `
   <article class="oncall-card doctor-feature-card" data-go="#/entity/${d.id}" tabindex="0" role="link" aria-label="${esc(d.name)}">
     <div class="oc-media">
@@ -145,19 +145,19 @@ function doctorFeatureCard(d) {
     <div class="oc-body">
       <div class="oc-head">
         <p class="oc-name">${esc(d.name)}</p>
-        ${d.featured ? `<span class="oc-badge">${icon("star")} مميز</span>` : ""}
+        ${d.featured ? `<span class="oc-badge">${icon("star")} Ù…Ù…ÙŠØ²</span>` : ""}
       </div>
       <p class="oc-spec"><span class="ec-dot"></span>${esc(d.spec || t.label)}</p>
-      ${d.degree ? `<p class="oc-hours">${icon("doc")} ${esc(d.degree)}${d.exp ? ` · خبرة ${fmtNum(d.exp)} سنوات` : ""}</p>` : (d.exp ? `<p class="oc-hours">${icon("doc")} خبرة ${fmtNum(d.exp)} سنوات</p>` : "")}
+      ${d.degree ? `<p class="oc-hours">${icon("doc")} ${esc(d.degree)}${d.exp ? ` Â· Ø®Ø¨Ø±Ø© ${fmtNum(d.exp)} Ø³Ù†ÙˆØ§Øª` : ""}</p>` : (d.exp ? `<p class="oc-hours">${icon("doc")} Ø®Ø¨Ø±Ø© ${fmtNum(d.exp)} Ø³Ù†ÙˆØ§Øª</p>` : "")}
       ${addr ? `<p class="oc-addr">${icon("pin")} <span>${esc(addr)}</span></p>` : ""}
       ${d.hours ? `<p class="oc-hours">${icon("clock")} ${esc(d.hours)}</p>` : ""}
       <div class="oc-meta">
         ${d.phone ? `
-          <a class="oc-call" data-stop href="${telHref(d.phone)}" dir="ltr" aria-label="اتصال بـ ${esc(d.name)}">
+          <a class="oc-call" data-stop href="${telHref(d.phone)}" dir="ltr" aria-label="Ø§ØªØµØ§Ù„ Ø¨Ù€ ${esc(d.name)}">
             ${icon("phone")} ${fmtPhone(d.phone)}
           </a>` : ""}
         <a class="oc-map" data-stop href="#/entity/${d.id}">
-          ${icon("arrowLeft")} التفاصيل
+          ${icon("arrowLeft")} Ø§Ù„ØªÙØ§ØµÙŠÙ„
         </a>
       </div>
     </div>
@@ -166,7 +166,7 @@ function doctorFeatureCard(d) {
 
 function entityCardMin(e, { rank = false } = {}) {
   const t = TYPES[e.type];
-  const addr = [e.area, e.address].filter(Boolean).join(" — ");
+  const addr = [e.area, e.address].filter(Boolean).join(" â€” ");
 
   return `
   <article class="entity-card entity-card--min" data-go="#/entity/${e.id}" style="--tc:${t.color}" tabindex="0" role="link" aria-label="${esc(e.name)}">
@@ -176,24 +176,24 @@ function entityCardMin(e, { rank = false } = {}) {
       <div class="ec-min-body">
         <p class="ec-name">${esc(e.name)}</p>
         <p class="ec-spec"><span class="ec-dot"></span>${esc(e.spec || t.label)}</p>
-        ${e.type === "doctor" && e.exp ? `<p class="ec-exp">خبرة ${fmtNum(e.exp)} سنوات</p>` : ""}
+        ${e.type === "doctor" && e.exp ? `<p class="ec-exp">Ø®Ø¨Ø±Ø© ${fmtNum(e.exp)} Ø³Ù†ÙˆØ§Øª</p>` : ""}
       </div>
       <div class="ec-min-side">
         ${e.phone ? `
-          <a class="ec-call" data-stop href="${telHref(e.phone)}" dir="ltr" aria-label="اتصال بـ ${esc(e.name)}">
-            ${icon("phone")} اتصال
+          <a class="ec-call" data-stop href="${telHref(e.phone)}" dir="ltr" aria-label="Ø§ØªØµØ§Ù„ Ø¨Ù€ ${esc(e.name)}">
+            ${icon("phone")} Ø§ØªØµØ§Ù„
           </a>` : `<span class="ec-call ec-call--muted">${icon("pin")} Site</span>`}
       </div>
     </div>
   </article>`;
 }
 
-/* Fleming: rectangular on-call pharmacy card — image on the right,
+/* Fleming: rectangular on-call pharmacy card â€” image on the right,
    details on the left. Used on the home "on-call today" strip and the
    on-call schedule page. Falls back to the type glyph when no image. */
 function oncallCard(p) {
   const t = TYPES.pharmacy;
-  const addr = [p.area, p.address].filter(Boolean).join(" — ");
+  const addr = [p.area, p.address].filter(Boolean).join(" â€” ");
   return `
   <article class="oncall-card" data-go="#/entity/${p.id}" tabindex="0" role="link" aria-label="${esc(p.name)}">
     <div class="oc-media">
@@ -204,14 +204,14 @@ function oncallCard(p) {
     <div class="oc-body">
       <div class="oc-head">
         <p class="oc-name">${esc(p.name)}</p>
-        <span class="oc-badge">${icon("ambulance")} مناوبة</span>
+        <span class="oc-badge">${icon("ambulance")} Ù…Ù†Ø§ÙˆØ¨Ø©</span>
       </div>
       <p class="oc-spec"><span class="ec-dot"></span>${esc(p.spec || t.label)}</p>
       ${addr ? `<p class="oc-addr">${icon("pin")} <span>${esc(addr)}</span></p>` : ""}
       ${p.hours ? `<p class="oc-hours">${icon("clock")} ${esc(p.hours)}</p>` : ""}
       <div class="oc-meta">
         ${p.phone ? `
-          <a class="oc-call" data-stop href="${telHref(p.phone)}" dir="ltr" aria-label="اتصال بـ ${esc(p.name)}">
+          <a class="oc-call" data-stop href="${telHref(p.phone)}" dir="ltr" aria-label="Ø§ØªØµØ§Ù„ Ø¨Ù€ ${esc(p.name)}">
             ${icon("phone")} ${fmtPhone(p.phone)}
           </a>` : ""}
         <a class="oc-map" data-stop href="${mapsLink(p.lat, p.lng, addr)}" target="_blank" rel="noopener">
@@ -222,7 +222,7 @@ function oncallCard(p) {
   </article>`;
 }
 
-/* الضغط على البطاقة كاملة يفتح التفاصيل — عدا الروابط الداخلية الموسومة data-stop */
+/* Ø§Ù„Ø¶ØºØ· Ø¹Ù„Ù‰ Ø§Ù„Ø¨Ø·Ø§Ù‚Ø© ÙƒØ§Ù…Ù„Ø© ÙŠÙØªØ­ Ø§Ù„ØªÙØ§ØµÙŠÙ„ â€” Ø¹Ø¯Ø§ Ø§Ù„Ø±ÙˆØ§Ø¨Ø· Ø§Ù„Ø¯Ø§Ø®Ù„ÙŠØ© Ø§Ù„Ù…ÙˆØ³ÙˆÙ…Ø© data-stop */
 document.addEventListener("click", (ev) => {
   const go = ev.target.closest("[data-go]");
   if (!go || ev.target.closest("[data-stop]")) return;
@@ -241,7 +241,20 @@ function isOnCallToday(id) {
 const routeSlug = (type) =>
   ({ doctor: "doctors", pharmacy: "pharmacies", hospital: "hospitals", lab: "labs", radiology: "radiology", "health-center": "health-centers" }[type]);
 
-/* ================= البحث ================= */
+function entitiesByType(type) {
+  return (ENTITIES || []).filter((e) => e && e.type === type);
+}
+function featuredBy(type, limit) {
+  const list = entitiesByType(type).filter((e) => e.featured);
+  return typeof limit === "number" ? list.slice(0, limit) : list;
+}
+function oncallPharmacies(dayName) {
+  const ids = (ONCALL && ONCALL[dayName]) ? ONCALL[dayName] : [];
+  return ids.map((id) => (ENTITIES || []).find((e) => e && e.id === id)).filter(Boolean);
+}
+
+
+/* ================= Ø§Ù„Ø¨Ø­Ø« ================= */
 function searchAll(qRaw) {
   const q = String(qRaw || "").trim();
   if (q.length < 2) return { entities: [], faqs: [] };
@@ -255,7 +268,7 @@ function searchAll(qRaw) {
   return { entities, faqs };
 }
 
-/* ================= الخريطة ================= */
+/* ================= Ø§Ù„Ø®Ø±ÙŠØ·Ø© ================= */
 function destroyMap() {
   if (state.map) { state.map.remove(); state.map = null; }
 }
@@ -272,17 +285,17 @@ function pinIcon(type) {
 }
 
 function popupHtml(e) {
-  return `<b>${esc(e.name)}</b><small>${esc(TYPES[e.type].label)} — ${esc(e.area)}</small><br>
+  return `<b>${esc(e.name)}</b><small>${esc(TYPES[e.type].label)} â€” ${esc(e.area)}</small><br>
     <a href="${telHref(e.phone)}" dir="ltr">${fmtPhone(e.phone)}</a><br>
-    <a href="#/entity/${e.id}">عرض التفاصيل ←</a>`;
+    <a href="#/entity/${e.id}">Ø¹Ø±Ø¶ Ø§Ù„ØªÙØ§ØµÙŠÙ„ â†</a>`;
 }
 
 function mountMap(id, points) {
   const el = document.getElementById(id);
   if (!el) return;
   if (!window.L) {
-    el.innerHTML = `<div class="map-fallback">${icon("map")} تعذّر تحميل الخريطة — تحقق من اتصالك بالإنترنت.<br>
-      <a href="https://www.openstreetmap.org/#map=15/${SITE.center[0]}/${SITE.center[1]}" target="_blank" rel="noopener">فتح موقع صوران في OpenStreetMap ↗</a></div>`;
+    el.innerHTML = `<div class="map-fallback">${icon("map")} ØªØ¹Ø°Ù‘Ø± ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø®Ø±ÙŠØ·Ø© â€” ØªØ­Ù‚Ù‚ Ù…Ù† Ø§ØªØµØ§Ù„Ùƒ Ø¨Ø§Ù„Ø¥Ù†ØªØ±Ù†Øª.<br>
+      <a href="https://www.openstreetmap.org/#map=15/${SITE.center[0]}/${SITE.center[1]}" target="_blank" rel="noopener">ÙØªØ­ Ù…ÙˆÙ‚Ø¹ ØµÙˆØ±Ø§Ù† ÙÙŠ OpenStreetMap â†—</a></div>`;
     return;
   }
   destroyMap();
@@ -312,7 +325,7 @@ function mountMap(id, points) {
   state.map = map;
 }
 
-/* ================= التوست والنسخ ================= */
+/* ================= Ø§Ù„ØªÙˆØ³Øª ÙˆØ§Ù„Ù†Ø³Ø® ================= */
 function showToast(msg, kind = "ok") {
   const wrap = $("#toastWrap");
   const el = document.createElement("div");
@@ -329,7 +342,7 @@ document.addEventListener("click", (ev) => {
   const btn = ev.target.closest("[data-copy]");
   if (!btn) return;
   const text = btn.getAttribute("data-copy");
-  const done = () => showToast(`تم نسخ الرقم: ${fmtPhone(text)}`);
+  const done = () => showToast(`ØªÙ… Ù†Ø³Ø® Ø§Ù„Ø±Ù‚Ù…: ${fmtPhone(text)}`);
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
   } else fallbackCopy(text, done);
@@ -342,18 +355,18 @@ function fallbackCopy(text, done) {
   ta.style.opacity = "0";
   document.body.appendChild(ta);
   ta.select();
-  try { document.execCommand("copy"); done(); } catch (_) { showToast("تعذّر النسخ", "warn"); }
+  try { document.execCommand("copy"); done(); } catch (_) { showToast("ØªØ¹Ø°Ù‘Ø± Ø§Ù„Ù†Ø³Ø®", "warn"); }
   ta.remove();
 }
 
-/* ================= العرض: الرئيسية ================= */
+/* ================= Ø§Ù„Ø¹Ø±Ø¶: Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ© ================= */
 function viewHome() {
   const todayName = DAYS[todayIdx()];
 
   const featuredDoctors = featuredBy("doctor", 8);
   const featuredDoctorsHtml = featuredDoctors.length
     ? featuredDoctors.map((d) => doctorFeatureCard(d)).join("")
-    : `<p class="oncall-empty">لا يوجد أطباء مميزون حالياً.</p>`;
+    : `<p class="oncall-empty">Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ø£Ø·Ø¨Ø§Ø¡ Ù…Ù…ÙŠØ²ÙˆÙ† Ø­Ø§Ù„ÙŠØ§Ù‹.</p>`;
   const featuredPharmacies = featuredBy("pharmacy", 5).map((p) => entityCardMin(p, { rank: true })).join("");
 
   const todayOncall = oncallPharmacies(todayName);
@@ -364,14 +377,14 @@ function viewHome() {
 return `
   <section class="container">
     <div class="hero">
-      <span class="hero-badge">${icon("shield")} دليل صوران الطبي</span>
-      <h1>كل الخدمات الطبية في صوران — في مكان واحد</h1>
-      <p class="hero-sub">ابحث عن طبيب أو صيدلية، واتصل مباشرة.</p>
+      <span class="hero-badge">${icon("shield")} Ø¯Ù„ÙŠÙ„ ØµÙˆØ±Ø§Ù† Ø§Ù„Ø·Ø¨ÙŠ</span>
+      <h1>ÙƒÙ„ Ø§Ù„Ø®Ø¯Ù…Ø§Øª Ø§Ù„Ø·Ø¨ÙŠØ© ÙÙŠ ØµÙˆØ±Ø§Ù† â€” ÙÙŠ Ù…ÙƒØ§Ù† ÙˆØ§Ø­Ø¯</h1>
+      <p class="hero-sub">Ø§Ø¨Ø­Ø« Ø¹Ù† Ø·Ø¨ÙŠØ¨ Ø£Ùˆ ØµÙŠØ¯Ù„ÙŠØ©ØŒ ÙˆØ§ØªØµÙ„ Ù…Ø¨Ø§Ø´Ø±Ø©.</p>
       <div class="hero-search">
         <div class="hero-search-box">
           ${icon("search")}
-          <input type="search" id="heroSearch" placeholder="ابحث عن طبيب، اختصاص، صيدلية…" autocomplete="off" aria-label="بحث في الدليل" />
-          <a class="btn btn-primary hero-search-btn" href="#/search" id="heroSearchBtn">بحث</a>
+          <input type="search" id="heroSearch" placeholder="Ø§Ø¨Ø­Ø« Ø¹Ù† Ø·Ø¨ÙŠØ¨ØŒ Ø§Ø®ØªØµØ§ØµØŒ ØµÙŠØ¯Ù„ÙŠØ©â€¦" autocomplete="off" aria-label="Ø¨Ø­Ø« ÙÙŠ Ø§Ù„Ø¯Ù„ÙŠÙ„" />
+          <a class="btn btn-primary hero-search-btn" href="#/search" id="heroSearchBtn">Ø¨Ø­Ø«</a>
         </div>
         <div class="hero-suggest" id="heroSuggest" hidden></div>
       </div>
@@ -380,13 +393,13 @@ return `
 
   <section class="container">
     <div class="quick-nav">
-      <h3 class="quick-nav-title">${icon("sparkles")} اختصارات سريعة</h3>
+      <h3 class="quick-nav-title">${icon("sparkles")} Ø§Ø®ØªØµØ§Ø±Ø§Øª Ø³Ø±ÙŠØ¹Ø©</h3>
       <div class="quick-nav-row">
-        <a class="hero-chip" href="#/doctors">الأطباء</a>
-        <a class="hero-chip" href="#/pharmacies">الصيدليات</a>
-        <a class="hero-chip" href="#/hospitals">المشافي</a>
-        <a class="hero-chip" href="#/health-centers">المراكز الطبية</a>
-        <a class="hero-chip is-amber" href="#/oncall">الصيدليات المناوبة</a>
+        <a class="hero-chip" href="#/doctors">Ø§Ù„Ø£Ø·Ø¨Ø§Ø¡</a>
+        <a class="hero-chip" href="#/pharmacies">Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª</a>
+        <a class="hero-chip" href="#/hospitals">Ø§Ù„Ù…Ø´Ø§ÙÙŠ</a>
+        <a class="hero-chip" href="#/health-centers">Ø§Ù„Ù…Ø±Ø§ÙƒØ² Ø§Ù„Ø·Ø¨ÙŠØ©</a>
+        <a class="hero-chip is-amber" href="#/oncall">Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª Ø§Ù„Ù…Ù†Ø§ÙˆØ¨Ø©</a>
       </div>
     </div>
   </section>
@@ -395,13 +408,13 @@ return `
 
   <section class="section container">
     <div class="section-head">
-      <div><h2>الصيدليات المناوبة اليوم</h2><p>${todayName} — الصيدليات العاملة خارج أوقات الدوام، اتصل قبل التوجه</p></div>
-      <a class="section-link" href="#/oncall">جدول المناوبة ${icon("arrowLeft")}</a>
+      <div><h2>Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª Ø§Ù„Ù…Ù†Ø§ÙˆØ¨Ø© Ø§Ù„ÙŠÙˆÙ…</h2><p>${todayName} â€” Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª Ø§Ù„Ø¹Ø§Ù…Ù„Ø© Ø®Ø§Ø±Ø¬ Ø£ÙˆÙ‚Ø§Øª Ø§Ù„Ø¯ÙˆØ§Ù…ØŒ Ø§ØªØµÙ„ Ù‚Ø¨Ù„ Ø§Ù„ØªÙˆØ¬Ù‡</p></div>
+      <a class="section-link" href="#/oncall">Ø¬Ø¯ÙˆÙ„ Ø§Ù„Ù…Ù†Ø§ÙˆØ¨Ø© ${icon("arrowLeft")}</a>
     </div>
     <div class="oncall-today-card">
       <div class="oc-carousel" id="oncallCarousel" data-total="${todayOncall.length}">
         <div class="oc-track">
-          ${todayOncall.length ? todayOncall.map((p) => oncallCard(p)).join("") : `<p class="oncall-empty">لا توجد صيدليات مناوبة مسجلة لهذا اليوم — راجع جدول بقية أيام الأسبوع.</p>`}
+          ${todayOncall.length ? todayOncall.map((p) => oncallCard(p)).join("") : `<p class="oncall-empty">Ù„Ø§ ØªÙˆØ¬Ø¯ ØµÙŠØ¯Ù„ÙŠØ§Øª Ù…Ù†Ø§ÙˆØ¨Ø© Ù…Ø³Ø¬Ù„Ø© Ù„Ù‡Ø°Ø§ Ø§Ù„ÙŠÙˆÙ… â€” Ø±Ø§Ø¬Ø¹ Ø¬Ø¯ÙˆÙ„ Ø¨Ù‚ÙŠØ© Ø£ÙŠØ§Ù… Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹.</p>`}
         </div>
         <div class="oc-dots" id="oncallDots"></div>
       </div>
@@ -411,8 +424,8 @@ return `
   ${featuredDoctors.length ? `
   <section class="section container">
     <div class="section-head">
-      <div><h2>الأطباء المميزون</h2><p>أسماء وتفاصيل مع صورة — اسحب للتنقل بين الأطباء</p></div>
-      <a class="section-link" href="#/doctors">كل الأطباء ${icon("arrowLeft")}</a>
+      <div><h2>Ø§Ù„Ø£Ø·Ø¨Ø§Ø¡ Ø§Ù„Ù…Ù…ÙŠØ²ÙˆÙ†</h2><p>Ø£Ø³Ù…Ø§Ø¡ ÙˆØªÙØ§ØµÙŠÙ„ Ù…Ø¹ ØµÙˆØ±Ø© â€” Ø§Ø³Ø­Ø¨ Ù„Ù„ØªÙ†Ù‚Ù„ Ø¨ÙŠÙ† Ø§Ù„Ø£Ø·Ø¨Ø§Ø¡</p></div>
+      <a class="section-link" href="#/doctors">ÙƒÙ„ Ø§Ù„Ø£Ø·Ø¨Ø§Ø¡ ${icon("arrowLeft")}</a>
     </div>
     <div class="oncall-today-card">
       <div class="oc-carousel" id="featuredDoctorsCarousel" data-total="${featuredDoctors.length}">
@@ -426,31 +439,31 @@ return `
 
   <section class="section container">
     <div class="section-head">
-      <div><h2>الخريطة الطبية للمدينة</h2><p>مواقع تقريبية لكل الجهات المسجلة — اضغط العلامة للتفاصيل</p></div>
+      <div><h2>Ø§Ù„Ø®Ø±ÙŠØ·Ø© Ø§Ù„Ø·Ø¨ÙŠØ© Ù„Ù„Ù…Ø¯ÙŠÙ†Ø©</h2><p>Ù…ÙˆØ§Ù‚Ø¹ ØªÙ‚Ø±ÙŠØ¨ÙŠØ© Ù„ÙƒÙ„ Ø§Ù„Ø¬Ù‡Ø§Øª Ø§Ù„Ù…Ø³Ø¬Ù„Ø© â€” Ø§Ø¶ØºØ· Ø§Ù„Ø¹Ù„Ø§Ù…Ø© Ù„Ù„ØªÙØ§ØµÙŠÙ„</p></div>
     </div>
     <div class="map-wrap">
       <div class="map-head">
-        <h3>${icon("map")} خريطة صوران الصحية</h3>
+        <h3>${icon("map")} Ø®Ø±ÙŠØ·Ø© ØµÙˆØ±Ø§Ù† Ø§Ù„ØµØ­ÙŠØ©</h3>
         <div class="map-legend">${legend}</div>
       </div>
       <div id="homeMap"></div>
     </div>
-    <p class="map-note">${icon("info")} المواقع تقريبية لأغراض التوجيه، والعنوان الدقيق مذكور في صفحة كل جهة.</p>
+    <p class="map-note">${icon("info")} Ø§Ù„Ù…ÙˆØ§Ù‚Ø¹ ØªÙ‚Ø±ÙŠØ¨ÙŠØ© Ù„Ø£ØºØ±Ø§Ø¶ Ø§Ù„ØªÙˆØ¬ÙŠÙ‡ØŒ ÙˆØ§Ù„Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ø¯Ù‚ÙŠÙ‚ Ù…Ø°ÙƒÙˆØ± ÙÙŠ ØµÙØ­Ø© ÙƒÙ„ Ø¬Ù‡Ø©.</p>
   </section>
 
   <section class="container" style="padding-bottom:40px">
     <div class="cta-band cta-blue">
       <div>
-        <h3>عندك سؤال صحي؟ اسأل أهل الاختصاص</h3>
-        <p>مكتبة إرشادات طبية موثوقة باللغة العربية، وإن لم تجد إجابتك فأرسل سؤالك وسيراجعه فريق الدليل.</p>
+        <h3>Ø¹Ù†Ø¯Ùƒ Ø³Ø¤Ø§Ù„ ØµØ­ÙŠØŸ Ø§Ø³Ø£Ù„ Ø£Ù‡Ù„ Ø§Ù„Ø§Ø®ØªØµØ§Øµ</h3>
+        <p>Ù…ÙƒØªØ¨Ø© Ø¥Ø±Ø´Ø§Ø¯Ø§Øª Ø·Ø¨ÙŠØ© Ù…ÙˆØ«ÙˆÙ‚Ø© Ø¨Ø§Ù„Ù„ØºØ© Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©ØŒ ÙˆØ¥Ù† Ù„Ù… ØªØ¬Ø¯ Ø¥Ø¬Ø§Ø¨ØªÙƒ ÙØ£Ø±Ø³Ù„ Ø³Ø¤Ø§Ù„Ùƒ ÙˆØ³ÙŠØ±Ø§Ø¬Ø¹Ù‡ ÙØ±ÙŠÙ‚ Ø§Ù„Ø¯Ù„ÙŠÙ„.</p>
       </div>
-      <a class="btn btn-gold btn-lg" href="#/ask">${icon("chat")} اسأل الآن</a>
+      <a class="btn btn-gold btn-lg" href="#/ask">${icon("chat")} Ø§Ø³Ø£Ù„ Ø§Ù„Ø¢Ù†</a>
     </div>
   </section>`;
 }
 
 function afterHome() {
-  /* اقتراحات البحث في الهيرو */
+  /* Ø§Ù‚ØªØ±Ø§Ø­Ø§Øª Ø§Ù„Ø¨Ø­Ø« ÙÙŠ Ø§Ù„Ù‡ÙŠØ±Ùˆ */
   const input = $("#heroSearch");
   const box = $("#heroSuggest");
   if (input && box) {
@@ -462,15 +475,15 @@ function afterHome() {
         ...entities.slice(0, 6).map((e) => `
           <button class="suggest-item" type="button" data-go="#/entity/${e.id}">
             <span class="s-icon" style="--tc:${TYPES[e.type].color}">${icon(TYPES[e.type].icon)}</span>
-            <span><strong>${esc(e.name)}</strong><small>${esc(e.spec || TYPES[e.type].label)} — ${esc(e.area)}</small></span>
+            <span><strong>${esc(e.name)}</strong><small>${esc(e.spec || TYPES[e.type].label)} â€” ${esc(e.area)}</small></span>
           </button>`),
         ...faqs.slice(0, 2).map((f) => `
           <button class="suggest-item" type="button" data-go="#/ask">
             <span class="s-icon">${icon("doc")}</span>
-            <span><strong>${esc(f.q)}</strong><small>سؤال شائع — ${esc(f.cat)}</small></span>
+            <span><strong>${esc(f.q)}</strong><small>Ø³Ø¤Ø§Ù„ Ø´Ø§Ø¦Ø¹ â€” ${esc(f.cat)}</small></span>
           </button>`),
       ].join("");
-      box.innerHTML = items || `<p class="search-hint">لا نتائج مطابقة لكلمة «${esc(q)}» — جرّب كلمة أخرى.</p>`;
+      box.innerHTML = items || `<p class="search-hint">Ù„Ø§ Ù†ØªØ§Ø¦Ø¬ Ù…Ø·Ø§Ø¨Ù‚Ø© Ù„ÙƒÙ„Ù…Ø© Â«${esc(q)}Â» â€” Ø¬Ø±Ù‘Ø¨ ÙƒÙ„Ù…Ø© Ø£Ø®Ø±Ù‰.</p>`;
       box.hidden = false;
     };
     input.addEventListener("input", renderSuggest);
@@ -515,7 +528,7 @@ function bindCarousel(id, dotsId) {
     if (!dotsEl) return;
     const mx = maxIndex();
     dotsEl.innerHTML = Array.from({ length: mx + 1 })
-      .map((_, i) => `<button class="oc-dot${i === Math.min(index, mx) ? " is-active" : ""}" type="button" aria-label="شريحة ${i + 1}" data-i="${i}"></button>`).join("");
+      .map((_, i) => `<button class="oc-dot${i === Math.min(index, mx) ? " is-active" : ""}" type="button" aria-label="Ø´Ø±ÙŠØ­Ø© ${i + 1}" data-i="${i}"></button>`).join("");
   }
   buildDots();
   function cardWidth() {
@@ -550,7 +563,7 @@ function bindCarousel(id, dotsId) {
 }
 function bindOncallCarousel() { bindCarousel("oncallCarousel", "oncallDots"); }
 function bindFeaturedDoctorsCarousel() { bindCarousel("featuredDoctorsCarousel", "featuredDoctorsDots"); }
-/* Fleming: carousel dot indicators — show how many cards are visible and which is active */
+/* Fleming: carousel dot indicators â€” show how many cards are visible and which is active */
 function bindScrollDots(scrollId, dotsId) {
   const scroll = $("#" + scrollId);
   const dots = $("#" + dotsId);
@@ -558,7 +571,7 @@ function bindScrollDots(scrollId, dotsId) {
   const count = scroll.querySelectorAll(":scope > *").length;
   if (count < 2) return;
   const html = Array.from({ length: count }, (_, i) =>
-    `<button class="scroll-dot" data-i="${i}" aria-label="العنصر ${i + 1}" ${i === 0 ? "aria-current=\"true\"" : ""}></button>`).join("");
+    `<button class="scroll-dot" data-i="${i}" aria-label="Ø§Ù„Ø¹Ù†ØµØ± ${i + 1}" ${i === 0 ? "aria-current=\"true\"" : ""}></button>`).join("");
   dots.innerHTML = html;
   const update = () => {
     const cardWidth = scroll.querySelector(":scope > *").offsetWidth;
@@ -580,14 +593,14 @@ function bindScrollDots(scrollId, dotsId) {
   });
 }
 
-/* ================= العرض: قوائم الجهات ================= */
+/* ================= Ø§Ù„Ø¹Ø±Ø¶: Ù‚ÙˆØ§Ø¦Ù… Ø§Ù„Ø¬Ù‡Ø§Øª ================= */
 const TYPE_INTRO = {
-  doctor: "عيادات وأطباء داخل مدينة صوران مع التخصصات وأوقات العمل وأرقام الاتصال المباشر.",
-  pharmacy: "صيدليات المدينة مع أوقات العمل وشارة «مناوبة اليوم» للصيدليات المناوبة حالياً.",
-  hospital: "المشافي والمستوصفات في صوران: خدماتها وأرقامها وأوقات العيادات والطوارئ.",
-  lab: "مخابر التحاليل الطبية داخل المدينة مع الخدمات المتوفرة وأوقات السحب.",
-  radiology: "مراكز الأشعة والسونار: أجهزتها وخدماتها ومواعيد عملها.",
-  "health-center": "المراكز الصحية الحكومية والأهلية: تطعيمات، رعاية أولية، وتثقيف صحي.",
+  doctor: "Ø¹ÙŠØ§Ø¯Ø§Øª ÙˆØ£Ø·Ø¨Ø§Ø¡ Ø¯Ø§Ø®Ù„ Ù…Ø¯ÙŠÙ†Ø© ØµÙˆØ±Ø§Ù† Ù…Ø¹ Ø§Ù„ØªØ®ØµØµØ§Øª ÙˆØ£ÙˆÙ‚Ø§Øª Ø§Ù„Ø¹Ù…Ù„ ÙˆØ£Ø±Ù‚Ø§Ù… Ø§Ù„Ø§ØªØµØ§Ù„ Ø§Ù„Ù…Ø¨Ø§Ø´Ø±.",
+  pharmacy: "ØµÙŠØ¯Ù„ÙŠØ§Øª Ø§Ù„Ù…Ø¯ÙŠÙ†Ø© Ù…Ø¹ Ø£ÙˆÙ‚Ø§Øª Ø§Ù„Ø¹Ù…Ù„ ÙˆØ´Ø§Ø±Ø© Â«Ù…Ù†Ø§ÙˆØ¨Ø© Ø§Ù„ÙŠÙˆÙ…Â» Ù„Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª Ø§Ù„Ù…Ù†Ø§ÙˆØ¨Ø© Ø­Ø§Ù„ÙŠØ§Ù‹.",
+  hospital: "Ø§Ù„Ù…Ø´Ø§ÙÙŠ ÙˆØ§Ù„Ù…Ø³ØªÙˆØµÙØ§Øª ÙÙŠ ØµÙˆØ±Ø§Ù†: Ø®Ø¯Ù…Ø§ØªÙ‡Ø§ ÙˆØ£Ø±Ù‚Ø§Ù…Ù‡Ø§ ÙˆØ£ÙˆÙ‚Ø§Øª Ø§Ù„Ø¹ÙŠØ§Ø¯Ø§Øª ÙˆØ§Ù„Ø·ÙˆØ§Ø±Ø¦.",
+  lab: "Ù…Ø®Ø§Ø¨Ø± Ø§Ù„ØªØ­Ø§Ù„ÙŠÙ„ Ø§Ù„Ø·Ø¨ÙŠØ© Ø¯Ø§Ø®Ù„ Ø§Ù„Ù…Ø¯ÙŠÙ†Ø© Ù…Ø¹ Ø§Ù„Ø®Ø¯Ù…Ø§Øª Ø§Ù„Ù…ØªÙˆÙØ±Ø© ÙˆØ£ÙˆÙ‚Ø§Øª Ø§Ù„Ø³Ø­Ø¨.",
+  radiology: "Ù…Ø±Ø§ÙƒØ² Ø§Ù„Ø£Ø´Ø¹Ø© ÙˆØ§Ù„Ø³ÙˆÙ†Ø§Ø±: Ø£Ø¬Ù‡Ø²ØªÙ‡Ø§ ÙˆØ®Ø¯Ù…Ø§ØªÙ‡Ø§ ÙˆÙ…ÙˆØ§Ø¹ÙŠØ¯ Ø¹Ù…Ù„Ù‡Ø§.",
+  "health-center": "Ø§Ù„Ù…Ø±Ø§ÙƒØ² Ø§Ù„ØµØ­ÙŠØ© Ø§Ù„Ø­ÙƒÙˆÙ…ÙŠØ© ÙˆØ§Ù„Ø£Ù‡Ù„ÙŠØ©: ØªØ·Ø¹ÙŠÙ…Ø§ØªØŒ Ø±Ø¹Ø§ÙŠØ© Ø£ÙˆÙ„ÙŠØ©ØŒ ÙˆØªØ«Ù‚ÙŠÙ ØµØ­ÙŠ.",
 };
 
 function viewList(type, params) {
@@ -605,50 +618,50 @@ function viewList(type, params) {
   const showSpec = specs.length && type === "doctor";
   const showArea = areas.length && (type === "pharmacy" || type !== "doctor");
   const showSort = type !== "doctor" && type !== "pharmacy";
-  const ph = type === "doctor" ? "ابحث باسم الطبيب أو التخصص…"
-    : type === "pharmacy" ? "ابحث باسم الصيدلية…"
-    : "ابحث بالاسم…";
+  const ph = type === "doctor" ? "Ø§Ø¨Ø­Ø« Ø¨Ø§Ø³Ù… Ø§Ù„Ø·Ø¨ÙŠØ¨ Ø£Ùˆ Ø§Ù„ØªØ®ØµØµâ€¦"
+    : type === "pharmacy" ? "Ø§Ø¨Ø­Ø« Ø¨Ø§Ø³Ù… Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ©â€¦"
+    : "Ø§Ø¨Ø­Ø« Ø¨Ø§Ù„Ø§Ø³Ù…â€¦";
 
   const specSel = showSpec ? `
     <div class="spec-filter" id="specFilter" data-open="false">
-      <button class="spec-filter-btn" id="fSpecBtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="تصفية حسب التخصص">
-        <span class="spec-filter-label">${esc(f.spec || "كل التخصصات")}</span>
+      <button class="spec-filter-btn" id="fSpecBtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="ØªØµÙÙŠØ© Ø­Ø³Ø¨ Ø§Ù„ØªØ®ØµØµ">
+        <span class="spec-filter-label">${esc(f.spec || "ÙƒÙ„ Ø§Ù„ØªØ®ØµØµØ§Øª")}</span>
         ${icon("chevLeft")}
       </button>
       <div class="spec-filter-panel hero-suggest" id="fSpecPanel" hidden>
         <button class="suggest-item" type="button" data-spec="">
           <span class="s-icon" style="--tc:var(--primary)">${icon("search")}</span>
-          <span class="r-body"><strong>كل التخصصات</strong><small>عرض جميع الأطباء</small></span>
+          <span class="r-body"><strong>ÙƒÙ„ Ø§Ù„ØªØ®ØµØµØ§Øª</strong><small>Ø¹Ø±Ø¶ Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø£Ø·Ø¨Ø§Ø¡</small></span>
         </button>
         ${specs.map((s) => `
         <button class="suggest-item" type="button" data-spec="${esc(s)}">
           <span class="s-icon" style="--tc:var(--primary)">${icon("steth")}</span>
-          <span class="r-body"><strong>${esc(s)}</strong><small>تصفية النتائج</small></span>
+          <span class="r-body"><strong>${esc(s)}</strong><small>ØªØµÙÙŠØ© Ø§Ù„Ù†ØªØ§Ø¦Ø¬</small></span>
         </button>`).join("")}
       </div>
     </div>` : "";
 
   const areaSel = showArea ? `
-    <select id="fArea" aria-label="تصفية حسب المنطقة">
-      <option value="">كل المناطق</option>
+    <select id="fArea" aria-label="ØªØµÙÙŠØ© Ø­Ø³Ø¨ Ø§Ù„Ù…Ù†Ø·Ù‚Ø©">
+      <option value="">ÙƒÙ„ Ø§Ù„Ù…Ù†Ø§Ø·Ù‚</option>
       ${areas.map((a) => `<option value="${esc(a)}" ${f.area === a ? "selected" : ""}>${esc(a)}</option>`).join("")}
     </select>` : "";
 
   const sortSel = showSort ? `
-    <select id="fSort" aria-label="ترتيب النتائج">
-      <option value="featured" ${f.sort === "featured" ? "selected" : ""}>المميزون أولاً</option>
-      <option value="name" ${f.sort === "name" ? "selected" : ""}>الاسم (أ-ي)</option>
+    <select id="fSort" aria-label="ØªØ±ØªÙŠØ¨ Ø§Ù„Ù†ØªØ§Ø¦Ø¬">
+      <option value="featured" ${f.sort === "featured" ? "selected" : ""}>Ø§Ù„Ù…Ù…ÙŠØ²ÙˆÙ† Ø£ÙˆÙ„Ø§Ù‹</option>
+      <option value="name" ${f.sort === "name" ? "selected" : ""}>Ø§Ù„Ø§Ø³Ù… (Ø£-ÙŠ)</option>
     </select>` : "";
 
-  const clearBtn = (f.q || f.spec || f.area) ? `<button class="btn btn-ghost btn-sm" id="fClear" type="button">${icon("searchX")} مسح التصفية</button>` : "";
+  const clearBtn = (f.q || f.spec || f.area) ? `<button class="btn btn-ghost btn-sm" id="fClear" type="button">${icon("searchX")} Ù…Ø³Ø­ Ø§Ù„ØªØµÙÙŠØ©</button>` : "";
 
   return `
   <section class="page-hero">
     <div class="container">
-      <nav class="breadcrumb" aria-label="مسار التنقل">
-        <a href="#/">ال Principal</a> ${icon("chevLeft")} <span>${t.plural}</span>
+      <nav class="breadcrumb" aria-label="Ù…Ø³Ø§Ø± Ø§Ù„ØªÙ†Ù‚Ù„">
+        <a href="#/">Ø§Ù„ Principal</a> ${icon("chevLeft")} <span>${t.plural}</span>
       </nav>
-      <h1>${icon(t.icon)} ${t.plural} في صوران</h1>
+      <h1>${icon(t.icon)} ${t.plural} ÙÙŠ ØµÙˆØ±Ø§Ù†</h1>
       <p>${TYPE_INTRO[type]}</p>
     </div>
   </section>
@@ -684,13 +697,13 @@ function applyList(type) {
 
   const body = $("#listBody");
   const count = $("#fCount");
-  if (count) count.innerHTML = `<b>${fmtNum(list.length)}</b> نتيجة`;
+  if (count) count.innerHTML = `<b>${fmtNum(list.length)}</b> Ù†ØªÙŠØ¬Ø©`;
   if (!body) return;
   body.innerHTML = list.length
     ? `<div class="cards-grid" style="padding-bottom:52px">${list.map((e) => entityCard(e)).join("")}</div>`
     : `<div class="empty-state" style="margin-bottom:52px">
-        ${icon("search")}<h3>لا توجد نتائج مطابقة</h3>
-        <p>جرّب تعديل كلمة البحث أو إزالة عوامل التصفية.</p>
+        ${icon("search")}<h3>Ù„Ø§ ØªÙˆØ¬Ø¯ Ù†ØªØ§Ø¦Ø¬ Ù…Ø·Ø§Ø¨Ù‚Ø©</h3>
+        <p>Ø¬Ø±Ù‘Ø¨ ØªØ¹Ø¯ÙŠÙ„ ÙƒÙ„Ù…Ø© Ø§Ù„Ø¨Ø­Ø« Ø£Ùˆ Ø¥Ø²Ø§Ù„Ø© Ø¹ÙˆØ§Ù…Ù„ Ø§Ù„ØªØµÙÙŠØ©.</p>
        </div>`;
 }
 
@@ -714,7 +727,7 @@ function bindList(type) {
       closeSpec();
       applyList(type);
       const lbl = specBtn.querySelector(".spec-filter-label");
-      if (lbl) lbl.textContent = f.spec || "كل التخصصات";
+      if (lbl) lbl.textContent = f.spec || "ÙƒÙ„ Ø§Ù„ØªØ®ØµØµØ§Øª";
       specPanel.querySelectorAll(".suggest-item").forEach((it) => it.classList.toggle("is-active", (it.getAttribute("data-spec") || "") === f.spec));
     });
     specPanel.querySelectorAll(".suggest-item").forEach((it) => it.classList.toggle("is-active", (it.getAttribute("data-spec") || "") === f.spec));
@@ -729,7 +742,7 @@ function bindList(type) {
   applyList(type);
 }
 
-/* ================= العرض: المناوبة ================= */
+/* ================= Ø§Ù„Ø¹Ø±Ø¶: Ø§Ù„Ù…Ù†Ø§ÙˆØ¨Ø© ================= */
 function viewOncall(params) {
   const raw = params.get("day");
   const parsed = raw === null || raw === "" ? NaN : parseInt(raw, 10);
@@ -738,29 +751,29 @@ function viewOncall(params) {
   const today = todayIdx();
   const list = oncallPharmacies(DAYS[day]);
   const note = day === today
-    ? "هذه صيدليات المناوبة اليوم — اتصل قبل التوجه للتأكد من توفر الدواء المطلوب."
-    : "هذه صيدليات المناوبة لليوم المحدد — قد تتغير الجدولة، تابع تحديثات الدليل.";
+    ? "Ù‡Ø°Ù‡ ØµÙŠØ¯Ù„ÙŠØ§Øª Ø§Ù„Ù…Ù†Ø§ÙˆØ¨Ø© Ø§Ù„ÙŠÙˆÙ… â€” Ø§ØªØµÙ„ Ù‚Ø¨Ù„ Ø§Ù„ØªÙˆØ¬Ù‡ Ù„Ù„ØªØ£ÙƒØ¯ Ù…Ù† ØªÙˆÙØ± Ø§Ù„Ø¯ÙˆØ§Ø¡ Ø§Ù„Ù…Ø·Ù„ÙˆØ¨."
+    : "Ù‡Ø°Ù‡ ØµÙŠØ¯Ù„ÙŠØ§Øª Ø§Ù„Ù…Ù†Ø§ÙˆØ¨Ø© Ù„Ù„ÙŠÙˆÙ… Ø§Ù„Ù…Ø­Ø¯Ø¯ â€” Ù‚Ø¯ ØªØªØºÙŠØ± Ø§Ù„Ø¬Ø¯ÙˆÙ„Ø©ØŒ ØªØ§Ø¨Ø¹ ØªØ­Ø¯ÙŠØ«Ø§Øª Ø§Ù„Ø¯Ù„ÙŠÙ„.";
 
   const tabs = DAYS.map((d, i) => `
     <button class="day-tab ${i === day ? "active" : ""}" type="button" data-day="${i}">
-      ${d}${i === today ? '<span class="t-badge">اليوم</span>' : ""}
+      ${d}${i === today ? '<span class="t-badge">Ø§Ù„ÙŠÙˆÙ…</span>' : ""}
     </button>`).join("");
 
   const cards = list.length ? list.map((p) => oncallCard(p)).join("")
-    : `<div class="empty-state">${icon("pill")}<h3>لا توجد صيدليات مناوبة مسجلة</h3><p>راجع جدول بقية الأيام أو تواصل مع الاستعلامات.</p></div>`;
+    : `<div class="empty-state">${icon("pill")}<h3>Ù„Ø§ ØªÙˆØ¬Ø¯ ØµÙŠØ¯Ù„ÙŠØ§Øª Ù…Ù†Ø§ÙˆØ¨Ø© Ù…Ø³Ø¬Ù„Ø©</h3><p>Ø±Ø§Ø¬Ø¹ Ø¬Ø¯ÙˆÙ„ Ø¨Ù‚ÙŠØ© Ø§Ù„Ø£ÙŠØ§Ù… Ø£Ùˆ ØªÙˆØ§ØµÙ„ Ù…Ø¹ Ø§Ù„Ø§Ø³ØªØ¹Ù„Ø§Ù…Ø§Øª.</p></div>`;
 
 return `
   <section class="page-hero">
     <div class="container">
-      <nav class="breadcrumb" aria-label="مسار التنقل">
-        <a href="#/">الPrincipal</a> ${icon("chevLeft")} <a href="#/pharmacies">الsidliات</a> ${icon("chevLeft")} <span>المناوبة</span>
+      <nav class="breadcrumb" aria-label="Ù…Ø³Ø§Ø± Ø§Ù„ØªÙ†Ù‚Ù„">
+        <a href="#/">Ø§Ù„Principal</a> ${icon("chevLeft")} <a href="#/pharmacies">Ø§Ù„sidliØ§Øª</a> ${icon("chevLeft")} <span>Ø§Ù„Ù…Ù†Ø§ÙˆØ¨Ø©</span>
       </nav>
-      <h1>${icon("ambulance")} sidliات المناظرة</h1>
-      <p>جدول المناظرة Weekly لsidliات مدينة صوران. اختر اليوم لعرض sidliات التي تعمل خارج أوقات الدوام.</p>
+      <h1>${icon("ambulance")} sidliØ§Øª Ø§Ù„Ù…Ù†Ø§Ø¸Ø±Ø©</h1>
+      <p>Ø¬Ø¯ÙˆÙ„ Ø§Ù„Ù…Ù†Ø§Ø¸Ø±Ø© Weekly Ù„sidliØ§Øª Ù…Ø¯ÙŠÙ†Ø© ØµÙˆØ±Ø§Ù†. Ø§Ø®ØªØ± Ø§Ù„ÙŠÙˆÙ… Ù„Ø¹Ø±Ø¶ sidliØ§Øª Ø§Ù„ØªÙŠ ØªØ¹Ù…Ù„ Ø®Ø§Ø±Ø¬ Ø£ÙˆÙ‚Ø§Øª Ø§Ù„Ø¯ÙˆØ§Ù….</p>
     </div>
   </section>
   <div class="container oncall-page" style="padding:26px 0 56px">
-    <div class="day-tabs" role="tablist" aria-label="أيام الأسبوع">${tabs}</div>
+    <div class="day-tabs" role="tablist" aria-label="Ø£ÙŠØ§Ù… Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹">${tabs}</div>
     <div class="cards-grid" style="margin-top:20px">${cards}</div>
   </div>`;
 }
@@ -773,7 +786,7 @@ function bindOncall() {
     }));
 }
 
-/* ================= العرض: تفاصيل الجهة ================= */
+/* ================= Ø§Ù„Ø¹Ø±Ø¶: ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø¬Ù‡Ø© ================= */
 function viewEntity(id) {
   const e = entityById(id);
   if (!e) return view404();
@@ -784,15 +797,15 @@ function viewEntity(id) {
   const related = [...sameArea, ...otherArea].slice(0, 4);
 
   const badges = [];
-  if (e.type === "doctor") badges.push(`<span class="badge badge-blue">${icon("briefcase")} خبرة ${fmtNum(e.exp)} سنة</span>`);
+  if (e.type === "doctor") badges.push(`<span class="badge badge-blue">${icon("briefcase")} Ø®Ø¨Ø±Ø© ${fmtNum(e.exp)} Ø³Ù†Ø©</span>`);
 
   const services = (e.services || []).map((s) => `<span class="mini-tag">${esc(s)}</span>`).join("");
 
   return `
   <section class="page-hero detail-hero">
     <div class="container">
-      <nav class="breadcrumb" aria-label="مسار التنقل">
-        <a href="#/">الرئيسية</a> ${icon("chevLeft")} <a href="#/${routeSlug(e.type)}">${t.plural}</a> ${icon("chevLeft")} <span>${esc(e.name)}</span>
+      <nav class="breadcrumb" aria-label="Ù…Ø³Ø§Ø± Ø§Ù„ØªÙ†Ù‚Ù„">
+        <a href="#/">Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©</a> ${icon("chevLeft")} <a href="#/${routeSlug(e.type)}">${t.plural}</a> ${icon("chevLeft")} <span>${esc(e.name)}</span>
       </nav>
       <div class="detail-card" style="--tc:${t.color}">
         <div class="detail-banner"></div>
@@ -800,31 +813,31 @@ function viewEntity(id) {
           <span class="detail-avatar" style="--tc:${t.color}">${e.image_url ? `<img src="${esc(e.image_url)}" alt="${esc(e.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />` : icon(t.icon)}</span>
           <div class="detail-title">
             <h1>${esc(e.name)}</h1>
-            <p class="sub">${e.spec ? esc(e.spec) + " — " : ""}${esc(e.degree || t.label)}${e.owner ? " · " + esc(e.owner) : ""}</p>
+            <p class="sub">${e.spec ? esc(e.spec) + " â€” " : ""}${esc(e.degree || t.label)}${e.owner ? " Â· " + esc(e.owner) : ""}</p>
             <div class="entity-badges">${badges.join("")}</div>
           </div>
         </div>
         <div class="detail-actions">
-          ${e.phone ? `<a class="btn btn-primary btn-lg" href="tel:${e.phone}">${icon("phone")} اتصال الآن — <span dir="ltr">${fmtPhone(e.phone)}</span></a>` : ""}
-          ${e.whatsapp ? `<a class="btn btn-ghost" href="${waHref(e.phone)}" target="_blank" rel="noopener">${icon("chat")} واتساب</a>` : ""}
-          ${e.type !== "pharmacy" && e.type !== "doctor" ? `<a class="btn btn-outline" href="${mapsLink(e.lat, e.lng, e.address)}" target="_blank" rel="noopener">${icon("pin")} الموقع</a>` : ""}
-          ${e.type !== "pharmacy" ? `<button class="btn btn-ghost" type="button" data-copy="${esc(e.phone)}">${icon("copy")} نسخ الرقم</button>` : ""}
-          <button class="btn btn-ghost btn-icon" type="button" id="btnShare" title="مشاركة" aria-label="مشاركة">${icon("share")}</button>
+          ${e.phone ? `<a class="btn btn-primary btn-lg" href="tel:${e.phone}">${icon("phone")} Ø§ØªØµØ§Ù„ Ø§Ù„Ø¢Ù† â€” <span dir="ltr">${fmtPhone(e.phone)}</span></a>` : ""}
+          ${e.whatsapp ? `<a class="btn btn-ghost" href="${waHref(e.phone)}" target="_blank" rel="noopener">${icon("chat")} ÙˆØ§ØªØ³Ø§Ø¨</a>` : ""}
+          ${e.type !== "pharmacy" && e.type !== "doctor" ? `<a class="btn btn-outline" href="${mapsLink(e.lat, e.lng, e.address)}" target="_blank" rel="noopener">${icon("pin")} Ø§Ù„Ù…ÙˆÙ‚Ø¹</a>` : ""}
+          ${e.type !== "pharmacy" ? `<button class="btn btn-ghost" type="button" data-copy="${esc(e.phone)}">${icon("copy")} Ù†Ø³Ø® Ø§Ù„Ø±Ù‚Ù…</button>` : ""}
+          <button class="btn btn-ghost btn-icon" type="button" id="btnShare" title="Ù…Ø´Ø§Ø±ÙƒØ©" aria-label="Ù…Ø´Ø§Ø±ÙƒØ©">${icon("share")}</button>
         </div>
         <div class="detail-info">
           <div class="info-box">${icon("pin")}
-            <div><h4>العنوان</h4><p>${esc(e.area)}</p><small>${esc(e.address)}</small></div>
+            <div><h4>Ø§Ù„Ø¹Ù†ÙˆØ§Ù†</h4><p>${esc(e.area)}</p><small>${esc(e.address)}</small></div>
           </div>
           <div class="info-box">${icon("clock")}
-            <div><h4>أوقات العمل</h4><p>${esc(e.hours)}</p></div>
+            <div><h4>Ø£ÙˆÙ‚Ø§Øª Ø§Ù„Ø¹Ù…Ù„</h4><p>${esc(e.hours)}</p></div>
           </div>
           <div class="info-box">${icon("phone")}
-            <div><h4>الهاتف</h4><p class="phone-line"><span dir="ltr">${fmtPhone(e.phone)}</span></p>
-            <small>اضغط زر الاتصال أعلاه للاتصال مباشرة</small></div>
+            <div><h4>Ø§Ù„Ù‡Ø§ØªÙ</h4><p class="phone-line"><span dir="ltr">${fmtPhone(e.phone)}</span></p>
+            <small>Ø§Ø¶ØºØ· Ø²Ø± Ø§Ù„Ø§ØªØµØ§Ù„ Ø£Ø¹Ù„Ø§Ù‡ Ù„Ù„Ø§ØªØµØ§Ù„ Ù…Ø¨Ø§Ø´Ø±Ø©</small></div>
           </div>
           ${e.type === "doctor" ? `
           <div class="info-box">${icon("user")}
-            <div><h4>الصفة</h4><p>${esc(e.degree)}</p><small>${esc(e.spec)}</small></div>
+            <div><h4>Ø§Ù„ØµÙØ©</h4><p>${esc(e.degree)}</p><small>${esc(e.spec)}</small></div>
           </div>` : ""}
         </div>
         ${e.note ? `<div style="padding:0 22px 20px"><div class="note-box">${icon("info")}<p>${esc(e.note)}</p></div></div>` : ""}
@@ -836,14 +849,14 @@ function viewEntity(id) {
     ${adsStrip("detail") ? `<div style="margin-bottom:20px">${adsStrip("detail")}</div>` : ""}
     ${services ? `
     <div class="detail-section">
-      <div class="section-head"><div><h2>${e.type === "doctor" ? "التخصصات والخدمات" : "الخدمات المتوفرة"}</h2></div></div>
+      <div class="section-head"><div><h2>${e.type === "doctor" ? "Ø§Ù„ØªØ®ØµØµØ§Øª ÙˆØ§Ù„Ø®Ø¯Ù…Ø§Øª" : "Ø§Ù„Ø®Ø¯Ù…Ø§Øª Ø§Ù„Ù…ØªÙˆÙØ±Ø©"}</h2></div></div>
       <div class="chips-lg">${services}</div>
     </div>` : ""}
 
     <div class="detail-section">
-      <div class="section-head"><div><h2>الموقع على الخريطة</h2><p>${esc(e.area)} — ${esc(e.address)}</p></div></div>
+      <div class="section-head"><div><h2>Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ø¹Ù„Ù‰ Ø§Ù„Ø®Ø±ÙŠØ·Ø©</h2><p>${esc(e.area)} â€” ${esc(e.address)}</p></div></div>
       <div class="map-wrap"><div id="entityMap"></div></div>
-      <p class="map-note">${icon("info")} الموقع تقريبي — استخدم تطبيق الخرائط على هاتفك للوصول الدقيق.</p>
+      <p class="map-note">${icon("info")} Ø§Ù„Ù…ÙˆÙ‚Ø¹ ØªÙ‚Ø±ÙŠØ¨ÙŠ â€” Ø§Ø³ØªØ®Ø¯Ù… ØªØ·Ø¨ÙŠÙ‚ Ø§Ù„Ø®Ø±Ø§Ø¦Ø· Ø¹Ù„Ù‰ Ù‡Ø§ØªÙÙƒ Ù„Ù„ÙˆØµÙˆÙ„ Ø§Ù„Ø¯Ù‚ÙŠÙ‚.</p>
     </div>
 
   </div>`;
@@ -857,44 +870,44 @@ function afterEntity(id) {
   if (share) share.addEventListener("click", async () => {
     const url = location.href;
     if (navigator.share) {
-      try { await navigator.share({ title: e.name + " — دليل صوران الطبي", url }); } catch (_) {}
+      try { await navigator.share({ title: e.name + " â€” Ø¯Ù„ÙŠÙ„ ØµÙˆØ±Ø§Ù† Ø§Ù„Ø·Ø¨ÙŠ", url }); } catch (_) {}
     } else {
       navigator.clipboard && navigator.clipboard.writeText(url);
-      showToast("تم نسخ رابط الصفحة");
+      showToast("ØªÙ… Ù†Ø³Ø® Ø±Ø§Ø¨Ø· Ø§Ù„ØµÙØ­Ø©");
     }
   });
 }
 
-/* ================= العرض: اسأل طبياً ================= */
+/* ================= Ø§Ù„Ø¹Ø±Ø¶: Ø§Ø³Ø£Ù„ Ø·Ø¨ÙŠØ§Ù‹ ================= */
 function viewAsk() {
   return `
   <section class="page-hero">
     <div class="container">
-      <nav class="breadcrumb" aria-label="مسار التنقل">
-        <a href="#/">الرئيسية</a> ${icon("chevLeft")} <span>اسأل</span>
+      <nav class="breadcrumb" aria-label="Ù…Ø³Ø§Ø± Ø§Ù„ØªÙ†Ù‚Ù„">
+        <a href="#/">Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©</a> ${icon("chevLeft")} <span>Ø§Ø³Ø£Ù„</span>
       </nav>
-      <h1>${icon("chat")} اسأل</h1>
-      <p>اكتب سؤالك وسترى الجواب. للحالات الطارئة اتصل بالإسعاف.</p>
+      <h1>${icon("chat")} Ø§Ø³Ø£Ù„</h1>
+      <p>Ø§ÙƒØªØ¨ Ø³Ø¤Ø§Ù„Ùƒ ÙˆØ³ØªØ±Ù‰ Ø§Ù„Ø¬ÙˆØ§Ø¨. Ù„Ù„Ø­Ø§Ù„Ø§Øª Ø§Ù„Ø·Ø§Ø±Ø¦Ø© Ø§ØªØµÙ„ Ø¨Ø§Ù„Ø¥Ø³Ø¹Ø§Ù.</p>
     </div>
   </section>
 <div class="container page-wrap">
   <div class="form-card" style="max-width:720px;margin:0 auto 24px">
     <div class="field">
-      <label for="askQ" style="font-size:18px">سؤالك</label>
-      <input id="askQ" type="text" placeholder="اكتب سؤالك هنا…" style="font-size:18px;margin-bottom:16px" />
+      <label for="askQ" style="font-size:18px">Ø³Ø¤Ø§Ù„Ùƒ</label>
+      <input id="askQ" type="text" placeholder="Ø§ÙƒØªØ¨ Ø³Ø¤Ø§Ù„Ùƒ Ù‡Ù†Ø§â€¦" style="font-size:18px;margin-bottom:16px" />
     </div>
-    <button id="askSearchBtn" class="btn btn-primary btn-block" type="button" style="font-size:18px;padding:14px">${icon("search")} بحث</button>
+    <button id="askSearchBtn" class="btn btn-primary btn-block" type="button" style="font-size:18px;padding:14px">${icon("search")} Ø¨Ø­Ø«</button>
   </div>
 
 <div class="my-questions" id="myQuestions"></div>
   <div class="form-card" style="max-width:720px;margin:24px auto 0">
     <form id="askForm" class="form-grid" novalidate>
       <div class="field">
-        <label for="aqText" style="font-size:18px"> neutrally سؤال جديد</label>
-        <textarea id="aqText" placeholder="اكتب سؤالك هنا…" required style="font-size:18px;min-height:120px"></textarea>
+        <label for="aqText" style="font-size:18px"> neutrally Ø³Ø¤Ø§Ù„ Ø¬Ø¯ÙŠØ¯</label>
+        <textarea id="aqText" placeholder="Ø§ÙƒØªØ¨ Ø³Ø¤Ø§Ù„Ùƒ Ù‡Ù†Ø§â€¦" required style="font-size:18px;min-height:120px"></textarea>
       </div>
       <div class="field">
-        <label for="aqPhone">رقم الهاتف (اختياري)</label>
+        <label for="aqPhone">Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ (Ø§Ø®ØªÙŠØ§Ø±ÙŠ)</label>
         <input id="aqPhone" type="tel" inputmode="tel" placeholder="09XX XXX XXX" dir="ltr" style="text-align:end;font-size:18px" />
       </div>
       <button class="btn btn-primary btn-block" type="submit" style="font-size:18px;padding:14px">${icon("send")} neutrally</button>
@@ -907,15 +920,15 @@ function applyFaq() {
   if (!list) return;
   const nq = state.askQuery.trim().toLowerCase();
   const items = FAQ.filter((f) =>
-    (state.askCat === "الكل" || f.cat === state.askCat) &&
+    (state.askCat === "Ø§Ù„ÙƒÙ„" || f.cat === state.askCat) &&
     (!nq || (f.q + " " + f.a + " " + f.cat).toLowerCase().includes(nq)));
   list.innerHTML = items.length
     ? items.map((f) => `
       <details class="acc-item">
-        <summary><span class="acc-q">؟</span> ${esc(f.q)} <span class="acc-cat">${esc(f.cat)}</span>${icon("chevDown", "chev")}</summary>
+        <summary><span class="acc-q">ØŸ</span> ${esc(f.q)} <span class="acc-cat">${esc(f.cat)}</span>${icon("chevDown", "chev")}</summary>
         <div class="acc-body"><p>${esc(f.a)}</p></div>
       </details>`).join("")
-    : `<div class="empty-state">${icon("search")}<h3>لا توجد إجابة مطابقة</h3><p>جرّب كلمات أخرى أو أرسل سؤالك من النموذج المجاور.</p></div>`;
+    : `<div class="empty-state">${icon("search")}<h3>Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¥Ø¬Ø§Ø¨Ø© Ù…Ø·Ø§Ø¨Ù‚Ø©</h3><p>Ø¬Ø±Ù‘Ø¨ ÙƒÙ„Ù…Ø§Øª Ø£Ø®Ø±Ù‰ Ø£Ùˆ Ø£Ø±Ø³Ù„ Ø³Ø¤Ø§Ù„Ùƒ Ù…Ù† Ø§Ù„Ù†Ù…ÙˆØ°Ø¬ Ø§Ù„Ù…Ø¬Ø§ÙˆØ±.</p></div>`;
 }
 
 function myQuestionsHtml() {
@@ -923,13 +936,13 @@ function myQuestionsHtml() {
   try { arr = JSON.parse(localStorage.getItem("ds-questions") || "[]"); } catch (_) {}
   if (!arr.length) return "";
   return `
-    <h3 style="font-size:16px">${icon("doc")} أسئلتي المرسلة</h3>
+    <h3 style="font-size:16px">${icon("doc")} Ø£Ø³Ø¦Ù„ØªÙŠ Ø§Ù„Ù…Ø±Ø³Ù„Ø©</h3>
     ${arr.map((q, i) => `
       <div class="my-q-item">
         <p>${esc(q.text)}
-          <span class="my-q-meta">${esc(q.date)} · <strong style="color:var(--accent-600)">قيد المراجعة</strong></span>
+          <span class="my-q-meta">${esc(q.date)} Â· <strong style="color:var(--accent-600)">Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©</strong></span>
         </p>
-        <button class="my-q-del" type="button" data-del-q="${i}" title="حذف السؤال" aria-label="حذف السؤال">${icon("x")}</button>
+        <button class="my-q-del" type="button" data-del-q="${i}" title="Ø­Ø°Ù Ø§Ù„Ø³Ø¤Ø§Ù„" aria-label="Ø­Ø°Ù Ø§Ù„Ø³Ø¤Ø§Ù„">${icon("x")}</button>
       </div>`).join("")}`;
 }
 
@@ -950,7 +963,7 @@ function bindAsk() {
   const btn = $("#askSearchBtn");
   if (btn) btn.addEventListener("click", () => {
     const v = q ? q.value.trim() : "";
-    if (!v) { showToast("اكتب سؤالاً أو اختر من مقترحات", "warn"); return; }
+    if (!v) { showToast("Ø§ÙƒØªØ¨ Ø³Ø¤Ø§Ù„Ø§Ù‹ Ø£Ùˆ Ø§Ø®ØªØ± Ù…Ù† Ù…Ù‚ØªØ±Ø­Ø§Øª", "warn"); return; }
     state.askQuery = v;
     const url = "#/search?q=" + encodeURIComponent(v);
     location.hash = url;
@@ -960,7 +973,7 @@ function bindAsk() {
   if (form) form.addEventListener("submit", async (ev) => {
     ev.preventDefault();
     const text = $("#aqText").value.trim();
-    if (text.length < 10) { showToast("اكتب سؤالاً أوضح (10 أحرف على الأقل)", "warn"); return; }
+    if (text.length < 10) { showToast("Ø§ÙƒØªØ¨ Ø³Ø¤Ø§Ù„Ø§Ù‹ Ø£ÙˆØ¶Ø­ (10 Ø£Ø­Ø±Ù Ø¹Ù„Ù‰ Ø§Ù„Ø£Ù‚Ù„)", "warn"); return; }
     const nameEl = $("#aqName");
 const nameVal = nameEl ? nameEl.value.trim() : "";
     const phoneVal = $("#aqPhone").value.trim();
@@ -977,7 +990,7 @@ const nameVal = nameEl ? nameEl.value.trim() : "";
     $("#myQuestions").innerHTML = myQuestionsHtml();
     const sent = await supabaseInsert("questions", { name: nameVal, phone: phoneVal, question: text });
     showToast(
-      sent ? "تم استلام سؤالك — سيُراجع قريباً" : "حُفظ سؤالك محلياً (تعذّر الاتصال بالخادم)",
+      sent ? "ØªÙ… Ø§Ø³ØªÙ„Ø§Ù… Ø³Ø¤Ø§Ù„Ùƒ â€” Ø³ÙŠÙØ±Ø§Ø¬Ø¹ Ù‚Ø±ÙŠØ¨Ø§Ù‹" : "Ø­ÙÙØ¸ Ø³Ø¤Ø§Ù„Ùƒ Ù…Ø­Ù„ÙŠØ§Ù‹ (ØªØ¹Ø°Ù‘Ø± Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ø§Ù„Ø®Ø§Ø¯Ù…)",
       sent ? "ok" : "warn",
     );
   });
@@ -993,12 +1006,12 @@ const nameVal = nameEl ? nameEl.value.trim() : "";
       arr.splice(Number(del.getAttribute("data-del-q")), 1);
       localStorage.setItem("ds-questions", JSON.stringify(arr));
       mq.innerHTML = myQuestionsHtml();
-      showToast("تم حذف السؤال");
+      showToast("ØªÙ… Ø­Ø°Ù Ø§Ù„Ø³Ø¤Ø§Ù„");
     });
   }
 }
 
-/* ================= العرض: نتائج البحث (نمط SearchPage) ================= */
+/* ================= Ø§Ù„Ø¹Ø±Ø¶: Ù†ØªØ§Ø¦Ø¬ Ø§Ù„Ø¨Ø­Ø« (Ù†Ù…Ø· SearchPage) ================= */
 function viewSearch(params) {
   const q = params.get("q") || "";
   const { entities, faqs } = searchAll(q);
@@ -1018,7 +1031,7 @@ function viewSearch(params) {
             <span class="r-icon" style="--tc:${t.color}">${icon(t.icon)}</span>
             <span class="r-body">
               <b>${esc(e.name)}</b>
-              <small>${esc(e.spec || t.label)}${e.area ? " — " + esc(e.area) : ""}</small>
+              <small>${esc(e.spec || t.label)}${e.area ? " â€” " + esc(e.area) : ""}</small>
             </span>
           </a>`).join("")}
       </div>
@@ -1027,7 +1040,7 @@ function viewSearch(params) {
 
   const faqSection = faqs.length ? `
     <section class="s-group">
-      <h2 class="group-title"><span class="g-sq" style="--tc:var(--gold-dark)"></span>أسئلة وأجوبة <span class="g-count">(${fmtNum(faqs.length)})</span></h2>
+      <h2 class="group-title"><span class="g-sq" style="--tc:var(--gold-dark)"></span>Ø£Ø³Ø¦Ù„Ø© ÙˆØ£Ø¬ÙˆØ¨Ø© <span class="g-count">(${fmtNum(faqs.length)})</span></h2>
       <div class="s-rows">
         ${faqs.map((f) => `
           <a class="result-row" href="#/ask">
@@ -1039,24 +1052,24 @@ function viewSearch(params) {
 
   return `
   <div class="container page-wrap search-page">
-    <h1 class="page-title">البحث في دليل صوران الطبي</h1>
+    <h1 class="page-title">Ø§Ù„Ø¨Ø­Ø« ÙÙŠ Ø¯Ù„ÙŠÙ„ ØµÙˆØ±Ø§Ù† Ø§Ù„Ø·Ø¨ÙŠ</h1>
     <form class="search-big" id="searchBigForm">
       ${icon("search")}
-      <input id="searchBigInput" type="search" placeholder="ابحث عن طبيب، اختصاص، عيادة، صيدلية أو خدمة طبية..." value="${esc(q)}" autocomplete="off" />
-      <button class="btn btn-primary" type="submit">بحث</button>
+      <input id="searchBigInput" type="search" placeholder="Ø§Ø¨Ø­Ø« Ø¹Ù† Ø·Ø¨ÙŠØ¨ØŒ Ø§Ø®ØªØµØ§ØµØŒ Ø¹ÙŠØ§Ø¯Ø©ØŒ ØµÙŠØ¯Ù„ÙŠØ© Ø£Ùˆ Ø®Ø¯Ù…Ø© Ø·Ø¨ÙŠØ©..." value="${esc(q)}" autocomplete="off" />
+      <button class="btn btn-primary" type="submit">Ø¨Ø­Ø«</button>
     </form>
 
     <div class="s-groups">
-      ${!q.trim() ? `<p class="s-hint">اكتب كلمة بحث للبدء.</p>` : total ? groupSections + faqSection : `
+      ${!q.trim() ? `<p class="s-hint">Ø§ÙƒØªØ¨ ÙƒÙ„Ù…Ø© Ø¨Ø­Ø« Ù„Ù„Ø¨Ø¯Ø¡.</p>` : total ? groupSections + faqSection : `
       <div class="empty-state s-empty">
         ${icon("searchX")}
-        <h3>لا توجد نتائج لـ «${esc(q)}»</h3>
-        <p>جرّب كلمات بحث أخرى أو تصفح الأقسام الرئيسية.</p>
+        <h3>Ù„Ø§ ØªÙˆØ¬Ø¯ Ù†ØªØ§Ø¦Ø¬ Ù„Ù€ Â«${esc(q)}Â»</h3>
+        <p>Ø¬Ø±Ù‘Ø¨ ÙƒÙ„Ù…Ø§Øª Ø¨Ø­Ø« Ø£Ø®Ø±Ù‰ Ø£Ùˆ ØªØµÙØ­ Ø§Ù„Ø£Ù‚Ø³Ø§Ù… Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©.</p>
         <div class="chip-row" style="justify-content:center;margin-top:12px">
-          <a class="chip" href="#/doctors">الأطباء</a>
-          <a class="chip" href="#/pharmacies">الصيدليات</a>
-          <a class="chip" href="#/oncall">الصيدليات المناوبة</a>
-          <a class="chip" href="#/ask">اسأل</a>
+          <a class="chip" href="#/doctors">Ø§Ù„Ø£Ø·Ø¨Ø§Ø¡</a>
+          <a class="chip" href="#/pharmacies">Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª</a>
+          <a class="chip" href="#/oncall">Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª Ø§Ù„Ù…Ù†Ø§ÙˆØ¨Ø©</a>
+          <a class="chip" href="#/ask">Ø§Ø³Ø£Ù„</a>
         </div>
       </div>`}
     </div>
@@ -1072,32 +1085,32 @@ function bindSearch() {
   });
 }
 
-/* ================= الصفحات الثابتة ================= */
+/* ================= Ø§Ù„ØµÙØ­Ø§Øª Ø§Ù„Ø«Ø§Ø¨ØªØ© ================= */
 function viewAbout() {
   const features = [
-    { ic: "stetho", t: "الأطباء والعيادات", d: "دليل كامل للأطباء مع التخصصات وسنوات الخبرة وأرقام التواصل المباشر." },
-    { ic: "pill", t: "الصيدليات", d: "صيدليات المدينة مع أوقات الدوام وشارة «تعمل 24 ساعة»." },
-    { ic: "moon", t: "صيدليات المناوبة", d: "جدول المناوبة الأسبوعي — اعرف الصيدلية المفتوحة اليوم فوراً." },
-    { ic: "hospital", t: "المشافي والمراكز", d: "المشافي والمراكز الصحية والمخابر ومراكز الأشعة في مكان واحد." },
-    { ic: "map", t: "خريطة تفاعلية", d: "مواقع كل الجهات على خريطة المدينة مع أقصر طريق للوصول." },
-    { ic: "chat", t: "اسأل طبياً", d: "إرشادات صحية موثوقة ومبسطة، وإرسال أسئلتك لفريق الدليل مباشرة." },
+    { ic: "stetho", t: "Ø§Ù„Ø£Ø·Ø¨Ø§Ø¡ ÙˆØ§Ù„Ø¹ÙŠØ§Ø¯Ø§Øª", d: "Ø¯Ù„ÙŠÙ„ ÙƒØ§Ù…Ù„ Ù„Ù„Ø£Ø·Ø¨Ø§Ø¡ Ù…Ø¹ Ø§Ù„ØªØ®ØµØµØ§Øª ÙˆØ³Ù†ÙˆØ§Øª Ø§Ù„Ø®Ø¨Ø±Ø© ÙˆØ£Ø±Ù‚Ø§Ù… Ø§Ù„ØªÙˆØ§ØµÙ„ Ø§Ù„Ù…Ø¨Ø§Ø´Ø±." },
+    { ic: "pill", t: "Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª", d: "ØµÙŠØ¯Ù„ÙŠØ§Øª Ø§Ù„Ù…Ø¯ÙŠÙ†Ø© Ù…Ø¹ Ø£ÙˆÙ‚Ø§Øª Ø§Ù„Ø¯ÙˆØ§Ù… ÙˆØ´Ø§Ø±Ø© Â«ØªØ¹Ù…Ù„ 24 Ø³Ø§Ø¹Ø©Â»." },
+    { ic: "moon", t: "ØµÙŠØ¯Ù„ÙŠØ§Øª Ø§Ù„Ù…Ù†Ø§ÙˆØ¨Ø©", d: "Ø¬Ø¯ÙˆÙ„ Ø§Ù„Ù…Ù†Ø§ÙˆØ¨Ø© Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ÙŠ â€” Ø§Ø¹Ø±Ù Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ© Ø§Ù„Ù…ÙØªÙˆØ­Ø© Ø§Ù„ÙŠÙˆÙ… ÙÙˆØ±Ø§Ù‹." },
+    { ic: "hospital", t: "Ø§Ù„Ù…Ø´Ø§ÙÙŠ ÙˆØ§Ù„Ù…Ø±Ø§ÙƒØ²", d: "Ø§Ù„Ù…Ø´Ø§ÙÙŠ ÙˆØ§Ù„Ù…Ø±Ø§ÙƒØ² Ø§Ù„ØµØ­ÙŠØ© ÙˆØ§Ù„Ù…Ø®Ø§Ø¨Ø± ÙˆÙ…Ø±Ø§ÙƒØ² Ø§Ù„Ø£Ø´Ø¹Ø© ÙÙŠ Ù…ÙƒØ§Ù† ÙˆØ§Ø­Ø¯." },
+    { ic: "map", t: "Ø®Ø±ÙŠØ·Ø© ØªÙØ§Ø¹Ù„ÙŠØ©", d: "Ù…ÙˆØ§Ù‚Ø¹ ÙƒÙ„ Ø§Ù„Ø¬Ù‡Ø§Øª Ø¹Ù„Ù‰ Ø®Ø±ÙŠØ·Ø© Ø§Ù„Ù…Ø¯ÙŠÙ†Ø© Ù…Ø¹ Ø£Ù‚ØµØ± Ø·Ø±ÙŠÙ‚ Ù„Ù„ÙˆØµÙˆÙ„." },
+    { ic: "chat", t: "Ø§Ø³Ø£Ù„ Ø·Ø¨ÙŠØ§Ù‹", d: "Ø¥Ø±Ø´Ø§Ø¯Ø§Øª ØµØ­ÙŠØ© Ù…ÙˆØ«ÙˆÙ‚Ø© ÙˆÙ…Ø¨Ø³Ø·Ø©ØŒ ÙˆØ¥Ø±Ø³Ø§Ù„ Ø£Ø³Ø¦Ù„ØªÙƒ Ù„ÙØ±ÙŠÙ‚ Ø§Ù„Ø¯Ù„ÙŠÙ„ Ù…Ø¨Ø§Ø´Ø±Ø©." },
   ];
   const stats = [
-    { n: fmtNum(ENTITIES.length), l: "جهة طبية" },
-    { n: fmtNum(entitiesByType("doctor").length), l: "طبيب وعيادة" },
-    { n: fmtNum(entitiesByType("pharmacy").length), l: "صيدلية" },
-    { n: "6", l: "أقسام طبية" },
+    { n: fmtNum(ENTITIES.length), l: "Ø¬Ù‡Ø© Ø·Ø¨ÙŠØ©" },
+    { n: fmtNum(entitiesByType("doctor").length), l: "Ø·Ø¨ÙŠØ¨ ÙˆØ¹ÙŠØ§Ø¯Ø©" },
+    { n: fmtNum(entitiesByType("pharmacy").length), l: "ØµÙŠØ¯Ù„ÙŠØ©" },
+    { n: "6", l: "Ø£Ù‚Ø³Ø§Ù… Ø·Ø¨ÙŠØ©" },
   ];
   return `
   <div class="container page-wrap">
-    <nav class="breadcrumb on-page" aria-label="مسار التنقل">
-      <a href="#/">الرئيسية</a> ${icon("chevLeft")} <span>عن المنصة</span>
+    <nav class="breadcrumb on-page" aria-label="Ù…Ø³Ø§Ø± Ø§Ù„ØªÙ†Ù‚Ù„">
+      <a href="#/">Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©</a> ${icon("chevLeft")} <span>Ø¹Ù† Ø§Ù„Ù…Ù†ØµØ©</span>
     </nav>
 
     <div class="about-hero">
-      <span class="pill-badge">${icon("sparkles")} عن المنصة</span>
-      <h1>دليل صوران الطبي</h1>
-      <p>منصة مجتمعية مجانية تجمع كل الخدمات الصحية في مدينة صوران — أطباء، صيدليات، مشافي، مخابر، أشعة ومراكز صحية — في مكان واحد، ببيانات محدّثة وخريطة تفاعلية وجدول مناوبة أسبوعي.</p>
+      <span class="pill-badge">${icon("sparkles")} Ø¹Ù† Ø§Ù„Ù…Ù†ØµØ©</span>
+      <h1>Ø¯Ù„ÙŠÙ„ ØµÙˆØ±Ø§Ù† Ø§Ù„Ø·Ø¨ÙŠ</h1>
+      <p>Ù…Ù†ØµØ© Ù…Ø¬ØªÙ…Ø¹ÙŠØ© Ù…Ø¬Ø§Ù†ÙŠØ© ØªØ¬Ù…Ø¹ ÙƒÙ„ Ø§Ù„Ø®Ø¯Ù…Ø§Øª Ø§Ù„ØµØ­ÙŠØ© ÙÙŠ Ù…Ø¯ÙŠÙ†Ø© ØµÙˆØ±Ø§Ù† â€” Ø£Ø·Ø¨Ø§Ø¡ØŒ ØµÙŠØ¯Ù„ÙŠØ§ØªØŒ Ù…Ø´Ø§ÙÙŠØŒ Ù…Ø®Ø§Ø¨Ø±ØŒ Ø£Ø´Ø¹Ø© ÙˆÙ…Ø±Ø§ÙƒØ² ØµØ­ÙŠØ© â€” ÙÙŠ Ù…ÙƒØ§Ù† ÙˆØ§Ø­Ø¯ØŒ Ø¨Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ø­Ø¯Ù‘Ø«Ø© ÙˆØ®Ø±ÙŠØ·Ø© ØªÙØ§Ø¹Ù„ÙŠØ© ÙˆØ¬Ø¯ÙˆÙ„ Ù…Ù†Ø§ÙˆØ¨Ø© Ø£Ø³Ø¨ÙˆØ¹ÙŠ.</p>
     </div>
 
     <div class="about-stats">
@@ -1111,12 +1124,12 @@ function viewAbout() {
     <div class="card about-card">
       <div class="about-card-head">
         <span class="a-icon">${icon("heart")}</span>
-        <h2>ما هي دليل صوران الطبي؟</h2>
+        <h2>Ù…Ø§ Ù‡ÙŠ Ø¯Ù„ÙŠÙ„ ØµÙˆØ±Ø§Ù† Ø§Ù„Ø·Ø¨ÙŠØŸ</h2>
       </div>
       <p class="about-text">
-        في كل يوم يبحث أهالي مدينة صوران عن أقرب عيادة أسنان، أو مخبر يعمل مساءً، أو صيدلية مناوبة للّيلة،
-        أو رقم مشفى لطلب الإسعاف. دليل صوران الطبي يجمع هذه المعلومات المتفرقة في مكان واحد:
-        منظّمة، محدّثة، ومجانية للجميع — من أبناء المدينة ولأهلها.
+        ÙÙŠ ÙƒÙ„ ÙŠÙˆÙ… ÙŠØ¨Ø­Ø« Ø£Ù‡Ø§Ù„ÙŠ Ù…Ø¯ÙŠÙ†Ø© ØµÙˆØ±Ø§Ù† Ø¹Ù† Ø£Ù‚Ø±Ø¨ Ø¹ÙŠØ§Ø¯Ø© Ø£Ø³Ù†Ø§Ù†ØŒ Ø£Ùˆ Ù…Ø®Ø¨Ø± ÙŠØ¹Ù…Ù„ Ù…Ø³Ø§Ø¡Ù‹ØŒ Ø£Ùˆ ØµÙŠØ¯Ù„ÙŠØ© Ù…Ù†Ø§ÙˆØ¨Ø© Ù„Ù„Ù‘ÙŠÙ„Ø©ØŒ
+        Ø£Ùˆ Ø±Ù‚Ù… Ù…Ø´ÙÙ‰ Ù„Ø·Ù„Ø¨ Ø§Ù„Ø¥Ø³Ø¹Ø§Ù. Ø¯Ù„ÙŠÙ„ ØµÙˆØ±Ø§Ù† Ø§Ù„Ø·Ø¨ÙŠ ÙŠØ¬Ù…Ø¹ Ù‡Ø°Ù‡ Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù…ØªÙØ±Ù‚Ø© ÙÙŠ Ù…ÙƒØ§Ù† ÙˆØ§Ø­Ø¯:
+        Ù…Ù†Ø¸Ù‘Ù…Ø©ØŒ Ù…Ø­Ø¯Ù‘Ø«Ø©ØŒ ÙˆÙ…Ø¬Ø§Ù†ÙŠØ© Ù„Ù„Ø¬Ù…ÙŠØ¹ â€” Ù…Ù† Ø£Ø¨Ù†Ø§Ø¡ Ø§Ù„Ù…Ø¯ÙŠÙ†Ø© ÙˆÙ„Ø£Ù‡Ù„Ù‡Ø§.
       </p>
     </div>
 
@@ -1135,23 +1148,23 @@ function viewAbout() {
         <div class="dev-head">
           <span class="dev-ic">${icon("code")}</span>
           <div>
-            <p class="dev-tag">بطاقة المطوّر</p>
-            <h3>مطوّر وتقني دليل صوران الطبي</h3>
+            <p class="dev-tag">Ø¨Ø·Ø§Ù‚Ø© Ø§Ù„Ù…Ø·ÙˆÙ‘Ø±</p>
+            <h3>Ù…Ø·ÙˆÙ‘Ø± ÙˆØªÙ‚Ù†ÙŠ Ø¯Ù„ÙŠÙ„ ØµÙˆØ±Ø§Ù† Ø§Ù„Ø·Ø¨ÙŠ</h3>
           </div>
         </div>
         <div class="dev-body">
           <div class="dev-avatar">
-            <span>${esc((SITE.developer.name || "م").trim().slice(0, 1))}</span>
+            <span>${esc((SITE.developer.name || "Ù…").trim().slice(0, 1))}</span>
             <span class="dev-badge">${icon("badgeCheck")}</span>
           </div>
           <div class="dev-info">
             <p class="dev-name">${esc(SITE.developer.name)}</p>
-            <p class="dev-role">${esc(SITE.developer.title || "مطوّر المنصة")}</p>
-            <p class="dev-desc">تطوير وإشراف فني كامل على المنصة — للإبلاغ عن خطأ في البيانات أو إضافة جهة جديدة أو الاستفسارات التقنية، تواصل مباشرة عبر القنوات التالية.</p>
+            <p class="dev-role">${esc(SITE.developer.title || "Ù…Ø·ÙˆÙ‘Ø± Ø§Ù„Ù…Ù†ØµØ©")}</p>
+            <p class="dev-desc">ØªØ·ÙˆÙŠØ± ÙˆØ¥Ø´Ø±Ø§Ù ÙÙ†ÙŠ ÙƒØ§Ù…Ù„ Ø¹Ù„Ù‰ Ø§Ù„Ù…Ù†ØµØ© â€” Ù„Ù„Ø¥Ø¨Ù„Ø§Øº Ø¹Ù† Ø®Ø·Ø£ ÙÙŠ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø£Ùˆ Ø¥Ø¶Ø§ÙØ© Ø¬Ù‡Ø© Ø¬Ø¯ÙŠØ¯Ø© Ø£Ùˆ Ø§Ù„Ø§Ø³ØªÙØ³Ø§Ø±Ø§Øª Ø§Ù„ØªÙ‚Ù†ÙŠØ©ØŒ ØªÙˆØ§ØµÙ„ Ù…Ø¨Ø§Ø´Ø±Ø© Ø¹Ø¨Ø± Ø§Ù„Ù‚Ù†ÙˆØ§Øª Ø§Ù„ØªØ§Ù„ÙŠØ©.</p>
             <div class="dev-actions">
               <a class="dev-btn dev-btn-phone" href="tel:${esc(SITE.developer.phone)}">${icon("phone")} <span dir="ltr">${fmtPhone(SITE.developer.phone)}</span></a>
-              ${SITE.developer.instagram ? `<a class="dev-btn dev-btn-ig" href="${esc(SITE.developer.instagram)}" target="_blank" rel="noopener">${icon("instagram")} إنستغرام</a>` : ""}
-              ${SITE.developer.facebook ? `<a class="dev-btn dev-btn-fb" href="${esc(SITE.developer.facebook)}" target="_blank" rel="noopener">${icon("facebook")} فيسبوك</a>` : ""}
+              ${SITE.developer.instagram ? `<a class="dev-btn dev-btn-ig" href="${esc(SITE.developer.instagram)}" target="_blank" rel="noopener">${icon("instagram")} Ø¥Ù†Ø³ØªØºØ±Ø§Ù…</a>` : ""}
+              ${SITE.developer.facebook ? `<a class="dev-btn dev-btn-fb" href="${esc(SITE.developer.facebook)}" target="_blank" rel="noopener">${icon("facebook")} ÙÙŠØ³Ø¨ÙˆÙƒ</a>` : ""}
             </div>
           </div>
         </div>
@@ -1161,8 +1174,8 @@ function viewAbout() {
     <div class="card support-card">
       <div class="support-row">
         <div>
-          <p class="support-title">إضافة جهة أو تعديل بيانات</p>
-          <p class="support-sub">لإضافة جهة طبية جديدة للدليل أو تصحيح أي بيانات، تواصل مباشرة مع مطوّر المنصة عبر بطاقة المطوّر أعلاه أو الهاتف المجاور.</p>
+          <p class="support-title">Ø¥Ø¶Ø§ÙØ© Ø¬Ù‡Ø© Ø£Ùˆ ØªØ¹Ø¯ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª</p>
+          <p class="support-sub">Ù„Ø¥Ø¶Ø§ÙØ© Ø¬Ù‡Ø© Ø·Ø¨ÙŠØ© Ø¬Ø¯ÙŠØ¯Ø© Ù„Ù„Ø¯Ù„ÙŠÙ„ Ø£Ùˆ ØªØµØ­ÙŠØ­ Ø£ÙŠ Ø¨ÙŠØ§Ù†Ø§ØªØŒ ØªÙˆØ§ØµÙ„ Ù…Ø¨Ø§Ø´Ø±Ø© Ù…Ø¹ Ù…Ø·ÙˆÙ‘Ø± Ø§Ù„Ù…Ù†ØµØ© Ø¹Ø¨Ø± Ø¨Ø·Ø§Ù‚Ø© Ø§Ù„Ù…Ø·ÙˆÙ‘Ø± Ø£Ø¹Ù„Ø§Ù‡ Ø£Ùˆ Ø§Ù„Ù‡Ø§ØªÙ Ø§Ù„Ù…Ø¬Ø§ÙˆØ±.</p>
         </div>
         <a class="support-btn" href="tel:${esc(SITE.developer.phone)}">${icon("phone")} <span dir="ltr">${fmtPhone(SITE.developer.phone)}</span></a>
       </div>
@@ -1174,13 +1187,13 @@ function viewPackages() {
   return `
   <div class="container page-wrap plans-page">
     <div class="plans-head">
-      <h1>باقات الاشتراك</h1>
-      <p>ارتقِ بظهور صفحتك في دليل صوران الطبي — يُفعّل الاشتراك لمدة شهر كامل من تاريخ الموافقة.</p>
-      <p class="plans-login">لديك اشتراك فعّال؟ <a href="#/login">تسجيل دخول الجهة ←</a></p>
+      <h1>Ø¨Ø§Ù‚Ø§Øª Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ</h1>
+      <p>Ø§Ø±ØªÙ‚Ù Ø¨Ø¸Ù‡ÙˆØ± ØµÙØ­ØªÙƒ ÙÙŠ Ø¯Ù„ÙŠÙ„ ØµÙˆØ±Ø§Ù† Ø§Ù„Ø·Ø¨ÙŠ â€” ÙŠÙÙØ¹Ù‘Ù„ Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ Ù„Ù…Ø¯Ø© Ø´Ù‡Ø± ÙƒØ§Ù…Ù„ Ù…Ù† ØªØ§Ø±ÙŠØ® Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø©.</p>
+      <p class="plans-login">Ù„Ø¯ÙŠÙƒ Ø§Ø´ØªØ±Ø§Ùƒ ÙØ¹Ù‘Ø§Ù„ØŸ <a href="#/login">ØªØ³Ø¬ÙŠÙ„ Ø¯Ø®ÙˆÙ„ Ø§Ù„Ø¬Ù‡Ø© â†</a></p>
     </div>
     <div class="plans-grid">
       ${PACKAGES.map((p) => {
-        const waMsg = waHref(SITE.developer.phone, "مرحباً، أرغب بالاشتراك في «" + p.name + "» في دليل صوران الطبي");
+        const waMsg = waHref(SITE.developer.phone, "Ù…Ø±Ø­Ø¨Ø§Ù‹ØŒ Ø£Ø±ØºØ¨ Ø¨Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ ÙÙŠ Â«" + p.name + "Â» ÙÙŠ Ø¯Ù„ÙŠÙ„ ØµÙˆØ±Ø§Ù† Ø§Ù„Ø·Ø¨ÙŠ");
         const inner = `
           <span class="plan-ic ${p.id}">${icon(p.id === "free" ? "lock" : p.id === "pro" ? "sparkles" : "crown")}</span>
           <h3>${esc(p.name)}</h3>
@@ -1188,13 +1201,13 @@ function viewPackages() {
           <ul class="plan-features">
             ${p.features.map((f) => `<li>${icon("check")} ${esc(f)}</li>`).join("")}
           </ul>
-          <span class="plan-cta ${p.id === "free" ? "is-free" : ""}">${p.id === "free" ? "الباقة الأساسية لكل الجهات" : icon("chat") + " اطلب الاشتراك عبر واتساب"}</span>`;
+          <span class="plan-cta ${p.id === "free" ? "is-free" : ""}">${p.id === "free" ? "Ø§Ù„Ø¨Ø§Ù‚Ø© Ø§Ù„Ø£Ø³Ø§Ø³ÙŠØ© Ù„ÙƒÙ„ Ø§Ù„Ø¬Ù‡Ø§Øª" : icon("chat") + " Ø§Ø·Ù„Ø¨ Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ Ø¹Ø¨Ø± ÙˆØ§ØªØ³Ø§Ø¨"}</span>`;
         return p.id === "free"
           ? `<article class="plan-card">${inner}</article>`
           : `<a class="plan-card ${p.featured ? "is-gold" : ""}" href="${waMsg}" target="_blank" rel="noopener">${inner}</a>`;
       }).join("")}
     </div>
-    <p class="plans-note">لم تجد جهتك في الدليل؟ <a href="${waHref(SITE.developer.phone, "مرحباً، أرغب بإضافة جهتي إلى دليل صوران الطبي")}" target="_blank" rel="noopener">تواصل مع الإدارة</a> لإضافتها أولاً، ثم قدّم طلب الترقية.</p>
+    <p class="plans-note">Ù„Ù… ØªØ¬Ø¯ Ø¬Ù‡ØªÙƒ ÙÙŠ Ø§Ù„Ø¯Ù„ÙŠÙ„ØŸ <a href="${waHref(SITE.developer.phone, "Ù…Ø±Ø­Ø¨Ø§Ù‹ØŒ Ø£Ø±ØºØ¨ Ø¨Ø¥Ø¶Ø§ÙØ© Ø¬Ù‡ØªÙŠ Ø¥Ù„Ù‰ Ø¯Ù„ÙŠÙ„ ØµÙˆØ±Ø§Ù† Ø§Ù„Ø·Ø¨ÙŠ")}" target="_blank" rel="noopener">ØªÙˆØ§ØµÙ„ Ù…Ø¹ Ø§Ù„Ø¥Ø¯Ø§Ø±Ø©</a> Ù„Ø¥Ø¶Ø§ÙØªÙ‡Ø§ Ø£ÙˆÙ„Ø§Ù‹ØŒ Ø«Ù… Ù‚Ø¯Ù‘Ù… Ø·Ù„Ø¨ Ø§Ù„ØªØ±Ù‚ÙŠØ©.</p>
   </div>`;
 }
 
@@ -1205,23 +1218,23 @@ function viewLogin() {
       <div class="login-card">
         <div class="login-head">
           <span class="l-icon">${icon("key")}</span>
-          <h1>دخول الجهة</h1>
-          <p>أدخل البريد وكلمة السر الخاصين بك للوصول إلى لوحة تحكم صفحتك.</p>
+          <h1>Ø¯Ø®ÙˆÙ„ Ø§Ù„Ø¬Ù‡Ø©</h1>
+          <p>Ø£Ø¯Ø®Ù„ Ø§Ù„Ø¨Ø±ÙŠØ¯ ÙˆÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø± Ø§Ù„Ø®Ø§ØµÙŠÙ† Ø¨Ùƒ Ù„Ù„ÙˆØµÙˆÙ„ Ø¥Ù„Ù‰ Ù„ÙˆØ­Ø© ØªØ­ÙƒÙ… ØµÙØ­ØªÙƒ.</p>
         </div>
         <form id="loginForm" class="form-grid" novalidate>
           <div class="field">
-            <label for="lgUser">البريد الإلكتروني</label>
+            <label for="lgUser">Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ</label>
             <input id="lgUser" type="text" dir="ltr" placeholder="admin-...@gmail.com" autocomplete="username" />
           </div>
           <div class="field">
-            <label for="lgPass">كلمة السر</label>
-            <input id="lgPass" type="password" dir="ltr" placeholder="كلمة السر المرسلة لك" autocomplete="current-password" />
+            <label for="lgPass">ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø±</label>
+            <input id="lgPass" type="password" dir="ltr" placeholder="ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø± Ø§Ù„Ù…Ø±Ø³Ù„Ø© Ù„Ùƒ" autocomplete="current-password" />
           </div>
-          <p class="login-error" id="loginError" hidden>بيانات الدخول غير صحيحة</p>
-          <button class="btn btn-primary btn-block" type="submit">${icon("key")} دخول</button>
+          <p class="login-error" id="loginError" hidden>Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¯Ø®ÙˆÙ„ ØºÙŠØ± ØµØ­ÙŠØ­Ø©</p>
+          <button class="btn btn-primary btn-block" type="submit">${icon("key")} Ø¯Ø®ÙˆÙ„</button>
         </form>
-        <p class="login-note">بيانات الدخول تُسلَّم لك عند تفعيل اشتراكك من قبل إدارة المنصة.</p>
-        <p class="login-forgot"><a href="https://cfcsnhuozufqaejkgrje.supabase.co/auth/v1/resetpassword" target="_blank" rel="noopener">${icon("key")} نسيت كلمة السر؟</a></p>
+        <p class="login-note">Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¯Ø®ÙˆÙ„ ØªÙØ³Ù„ÙŽÙ‘Ù… Ù„Ùƒ Ø¹Ù†Ø¯ ØªÙØ¹ÙŠÙ„ Ø§Ø´ØªØ±Ø§ÙƒÙƒ Ù…Ù† Ù‚Ø¨Ù„ Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ù†ØµØ©.</p>
+        <p class="login-forgot"><a href="https://cfcsnhuozufqaejkgrje.supabase.co/auth/v1/resetpassword" target="_blank" rel="noopener">${icon("key")} Ù†Ø³ÙŠØª ÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø±ØŸ</a></p>
       </div>
     </div>
   </section>`;
@@ -1231,95 +1244,95 @@ function view404() {
   return `
   <div class="container page-wrap">
     <div class="empty-state" style="padding:80px 20px">
-      <h3 style="font-size:26px">404 — الصفحة غير موجودة</h3>
-      <p>يبدو أن الرابط الذي تبحث عنه تغيّر أو حُذف.</p>
+      <h3 style="font-size:26px">404 â€” Ø§Ù„ØµÙØ­Ø© ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯Ø©</h3>
+      <p>ÙŠØ¨Ø¯Ùˆ Ø£Ù† Ø§Ù„Ø±Ø§Ø¨Ø· Ø§Ù„Ø°ÙŠ ØªØ¨Ø­Ø« Ø¹Ù†Ù‡ ØªØºÙŠÙ‘Ø± Ø£Ùˆ Ø­ÙØ°Ù.</p>
       <div style="margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-        <a class="btn btn-primary" href="#/">العودة للرئيسية</a>
-        <a class="btn btn-ghost" href="#/doctors">تصفّح الأطباء</a>
+        <a class="btn btn-primary" href="#/">Ø§Ù„Ø¹ÙˆØ¯Ø© Ù„Ù„Ø±Ø¦ÙŠØ³ÙŠØ©</a>
+        <a class="btn btn-ghost" href="#/doctors">ØªØµÙÙ‘Ø­ Ø§Ù„Ø£Ø·Ø¨Ø§Ø¡</a>
       </div>
     </div>
   </div>`;
 }
 
-/* ---------- الصفحات القانونية ---------- */
+/* ---------- Ø§Ù„ØµÙØ­Ø§Øª Ø§Ù„Ù‚Ø§Ù†ÙˆÙ†ÙŠØ© ---------- */
 function viewPrivacy() {
-  return pageShell("سياسة الخصوصية", "shield", `
-    <h2>مقدمة</h2>
-    <p>دليل صوران الطبي مشروع مجتمعي يحترم خصوصية زوّاره. توضح هذه السياسة ما نجمعه وكيف نتعامل معه.</p>
-    <h2>ما لا نجمعه</h2>
+  return pageShell("Ø³ÙŠØ§Ø³Ø© Ø§Ù„Ø®ØµÙˆØµÙŠØ©", "shield", `
+    <h2>Ù…Ù‚Ø¯Ù…Ø©</h2>
+    <p>Ø¯Ù„ÙŠÙ„ ØµÙˆØ±Ø§Ù† Ø§Ù„Ø·Ø¨ÙŠ Ù…Ø´Ø±ÙˆØ¹ Ù…Ø¬ØªÙ…Ø¹ÙŠ ÙŠØ­ØªØ±Ù… Ø®ØµÙˆØµÙŠØ© Ø²ÙˆÙ‘Ø§Ø±Ù‡. ØªÙˆØ¶Ø­ Ù‡Ø°Ù‡ Ø§Ù„Ø³ÙŠØ§Ø³Ø© Ù…Ø§ Ù†Ø¬Ù…Ø¹Ù‡ ÙˆÙƒÙŠÙ Ù†ØªØ¹Ø§Ù…Ù„ Ù…Ø¹Ù‡.</p>
+    <h2>Ù…Ø§ Ù„Ø§ Ù†Ø¬Ù…Ø¹Ù‡</h2>
     <ul>
-      <li>لا نطلب إنشاء حساب للاستفادة من الدليل، ولا نتتبع موقعك الجغرافي.</li>
-      <li>لا نستخدم ملفات تتبع إعلانية ولا نشارك أي بيانات مع جهات تسويقية.</li>
+      <li>Ù„Ø§ Ù†Ø·Ù„Ø¨ Ø¥Ù†Ø´Ø§Ø¡ Ø­Ø³Ø§Ø¨ Ù„Ù„Ø§Ø³ØªÙØ§Ø¯Ø© Ù…Ù† Ø§Ù„Ø¯Ù„ÙŠÙ„ØŒ ÙˆÙ„Ø§ Ù†ØªØªØ¨Ø¹ Ù…ÙˆÙ‚Ø¹Ùƒ Ø§Ù„Ø¬ØºØ±Ø§ÙÙŠ.</li>
+      <li>Ù„Ø§ Ù†Ø³ØªØ®Ø¯Ù… Ù…Ù„ÙØ§Øª ØªØªØ¨Ø¹ Ø¥Ø¹Ù„Ø§Ù†ÙŠØ© ÙˆÙ„Ø§ Ù†Ø´Ø§Ø±Ùƒ Ø£ÙŠ Ø¨ÙŠØ§Ù†Ø§Øª Ù…Ø¹ Ø¬Ù‡Ø§Øª ØªØ³ÙˆÙŠÙ‚ÙŠØ©.</li>
     </ul>
-    <h2>ما قد يُحفظ على جهازك فقط</h2>
+    <h2>Ù…Ø§ Ù‚Ø¯ ÙŠÙØ­ÙØ¸ Ø¹Ù„Ù‰ Ø¬Ù‡Ø§Ø²Ùƒ ÙÙ‚Ø·</h2>
     <ul>
-      <li><strong>الأسئلة والرسائل المرسلة من النماذج</strong> تُحفظ مؤقتاً في متصفحك (localStorage) لعرضها لك في «أسئلتي»، ولا تُرسل إلى أي خادم في النسخة التجريبية.</li>
-      <li><strong>تفضيل الوضع الليلي</strong> يُحفظ على جهازك فقط.</li>
+      <li><strong>Ø§Ù„Ø£Ø³Ø¦Ù„Ø© ÙˆØ§Ù„Ø±Ø³Ø§Ø¦Ù„ Ø§Ù„Ù…Ø±Ø³Ù„Ø© Ù…Ù† Ø§Ù„Ù†Ù…Ø§Ø°Ø¬</strong> ØªÙØ­ÙØ¸ Ù…Ø¤Ù‚ØªØ§Ù‹ ÙÙŠ Ù…ØªØµÙØ­Ùƒ (localStorage) Ù„Ø¹Ø±Ø¶Ù‡Ø§ Ù„Ùƒ ÙÙŠ Â«Ø£Ø³Ø¦Ù„ØªÙŠÂ»ØŒ ÙˆÙ„Ø§ ØªÙØ±Ø³Ù„ Ø¥Ù„Ù‰ Ø£ÙŠ Ø®Ø§Ø¯Ù… ÙÙŠ Ø§Ù„Ù†Ø³Ø®Ø© Ø§Ù„ØªØ¬Ø±ÙŠØ¨ÙŠØ©.</li>
+      <li><strong>ØªÙØ¶ÙŠÙ„ Ø§Ù„ÙˆØ¶Ø¹ Ø§Ù„Ù„ÙŠÙ„ÙŠ</strong> ÙŠÙØ­ÙØ¸ Ø¹Ù„Ù‰ Ø¬Ù‡Ø§Ø²Ùƒ ÙÙ‚Ø·.</li>
     </ul>
-    <h2>بيانات الجهات الطبية</h2>
-    <p>تُنشر بيانات الجهات (الاسم، التخصص، الهاتف، العنوان، أوقات العمل) بموافقة أصحابها ولأغراض الدليل فقط. صاحب الجهة يستطيع طلب تعديل أو حذف بياناته عبر <a href="#/about">صفحة عن المنصة</a>.</p>
-    <h2>حقوقك</h2>
-    <p>يمكنك في أي وقت حذف أسئلتك المحفوظة محلياً من زر الحذف المرفق بكل سؤال، أو مسح بيانات الموقع من إعدادات المتصفح.</p>
+    <h2>Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¬Ù‡Ø§Øª Ø§Ù„Ø·Ø¨ÙŠØ©</h2>
+    <p>ØªÙÙ†Ø´Ø± Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¬Ù‡Ø§Øª (Ø§Ù„Ø§Ø³Ù…ØŒ Ø§Ù„ØªØ®ØµØµØŒ Ø§Ù„Ù‡Ø§ØªÙØŒ Ø§Ù„Ø¹Ù†ÙˆØ§Ù†ØŒ Ø£ÙˆÙ‚Ø§Øª Ø§Ù„Ø¹Ù…Ù„) Ø¨Ù…ÙˆØ§ÙÙ‚Ø© Ø£ØµØ­Ø§Ø¨Ù‡Ø§ ÙˆÙ„Ø£ØºØ±Ø§Ø¶ Ø§Ù„Ø¯Ù„ÙŠÙ„ ÙÙ‚Ø·. ØµØ§Ø­Ø¨ Ø§Ù„Ø¬Ù‡Ø© ÙŠØ³ØªØ·ÙŠØ¹ Ø·Ù„Ø¨ ØªØ¹Ø¯ÙŠÙ„ Ø£Ùˆ Ø­Ø°Ù Ø¨ÙŠØ§Ù†Ø§ØªÙ‡ Ø¹Ø¨Ø± <a href="#/about">ØµÙØ­Ø© Ø¹Ù† Ø§Ù„Ù…Ù†ØµØ©</a>.</p>
+    <h2>Ø­Ù‚ÙˆÙ‚Ùƒ</h2>
+    <p>ÙŠÙ…ÙƒÙ†Ùƒ ÙÙŠ Ø£ÙŠ ÙˆÙ‚Øª Ø­Ø°Ù Ø£Ø³Ø¦Ù„ØªÙƒ Ø§Ù„Ù…Ø­ÙÙˆØ¸Ø© Ù…Ø­Ù„ÙŠØ§Ù‹ Ù…Ù† Ø²Ø± Ø§Ù„Ø­Ø°Ù Ø§Ù„Ù…Ø±ÙÙ‚ Ø¨ÙƒÙ„ Ø³Ø¤Ø§Ù„ØŒ Ø£Ùˆ Ù…Ø³Ø­ Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ù…Ù† Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ù…ØªØµÙØ­.</p>
   `);
 }
 
 function viewTerms() {
-  return pageShell("شروط الاستخدام", "doc", `
-    <h2>قبول الشروط</h2>
-    <p>باستخدامك دليل صوران الطبي فإنك توافق على هذه الشروط. إن لم توافق عليها فالرجاء التوقف عن استخدام الموقع.</p>
-    <h2>طبيعة الخدمة</h2>
-    <p>الدليل منصة معلوماتية توجيهية تعرض بيانات جهات طبية في مدينة صوران. نحن وسيط معلوماتي فقط ولا نقدّم خدمة طبية ولا نضمن نتائج التعامل مع الجهات المدرجة.</p>
-    <h2>استخدامات مقبولة</h2>
+  return pageShell("Ø´Ø±ÙˆØ· Ø§Ù„Ø§Ø³ØªØ®Ø¯Ø§Ù…", "doc", `
+    <h2>Ù‚Ø¨ÙˆÙ„ Ø§Ù„Ø´Ø±ÙˆØ·</h2>
+    <p>Ø¨Ø§Ø³ØªØ®Ø¯Ø§Ù…Ùƒ Ø¯Ù„ÙŠÙ„ ØµÙˆØ±Ø§Ù† Ø§Ù„Ø·Ø¨ÙŠ ÙØ¥Ù†Ùƒ ØªÙˆØ§ÙÙ‚ Ø¹Ù„Ù‰ Ù‡Ø°Ù‡ Ø§Ù„Ø´Ø±ÙˆØ·. Ø¥Ù† Ù„Ù… ØªÙˆØ§ÙÙ‚ Ø¹Ù„ÙŠÙ‡Ø§ ÙØ§Ù„Ø±Ø¬Ø§Ø¡ Ø§Ù„ØªÙˆÙ‚Ù Ø¹Ù† Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ù„Ù…ÙˆÙ‚Ø¹.</p>
+    <h2>Ø·Ø¨ÙŠØ¹Ø© Ø§Ù„Ø®Ø¯Ù…Ø©</h2>
+    <p>Ø§Ù„Ø¯Ù„ÙŠÙ„ Ù…Ù†ØµØ© Ù…Ø¹Ù„ÙˆÙ…Ø§ØªÙŠØ© ØªÙˆØ¬ÙŠÙ‡ÙŠØ© ØªØ¹Ø±Ø¶ Ø¨ÙŠØ§Ù†Ø§Øª Ø¬Ù‡Ø§Øª Ø·Ø¨ÙŠØ© ÙÙŠ Ù…Ø¯ÙŠÙ†Ø© ØµÙˆØ±Ø§Ù†. Ù†Ø­Ù† ÙˆØ³ÙŠØ· Ù…Ø¹Ù„ÙˆÙ…Ø§ØªÙŠ ÙÙ‚Ø· ÙˆÙ„Ø§ Ù†Ù‚Ø¯Ù‘Ù… Ø®Ø¯Ù…Ø© Ø·Ø¨ÙŠØ© ÙˆÙ„Ø§ Ù†Ø¶Ù…Ù† Ù†ØªØ§Ø¦Ø¬ Ø§Ù„ØªØ¹Ø§Ù…Ù„ Ù…Ø¹ Ø§Ù„Ø¬Ù‡Ø§Øª Ø§Ù„Ù…Ø¯Ø±Ø¬Ø©.</p>
+    <h2>Ø§Ø³ØªØ®Ø¯Ø§Ù…Ø§Øª Ù…Ù‚Ø¨ÙˆÙ„Ø©</h2>
     <ul>
-      <li>يُمنع استخدام الدليل لأي غرض مخالف للقانون أو للإضرار بالجهات المدرجة.</li>
-      <li>يُمنع محاولة تعطيل الموقع أو استخراج البيانات بشكل آلي لإعادة نشرها دون إذن.</li>
-      <li>أرقام الجهات للاستخدام الشخصي — يُرجى عدم الإزعاج الهاتفي للجهات.</li>
+      <li>ÙŠÙÙ…Ù†Ø¹ Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ù„Ø¯Ù„ÙŠÙ„ Ù„Ø£ÙŠ ØºØ±Ø¶ Ù…Ø®Ø§Ù„Ù Ù„Ù„Ù‚Ø§Ù†ÙˆÙ† Ø£Ùˆ Ù„Ù„Ø¥Ø¶Ø±Ø§Ø± Ø¨Ø§Ù„Ø¬Ù‡Ø§Øª Ø§Ù„Ù…Ø¯Ø±Ø¬Ø©.</li>
+      <li>ÙŠÙÙ…Ù†Ø¹ Ù…Ø­Ø§ÙˆÙ„Ø© ØªØ¹Ø·ÙŠÙ„ Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ø£Ùˆ Ø§Ø³ØªØ®Ø±Ø§Ø¬ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø¨Ø´ÙƒÙ„ Ø¢Ù„ÙŠ Ù„Ø¥Ø¹Ø§Ø¯Ø© Ù†Ø´Ø±Ù‡Ø§ Ø¯ÙˆÙ† Ø¥Ø°Ù†.</li>
+      <li>Ø£Ø±Ù‚Ø§Ù… Ø§Ù„Ø¬Ù‡Ø§Øª Ù„Ù„Ø§Ø³ØªØ®Ø¯Ø§Ù… Ø§Ù„Ø´Ø®ØµÙŠ â€” ÙŠÙØ±Ø¬Ù‰ Ø¹Ø¯Ù… Ø§Ù„Ø¥Ø²Ø¹Ø§Ø¬ Ø§Ù„Ù‡Ø§ØªÙÙŠ Ù„Ù„Ø¬Ù‡Ø§Øª.</li>
     </ul>
-    <h2>حدود المسؤولية</h2>
-    <p>نبذل جهدنا معقولاً لدقة البيانات وتحديثها، لكن لا نضمن خلوّها من الأخطاء أو التغييرات المفاجئة (إجازات، تغيير أرقام). لا يتحمل الدليل أي مسؤولية عن أضرار ناتجة عن الاعتماد على المعلومات المنشورة.</p>
-    <h2>الملكية الفكرية</h2>
-    <p>اسم الدليل وشعاره وتنظيم محتواه ملك لفريق المشروع. بيانات الجهات ملك أصحابها وتُنشر بموافقتهم.</p>
-    <h2>تعديل الشروط</h2>
-    <p>قد نحدّث هذه الشروط عند الحاجة، ويُعد نشرها على هذه الصفحة إشعاراً كافياً بالتغيير.</p>
+    <h2>Ø­Ø¯ÙˆØ¯ Ø§Ù„Ù…Ø³Ø¤ÙˆÙ„ÙŠØ©</h2>
+    <p>Ù†Ø¨Ø°Ù„ Ø¬Ù‡Ø¯Ù†Ø§ Ù…Ø¹Ù‚ÙˆÙ„Ø§Ù‹ Ù„Ø¯Ù‚Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª ÙˆØªØ­Ø¯ÙŠØ«Ù‡Ø§ØŒ Ù„ÙƒÙ† Ù„Ø§ Ù†Ø¶Ù…Ù† Ø®Ù„ÙˆÙ‘Ù‡Ø§ Ù…Ù† Ø§Ù„Ø£Ø®Ø·Ø§Ø¡ Ø£Ùˆ Ø§Ù„ØªØºÙŠÙŠØ±Ø§Øª Ø§Ù„Ù…ÙØ§Ø¬Ø¦Ø© (Ø¥Ø¬Ø§Ø²Ø§ØªØŒ ØªØºÙŠÙŠØ± Ø£Ø±Ù‚Ø§Ù…). Ù„Ø§ ÙŠØªØ­Ù…Ù„ Ø§Ù„Ø¯Ù„ÙŠÙ„ Ø£ÙŠ Ù…Ø³Ø¤ÙˆÙ„ÙŠØ© Ø¹Ù† Ø£Ø¶Ø±Ø§Ø± Ù†Ø§ØªØ¬Ø© Ø¹Ù† Ø§Ù„Ø§Ø¹ØªÙ…Ø§Ø¯ Ø¹Ù„Ù‰ Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ø§Ù„Ù…Ù†Ø´ÙˆØ±Ø©.</p>
+    <h2>Ø§Ù„Ù…Ù„ÙƒÙŠØ© Ø§Ù„ÙÙƒØ±ÙŠØ©</h2>
+    <p>Ø§Ø³Ù… Ø§Ù„Ø¯Ù„ÙŠÙ„ ÙˆØ´Ø¹Ø§Ø±Ù‡ ÙˆØªÙ†Ø¸ÙŠÙ… Ù…Ø­ØªÙˆØ§Ù‡ Ù…Ù„Ùƒ Ù„ÙØ±ÙŠÙ‚ Ø§Ù„Ù…Ø´Ø±ÙˆØ¹. Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¬Ù‡Ø§Øª Ù…Ù„Ùƒ Ø£ØµØ­Ø§Ø¨Ù‡Ø§ ÙˆØªÙÙ†Ø´Ø± Ø¨Ù…ÙˆØ§ÙÙ‚ØªÙ‡Ù….</p>
+    <h2>ØªØ¹Ø¯ÙŠÙ„ Ø§Ù„Ø´Ø±ÙˆØ·</h2>
+    <p>Ù‚Ø¯ Ù†Ø­Ø¯Ù‘Ø« Ù‡Ø°Ù‡ Ø§Ù„Ø´Ø±ÙˆØ· Ø¹Ù†Ø¯ Ø§Ù„Ø­Ø§Ø¬Ø©ØŒ ÙˆÙŠÙØ¹Ø¯ Ù†Ø´Ø±Ù‡Ø§ Ø¹Ù„Ù‰ Ù‡Ø°Ù‡ Ø§Ù„ØµÙØ­Ø© Ø¥Ø´Ø¹Ø§Ø±Ø§Ù‹ ÙƒØ§ÙÙŠØ§Ù‹ Ø¨Ø§Ù„ØªØºÙŠÙŠØ±.</p>
   `);
 }
 
 function viewDisclaimer() {
-  return pageShell("إخلاء المسؤولية الطبية", "alert", `
-    <div class="note-box">${icon("alert")}<p><strong>المعلومات في هذا الموقع توعوية عامة وليست استشارة طبية.</strong></p></div>
-    <h2>المحتوى التوعوي</h2>
-    <p>الإجابات والإرشادات المنشورة في «اسأل طبياً» وبقية الصفحات مُعدّة بلغة مبسطة لأغراض التثقيف الصحي العام، وهي لا تشكّل تشخيصاً ولا خطة علاج ولا بديلاً عن الفحص السريري المباشر.</p>
-    <h2>لا تعتمد عليها في الحالات الحرجة</h2>
+  return pageShell("Ø¥Ø®Ù„Ø§Ø¡ Ø§Ù„Ù…Ø³Ø¤ÙˆÙ„ÙŠØ© Ø§Ù„Ø·Ø¨ÙŠØ©", "alert", `
+    <div class="note-box">${icon("alert")}<p><strong>Ø§Ù„Ù…Ø¹Ù„ÙˆÙ…Ø§Øª ÙÙŠ Ù‡Ø°Ø§ Ø§Ù„Ù…ÙˆÙ‚Ø¹ ØªÙˆØ¹ÙˆÙŠØ© Ø¹Ø§Ù…Ø© ÙˆÙ„ÙŠØ³Øª Ø§Ø³ØªØ´Ø§Ø±Ø© Ø·Ø¨ÙŠØ©.</strong></p></div>
+    <h2>Ø§Ù„Ù…Ø­ØªÙˆÙ‰ Ø§Ù„ØªÙˆØ¹ÙˆÙŠ</h2>
+    <p>Ø§Ù„Ø¥Ø¬Ø§Ø¨Ø§Øª ÙˆØ§Ù„Ø¥Ø±Ø´Ø§Ø¯Ø§Øª Ø§Ù„Ù…Ù†Ø´ÙˆØ±Ø© ÙÙŠ Â«Ø§Ø³Ø£Ù„ Ø·Ø¨ÙŠØ§Ù‹Â» ÙˆØ¨Ù‚ÙŠØ© Ø§Ù„ØµÙØ­Ø§Øª Ù…ÙØ¹Ø¯Ù‘Ø© Ø¨Ù„ØºØ© Ù…Ø¨Ø³Ø·Ø© Ù„Ø£ØºØ±Ø§Ø¶ Ø§Ù„ØªØ«Ù‚ÙŠÙ Ø§Ù„ØµØ­ÙŠ Ø§Ù„Ø¹Ø§Ù…ØŒ ÙˆÙ‡ÙŠ Ù„Ø§ ØªØ´ÙƒÙ‘Ù„ ØªØ´Ø®ÙŠØµØ§Ù‹ ÙˆÙ„Ø§ Ø®Ø·Ø© Ø¹Ù„Ø§Ø¬ ÙˆÙ„Ø§ Ø¨Ø¯ÙŠÙ„Ø§Ù‹ Ø¹Ù† Ø§Ù„ÙØ­Øµ Ø§Ù„Ø³Ø±ÙŠØ±ÙŠ Ø§Ù„Ù…Ø¨Ø§Ø´Ø±.</p>
+    <h2>Ù„Ø§ ØªØ¹ØªÙ…Ø¯ Ø¹Ù„ÙŠÙ‡Ø§ ÙÙŠ Ø§Ù„Ø­Ø§Ù„Ø§Øª Ø§Ù„Ø­Ø±Ø¬Ø©</h2>
     <ul>
-      <li>عند ألم صدر شديد، ضيق تنفس مفاجئ، فقدان وعي، نزيف غزير، أو إصابة رضحية — اتصل بالإسعاف فوراً وتوجه لأقرب مشفى.</li>
-      <li>لا تبدأ أو توقف أي دواء بناءً على ما تقرأه هنا دون استشارة طبيبك.</li>
+      <li>Ø¹Ù†Ø¯ Ø£Ù„Ù… ØµØ¯Ø± Ø´Ø¯ÙŠØ¯ØŒ Ø¶ÙŠÙ‚ ØªÙ†ÙØ³ Ù…ÙØ§Ø¬Ø¦ØŒ ÙÙ‚Ø¯Ø§Ù† ÙˆØ¹ÙŠØŒ Ù†Ø²ÙŠÙ ØºØ²ÙŠØ±ØŒ Ø£Ùˆ Ø¥ØµØ§Ø¨Ø© Ø±Ø¶Ø­ÙŠØ© â€” Ø§ØªØµÙ„ Ø¨Ø§Ù„Ø¥Ø³Ø¹Ø§Ù ÙÙˆØ±Ø§Ù‹ ÙˆØªÙˆØ¬Ù‡ Ù„Ø£Ù‚Ø±Ø¨ Ù…Ø´ÙÙ‰.</li>
+      <li>Ù„Ø§ ØªØ¨Ø¯Ø£ Ø£Ùˆ ØªÙˆÙ‚Ù Ø£ÙŠ Ø¯ÙˆØ§Ø¡ Ø¨Ù†Ø§Ø¡Ù‹ Ø¹Ù„Ù‰ Ù…Ø§ ØªÙ‚Ø±Ø£Ù‡ Ù‡Ù†Ø§ Ø¯ÙˆÙ† Ø§Ø³ØªØ´Ø§Ø±Ø© Ø·Ø¨ÙŠØ¨Ùƒ.</li>
     </ul>
-    <h2>الأطفال والحوامل</h2>
-    <p>أي حالة تخص رضيعاً أو طفلاً أو حاملاً أو مرضعاً تتطلب استشارة مباشرة مع الطبيب المختص قبل أي إجراء.</p>
-    <h2>المصادر</h2>
-    <p>تُصاغ الإرشادات استناداً إلى مبادئ عامة شائعة في ممارسات الطب الأولي، مع تبسيطها لغير المختصين. في حال الخلاف بين ما تقرأه هنا وما يقوله طبيبك — كلام طبيبك هو المرجع.</p>
+    <h2>Ø§Ù„Ø£Ø·ÙØ§Ù„ ÙˆØ§Ù„Ø­ÙˆØ§Ù…Ù„</h2>
+    <p>Ø£ÙŠ Ø­Ø§Ù„Ø© ØªØ®Øµ Ø±Ø¶ÙŠØ¹Ø§Ù‹ Ø£Ùˆ Ø·ÙÙ„Ø§Ù‹ Ø£Ùˆ Ø­Ø§Ù…Ù„Ø§Ù‹ Ø£Ùˆ Ù…Ø±Ø¶Ø¹Ø§Ù‹ ØªØªØ·Ù„Ø¨ Ø§Ø³ØªØ´Ø§Ø±Ø© Ù…Ø¨Ø§Ø´Ø±Ø© Ù…Ø¹ Ø§Ù„Ø·Ø¨ÙŠØ¨ Ø§Ù„Ù…Ø®ØªØµ Ù‚Ø¨Ù„ Ø£ÙŠ Ø¥Ø¬Ø±Ø§Ø¡.</p>
+    <h2>Ø§Ù„Ù…ØµØ§Ø¯Ø±</h2>
+    <p>ØªÙØµØ§Øº Ø§Ù„Ø¥Ø±Ø´Ø§Ø¯Ø§Øª Ø§Ø³ØªÙ†Ø§Ø¯Ø§Ù‹ Ø¥Ù„Ù‰ Ù…Ø¨Ø§Ø¯Ø¦ Ø¹Ø§Ù…Ø© Ø´Ø§Ø¦Ø¹Ø© ÙÙŠ Ù…Ù…Ø§Ø±Ø³Ø§Øª Ø§Ù„Ø·Ø¨ Ø§Ù„Ø£ÙˆÙ„ÙŠØŒ Ù…Ø¹ ØªØ¨Ø³ÙŠØ·Ù‡Ø§ Ù„ØºÙŠØ± Ø§Ù„Ù…Ø®ØªØµÙŠÙ†. ÙÙŠ Ø­Ø§Ù„ Ø§Ù„Ø®Ù„Ø§Ù Ø¨ÙŠÙ† Ù…Ø§ ØªÙ‚Ø±Ø£Ù‡ Ù‡Ù†Ø§ ÙˆÙ…Ø§ ÙŠÙ‚ÙˆÙ„Ù‡ Ø·Ø¨ÙŠØ¨Ùƒ â€” ÙƒÙ„Ø§Ù… Ø·Ø¨ÙŠØ¨Ùƒ Ù‡Ùˆ Ø§Ù„Ù…Ø±Ø¬Ø¹.</p>
   `);
 }
 
 function viewContentPolicy() {
-  return pageShell("سياسة المحتوى الطبي", "shieldPlus", `
-    <h2>مبدأنا</h2>
-    <p>المحتوى الصحي في دليل صوران الطبي يخضع لمعايير تحرير واضحة لضمان ألا يصل لأهالي المدينة أي معلومة مضللة أو إعلانية مضلِّبة.</p>
-    <h2>معايير نشر الإرشادات</h2>
+  return pageShell("Ø³ÙŠØ§Ø³Ø© Ø§Ù„Ù…Ø­ØªÙˆÙ‰ Ø§Ù„Ø·Ø¨ÙŠ", "shieldPlus", `
+    <h2>Ù…Ø¨Ø¯Ø£Ù†Ø§</h2>
+    <p>Ø§Ù„Ù…Ø­ØªÙˆÙ‰ Ø§Ù„ØµØ­ÙŠ ÙÙŠ Ø¯Ù„ÙŠÙ„ ØµÙˆØ±Ø§Ù† Ø§Ù„Ø·Ø¨ÙŠ ÙŠØ®Ø¶Ø¹ Ù„Ù…Ø¹Ø§ÙŠÙŠØ± ØªØ­Ø±ÙŠØ± ÙˆØ§Ø¶Ø­Ø© Ù„Ø¶Ù…Ø§Ù† Ø£Ù„Ø§ ÙŠØµÙ„ Ù„Ø£Ù‡Ø§Ù„ÙŠ Ø§Ù„Ù…Ø¯ÙŠÙ†Ø© Ø£ÙŠ Ù…Ø¹Ù„ÙˆÙ…Ø© Ù…Ø¶Ù„Ù„Ø© Ø£Ùˆ Ø¥Ø¹Ù„Ø§Ù†ÙŠØ© Ù…Ø¶Ù„ÙÙ‘Ø¨Ø©.</p>
+    <h2>Ù…Ø¹Ø§ÙŠÙŠØ± Ù†Ø´Ø± Ø§Ù„Ø¥Ø±Ø´Ø§Ø¯Ø§Øª</h2>
     <ul>
-      <li><strong>علمية ومبسطة:</strong> معلومات مستندة إلى مبادئ طب أولي متعارف عليها، بصيغة يفهمها غير المختص.</li>
-      <li><strong>محايدة:</strong> لا ننشر إرشادات تروّج لدواء أو منتج أو عيادة بعينها مقابل مقابل مادي.</li>
-      <li><strong>متواضعة في الادعاء:</strong> نتجنب العبارات الحاسمة فيما لا يحتمل اليقين، ونحيل على الطبيب دائماً.</li>
-      <li><strong>واضحة الحدود:</strong> كل صفحة إرشادية تذكّر القارئ بأن المحتوى لا يغني عن الاستشارة.</li>
+      <li><strong>Ø¹Ù„Ù…ÙŠØ© ÙˆÙ…Ø¨Ø³Ø·Ø©:</strong> Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ù…Ø³ØªÙ†Ø¯Ø© Ø¥Ù„Ù‰ Ù…Ø¨Ø§Ø¯Ø¦ Ø·Ø¨ Ø£ÙˆÙ„ÙŠ Ù…ØªØ¹Ø§Ø±Ù Ø¹Ù„ÙŠÙ‡Ø§ØŒ Ø¨ØµÙŠØºØ© ÙŠÙÙ‡Ù…Ù‡Ø§ ØºÙŠØ± Ø§Ù„Ù…Ø®ØªØµ.</li>
+      <li><strong>Ù…Ø­Ø§ÙŠØ¯Ø©:</strong> Ù„Ø§ Ù†Ù†Ø´Ø± Ø¥Ø±Ø´Ø§Ø¯Ø§Øª ØªØ±ÙˆÙ‘Ø¬ Ù„Ø¯ÙˆØ§Ø¡ Ø£Ùˆ Ù…Ù†ØªØ¬ Ø£Ùˆ Ø¹ÙŠØ§Ø¯Ø© Ø¨Ø¹ÙŠÙ†Ù‡Ø§ Ù…Ù‚Ø§Ø¨Ù„ Ù…Ù‚Ø§Ø¨Ù„ Ù…Ø§Ø¯ÙŠ.</li>
+      <li><strong>Ù…ØªÙˆØ§Ø¶Ø¹Ø© ÙÙŠ Ø§Ù„Ø§Ø¯Ø¹Ø§Ø¡:</strong> Ù†ØªØ¬Ù†Ø¨ Ø§Ù„Ø¹Ø¨Ø§Ø±Ø§Øª Ø§Ù„Ø­Ø§Ø³Ù…Ø© ÙÙŠÙ…Ø§ Ù„Ø§ ÙŠØ­ØªÙ…Ù„ Ø§Ù„ÙŠÙ‚ÙŠÙ†ØŒ ÙˆÙ†Ø­ÙŠÙ„ Ø¹Ù„Ù‰ Ø§Ù„Ø·Ø¨ÙŠØ¨ Ø¯Ø§Ø¦Ù…Ø§Ù‹.</li>
+      <li><strong>ÙˆØ§Ø¶Ø­Ø© Ø§Ù„Ø­Ø¯ÙˆØ¯:</strong> ÙƒÙ„ ØµÙØ­Ø© Ø¥Ø±Ø´Ø§Ø¯ÙŠØ© ØªØ°ÙƒÙ‘Ø± Ø§Ù„Ù‚Ø§Ø±Ø¦ Ø¨Ø£Ù† Ø§Ù„Ù…Ø­ØªÙˆÙ‰ Ù„Ø§ ÙŠØºÙ†ÙŠ Ø¹Ù† Ø§Ù„Ø§Ø³ØªØ´Ø§Ø±Ø©.</li>
     </ul>
-    <h2>بيانات الجهات</h2>
+    <h2>Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¬Ù‡Ø§Øª</h2>
     <ul>
-      <li>تُنشر بيانات الجهة فقط بعد تأكيدها مع صاحبها أو مصدر موثوق.</li>
-      <li>شارة «مميز» تعبّر عن باقة ظهور مدفوعة أو تفاعل مجتمعي موثق — ولا تعني توصية طبية.</li>
-      <li>أي جهة تُثبت معلومات مضللة عن مؤهلاتها تُوقف بياناتها حتى التحقق.</li>
+      <li>ØªÙÙ†Ø´Ø± Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¬Ù‡Ø© ÙÙ‚Ø· Ø¨Ø¹Ø¯ ØªØ£ÙƒÙŠØ¯Ù‡Ø§ Ù…Ø¹ ØµØ§Ø­Ø¨Ù‡Ø§ Ø£Ùˆ Ù…ØµØ¯Ø± Ù…ÙˆØ«ÙˆÙ‚.</li>
+      <li>Ø´Ø§Ø±Ø© Â«Ù…Ù…ÙŠØ²Â» ØªØ¹Ø¨Ù‘Ø± Ø¹Ù† Ø¨Ø§Ù‚Ø© Ø¸Ù‡ÙˆØ± Ù…Ø¯ÙÙˆØ¹Ø© Ø£Ùˆ ØªÙØ§Ø¹Ù„ Ù…Ø¬ØªÙ…Ø¹ÙŠ Ù…ÙˆØ«Ù‚ â€” ÙˆÙ„Ø§ ØªØ¹Ù†ÙŠ ØªÙˆØµÙŠØ© Ø·Ø¨ÙŠØ©.</li>
+      <li>Ø£ÙŠ Ø¬Ù‡Ø© ØªÙØ«Ø¨Øª Ù…Ø¹Ù„ÙˆÙ…Ø§Øª Ù…Ø¶Ù„Ù„Ø© Ø¹Ù† Ù…Ø¤Ù‡Ù„Ø§ØªÙ‡Ø§ ØªÙÙˆÙ‚Ù Ø¨ÙŠØ§Ù†Ø§ØªÙ‡Ø§ Ø­ØªÙ‰ Ø§Ù„ØªØ­Ù‚Ù‚.</li>
     </ul>
-    <h2>الإبلاغ عن محتوى</h2>
-    <p>رصدتَ معلومة خاطئة أو إرشاداً مثيراً للشك؟ أبلغنا عبر <a href="#/about">صفحة عن المنصة</a> وسيُراجع المحتوى خلال يومي عمل.</p>
+    <h2>Ø§Ù„Ø¥Ø¨Ù„Ø§Øº Ø¹Ù† Ù…Ø­ØªÙˆÙ‰</h2>
+    <p>Ø±ØµØ¯ØªÙŽ Ù…Ø¹Ù„ÙˆÙ…Ø© Ø®Ø§Ø·Ø¦Ø© Ø£Ùˆ Ø¥Ø±Ø´Ø§Ø¯Ø§Ù‹ Ù…Ø«ÙŠØ±Ø§Ù‹ Ù„Ù„Ø´ÙƒØŸ Ø£Ø¨Ù„ØºÙ†Ø§ Ø¹Ø¨Ø± <a href="#/about">ØµÙØ­Ø© Ø¹Ù† Ø§Ù„Ù…Ù†ØµØ©</a> ÙˆØ³ÙŠÙØ±Ø§Ø¬Ø¹ Ø§Ù„Ù…Ø­ØªÙˆÙ‰ Ø®Ù„Ø§Ù„ ÙŠÙˆÙ…ÙŠ Ø¹Ù…Ù„.</p>
   `);
 }
 
@@ -1327,22 +1340,22 @@ function pageShell(title, ic, body) {
   return `
   <section class="page-hero">
     <div class="container">
-      <nav class="breadcrumb"><a href="#/">الرئيسية</a> ${icon("chevLeft")} <span>${title}</span></nav>
+      <nav class="breadcrumb"><a href="#/">Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©</a> ${icon("chevLeft")} <span>${title}</span></nav>
       <h1>${icon(ic)} ${title}</h1>
-      <p>آخر تحديث: ${new Date().toLocaleDateString("ar-SY", { year: "numeric", month: "long", day: "numeric" })}</p>
+      <p>Ø¢Ø®Ø± ØªØ­Ø¯ÙŠØ«: ${new Date().toLocaleDateString("ar-SY", { year: "numeric", month: "long", day: "numeric" })}</p>
     </div>
   </section>
   <div class="container page-wrap"><div class="prose">${body}</div></div>`;
 }
 
-/* ================= تكامل Supabase (اختياري مع fallback محلي) ================= */
+/* ================= ØªÙƒØ§Ù…Ù„ Supabase (Ø§Ø®ØªÙŠØ§Ø±ÙŠ Ù…Ø¹ fallback Ù…Ø­Ù„ÙŠ) ================= */
 function supabaseHeaders() {
   const cfg = window.SUPABASE_CONFIG;
   if (!cfg || !cfg.url || !cfg.anonKey) return null;
   return { apikey: cfg.anonKey, Authorization: "Bearer " + cfg.anonKey };
 }
 
-/* تحميل الجهات والمناوبة والأسئلة والإعلانات من Supabase — عند الفشل تبقى بيانات data.js */
+/* ØªØ­Ù…ÙŠÙ„ Ø§Ù„Ø¬Ù‡Ø§Øª ÙˆØ§Ù„Ù…Ù†Ø§ÙˆØ¨Ø© ÙˆØ§Ù„Ø£Ø³Ø¦Ù„Ø© ÙˆØ§Ù„Ø¥Ø¹Ù„Ø§Ù†Ø§Øª Ù…Ù† Supabase â€” Ø¹Ù†Ø¯ Ø§Ù„ÙØ´Ù„ ØªØ¨Ù‚Ù‰ Ø¨ÙŠØ§Ù†Ø§Øª data.js */
 async function loadRemoteData() {
   const H = supabaseHeaders();
   if (!H) return false;
@@ -1386,13 +1399,13 @@ async function loadRemoteData() {
   return used;
 }
 
-/* شريط الإعلانات — يُستخدم في الرئيسية وصفحات التفاصيل */
+/* Ø´Ø±ÙŠØ· Ø§Ù„Ø¥Ø¹Ù„Ø§Ù†Ø§Øª â€” ÙŠÙØ³ØªØ®Ø¯Ù… ÙÙŠ Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ© ÙˆØµÙØ­Ø§Øª Ø§Ù„ØªÙØ§ØµÙŠÙ„ */
 function adBanner(a) {
   return `
   <a class="ad-banner" href="${esc(a.link_url || "#")}" ${a.link_url ? 'target="_blank" rel="noopener"' : ""}>
     ${a.image_url ? `<img src="${esc(a.image_url)}" alt="" loading="lazy" />` : ""}
     <span class="ad-body">
-      <span class="ad-tag">${icon("sparkles")} إعلان</span>
+      <span class="ad-tag">${icon("sparkles")} Ø¥Ø¹Ù„Ø§Ù†</span>
       <b>${esc(a.title)}</b>
       ${a.body ? `<small>${esc(a.body)}</small>` : ""}
     </span>
@@ -1404,7 +1417,7 @@ function adsStrip(placement) {
   return list.length ? `<div class="ads-strip">${list.map(adBanner).join("")}</div>` : "";
 }
 
-/* إدخال سجل (سؤال/رسالة) في Supabase — أفضل جهد، يعود false عند الفشل */
+/* Ø¥Ø¯Ø®Ø§Ù„ Ø³Ø¬Ù„ (Ø³Ø¤Ø§Ù„/Ø±Ø³Ø§Ù„Ø©) ÙÙŠ Supabase â€” Ø£ÙØ¶Ù„ Ø¬Ù‡Ø¯ØŒ ÙŠØ¹ÙˆØ¯ false Ø¹Ù†Ø¯ Ø§Ù„ÙØ´Ù„ */
 async function supabaseInsert(table, payload) {
   const H = supabaseHeaders();
   if (!H) return false;
@@ -1436,7 +1449,7 @@ async function supabaseInsert(table, payload) {
   }
 }
 
-/* ================= لوحة التحكم (جلسة الجهة/الإدارة) ================= */
+/* ================= Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ… (Ø¬Ù„Ø³Ø© Ø§Ù„Ø¬Ù‡Ø©/Ø§Ù„Ø¥Ø¯Ø§Ø±Ø©) ================= */
 function getSession() {
   try { return JSON.parse(sessionStorage.getItem("ds-session") || "null"); } catch (_) { return null; }
 }
@@ -1453,7 +1466,7 @@ async function dashApi(path, method = "GET", body = null) {
   });
   try {
     let r = await call(s.access_token);
-    /* انتهت صلاحية الجلسة — تجديد صامت عبر refresh_token ثم إعادة المحاولة مرة */
+    /* Ø§Ù†ØªÙ‡Øª ØµÙ„Ø§Ø­ÙŠØ© Ø§Ù„Ø¬Ù„Ø³Ø© â€” ØªØ¬Ø¯ÙŠØ¯ ØµØ§Ù…Øª Ø¹Ø¨Ø± refresh_token Ø«Ù… Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„Ù…Ø­Ø§ÙˆÙ„Ø© Ù…Ø±Ø© */
     if (r.status === 401 && s.refresh_token) {
       const rr = await fetch(cfg.url + "/auth/v1/token?grant_type=refresh_token", {
         method: "POST",
@@ -1469,7 +1482,7 @@ async function dashApi(path, method = "GET", body = null) {
     }
     if (r.status === 401 || r.status === 403) {
       sessionStorage.removeItem("ds-session");
-      showToast("انتهت الجلسة — سجّل الدخول مجدداً", "warn");
+      showToast("Ø§Ù†ØªÙ‡Øª Ø§Ù„Ø¬Ù„Ø³Ø© â€” Ø³Ø¬Ù‘Ù„ Ø§Ù„Ø¯Ø®ÙˆÙ„ Ù…Ø¬Ø¯Ø¯Ø§Ù‹", "warn");
       location.hash = "#/login";
       return null;
     }
@@ -1482,22 +1495,22 @@ async function dashApi(path, method = "GET", body = null) {
   }
 }
 
-/* ---------- لوحة الجهة (داخل الموقع) — كل جهة تدير ملفها فقط ---------- */
+/* ---------- Ù„ÙˆØ­Ø© Ø§Ù„Ø¬Ù‡Ø© (Ø¯Ø§Ø®Ù„ Ø§Ù„Ù…ÙˆÙ‚Ø¹) â€” ÙƒÙ„ Ø¬Ù‡Ø© ØªØ¯ÙŠØ± Ù…Ù„ÙÙ‡Ø§ ÙÙ‚Ø· ---------- */
 function viewDashboard() {
   const s = getSession();
   if (!s) return viewLogin();
-  /* مدير النظام — لوحته المستقلة خارج موقع الزوار */
+  /* Ù…Ø¯ÙŠØ± Ø§Ù„Ù†Ø¸Ø§Ù… â€” Ù„ÙˆØ­ØªÙ‡ Ø§Ù„Ù…Ø³ØªÙ‚Ù„Ø© Ø®Ø§Ø±Ø¬ Ù…ÙˆÙ‚Ø¹ Ø§Ù„Ø²ÙˆØ§Ø± */
   if (s.role === "admin") {
     return `
     <section class="container page-wrap">
       <div class="login-wrap">
         <div class="login-card" style="text-align:center">
           <span class="l-icon">${icon("shieldCheck")}</span>
-          <h1>أنت مدير النظام</h1>
-          <p>اللوحة الشاملة (الجهات، الإعلانات، الأسئلة، الرسائل، حسابات الجهات) في رابط مستقل لا يُعرض داخل موقع الزوار.</p>
+          <h1>Ø£Ù†Øª Ù…Ø¯ÙŠØ± Ø§Ù„Ù†Ø¸Ø§Ù…</h1>
+          <p>Ø§Ù„Ù„ÙˆØ­Ø© Ø§Ù„Ø´Ø§Ù…Ù„Ø© (Ø§Ù„Ø¬Ù‡Ø§ØªØŒ Ø§Ù„Ø¥Ø¹Ù„Ø§Ù†Ø§ØªØŒ Ø§Ù„Ø£Ø³Ø¦Ù„Ø©ØŒ Ø§Ù„Ø±Ø³Ø§Ø¦Ù„ØŒ Ø­Ø³Ø§Ø¨Ø§Øª Ø§Ù„Ø¬Ù‡Ø§Øª) ÙÙŠ Ø±Ø§Ø¨Ø· Ù…Ø³ØªÙ‚Ù„ Ù„Ø§ ÙŠÙØ¹Ø±Ø¶ Ø¯Ø§Ø®Ù„ Ù…ÙˆÙ‚Ø¹ Ø§Ù„Ø²ÙˆØ§Ø±.</p>
           <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px">
-            <a class="btn btn-primary" href="/admin.html" target="_blank" rel="noopener">${icon("key")} فتح لوحة إدارة النظام</a>
-            <button class="btn btn-ghost" type="button" id="dashLogout">${icon("x")} خروج</button>
+            <a class="btn btn-primary" href="/admin.html" target="_blank" rel="noopener">${icon("key")} ÙØªØ­ Ù„ÙˆØ­Ø© Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù†Ø¸Ø§Ù…</a>
+            <button class="btn btn-ghost" type="button" id="dashLogout">${icon("x")} Ø®Ø±ÙˆØ¬</button>
           </div>
         </div>
       </div>
@@ -1508,20 +1521,20 @@ function viewDashboard() {
     <div class="card dash-head">
       <span class="dash-av">${icon("user")}</span>
       <div class="dash-head-info">
-        <h1>لوحة الجهة</h1>
+        <h1>Ù„ÙˆØ­Ø© Ø§Ù„Ø¬Ù‡Ø©</h1>
         <p dir="ltr">${esc(s.email || "")}</p>
       </div>
       <div class="dash-head-actions">
-        <button class="btn btn-outline btn-sm" id="dashLogout" type="button">${icon("x")} خروج</button>
-        <a class="btn btn-primary btn-sm" href="#/">${icon("home")} عرض الموقع</a>
+        <button class="btn btn-outline btn-sm" id="dashLogout" type="button">${icon("x")} Ø®Ø±ÙˆØ¬</button>
+        <a class="btn btn-primary btn-sm" href="#/">${icon("home")} Ø¹Ø±Ø¶ Ø§Ù„Ù…ÙˆÙ‚Ø¹</a>
       </div>
     </div>
-    <div id="entityPanel"><p class="s-hint">جارٍ التحميل…</p></div>
+    <div id="entityPanel"><p class="s-hint">Ø¬Ø§Ø±Ù Ø§Ù„ØªØ­Ù…ÙŠÙ„â€¦</p></div>
   </div>`;
 }
 
 const entPanelErr = (msg) => `
-  <div class="empty-state">${icon("alert")}<h3>${esc(msg)}</h3><p>سجّل الدخول من جديد أو تواصل مع إدارة المنصة.</p></div>`;
+  <div class="empty-state">${icon("alert")}<h3>${esc(msg)}</h3><p>Ø³Ø¬Ù‘Ù„ Ø§Ù„Ø¯Ø®ÙˆÙ„ Ù…Ù† Ø¬Ø¯ÙŠØ¯ Ø£Ùˆ ØªÙˆØ§ØµÙ„ Ù…Ø¹ Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ù†ØµØ©.</p></div>`;
 
 async function bindDashboard() {
   const s = getSession();
@@ -1529,33 +1542,33 @@ async function bindDashboard() {
   const out = $("#dashLogout");
   if (out) out.addEventListener("click", () => {
     sessionStorage.removeItem("ds-session");
-    showToast("تم تسجيل الخروج");
+    showToast("ØªÙ… ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø®Ø±ÙˆØ¬");
     location.hash = "#/login";
   });
 
   const panel = $("#entityPanel");
   if (!panel) return;
 
-  /* مدير النظام: لا شيء لإدارته هنا */
+  /* Ù…Ø¯ÙŠØ± Ø§Ù„Ù†Ø¸Ø§Ù…: Ù„Ø§ Ø´ÙŠØ¡ Ù„Ø¥Ø¯Ø§Ø±ØªÙ‡ Ù‡Ù†Ø§ */
   if (s.role === "admin") return;
 
-  /* جلب ربط الجهة بحسابها */
+  /* Ø¬Ù„Ø¨ Ø±Ø¨Ø· Ø§Ù„Ø¬Ù‡Ø© Ø¨Ø­Ø³Ø§Ø¨Ù‡Ø§ */
   const accs = await dashApi("/rest/v1/entity_accounts?select=entity_id");
-  if (!Array.isArray(accs)) { panel.innerHTML = entPanelErr("تعذر التحقق من حسابك"); return; }
+  if (!Array.isArray(accs)) { panel.innerHTML = entPanelErr("ØªØ¹Ø°Ø± Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø­Ø³Ø§Ø¨Ùƒ"); return; }
   if (!accs.length) {
-    const wa = waHref(SITE.developer.phone, "مرحباً، حساب جهتي غير مرتبط بصفحتي في دليل صوران — بريدي: " + (s.email || ""));
+    const wa = waHref(SITE.developer.phone, "Ù…Ø±Ø­Ø¨Ø§Ù‹ØŒ Ø­Ø³Ø§Ø¨ Ø¬Ù‡ØªÙŠ ØºÙŠØ± Ù…Ø±ØªØ¨Ø· Ø¨ØµÙØ­ØªÙŠ ÙÙŠ Ø¯Ù„ÙŠÙ„ ØµÙˆØ±Ø§Ù† â€” Ø¨Ø±ÙŠØ¯ÙŠ: " + (s.email || ""));
     panel.innerHTML = `
     <div class="empty-state">
-      ${icon("info")}<h3>حسابك غير مرتبط بجهة بعد</h3>
-      <p>ترتبط الحسابات بالجهات من قبل إدارة المنصة عند تفعيل الاشتراك.</p>
-      <a class="btn btn-primary" style="margin-top:12px" href="${wa}" target="_blank" rel="noopener">${icon("chat")} تواصل مع الإدارة لربط حسابك</a>
+      ${icon("info")}<h3>Ø­Ø³Ø§Ø¨Ùƒ ØºÙŠØ± Ù…Ø±ØªØ¨Ø· Ø¨Ø¬Ù‡Ø© Ø¨Ø¹Ø¯</h3>
+      <p>ØªØ±ØªØ¨Ø· Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª Ø¨Ø§Ù„Ø¬Ù‡Ø§Øª Ù…Ù† Ù‚Ø¨Ù„ Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ù†ØµØ© Ø¹Ù†Ø¯ ØªÙØ¹ÙŠÙ„ Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ.</p>
+      <a class="btn btn-primary" style="margin-top:12px" href="${wa}" target="_blank" rel="noopener">${icon("chat")} ØªÙˆØ§ØµÙ„ Ù…Ø¹ Ø§Ù„Ø¥Ø¯Ø§Ø±Ø© Ù„Ø±Ø¨Ø· Ø­Ø³Ø§Ø¨Ùƒ</a>
     </div>`;
     return;
   }
   const eid = accs[0].entity_id;
   const rows = await dashApi("/rest/v1/entities?id=eq." + encodeURIComponent(eid));
   const e = Array.isArray(rows) ? rows[0] : null;
-  if (!e) { panel.innerHTML = entPanelErr("تعذر جلب بيانات جهتك"); return; }
+  if (!e) { panel.innerHTML = entPanelErr("ØªØ¹Ø°Ø± Ø¬Ù„Ø¨ Ø¨ÙŠØ§Ù†Ø§Øª Ø¬Ù‡ØªÙƒ"); return; }
 
   let days = [];
   if (e.type === "pharmacy") {
@@ -1564,40 +1577,40 @@ async function bindDashboard() {
   }
 
   panel.innerHTML = `
-  <div class="note-box" style="margin-bottom:14px">${icon("info")}<p>هذه لوحة جهتك — عدّل بيانات صفحتك وتظهر في الموقع فور الحفظ. حقول التمييز والإدارة يديرها فريق المنصة.</p></div>
+  <div class="note-box" style="margin-bottom:14px">${icon("info")}<p>Ù‡Ø°Ù‡ Ù„ÙˆØ­Ø© Ø¬Ù‡ØªÙƒ â€” Ø¹Ø¯Ù‘Ù„ Ø¨ÙŠØ§Ù†Ø§Øª ØµÙØ­ØªÙƒ ÙˆØªØ¸Ù‡Ø± ÙÙŠ Ø§Ù„Ù…ÙˆÙ‚Ø¹ ÙÙˆØ± Ø§Ù„Ø­ÙØ¸. Ø­Ù‚ÙˆÙ„ Ø§Ù„ØªÙ…ÙŠÙŠØ² ÙˆØ§Ù„Ø¥Ø¯Ø§Ø±Ø© ÙŠØ¯ÙŠØ±Ù‡Ø§ ÙØ±ÙŠÙ‚ Ø§Ù„Ù…Ù†ØµØ©.</p></div>
   <div class="card">
-    <h3 style="margin-bottom:14px">${icon("doc")} ملف: ${esc(e.name)}</h3>
+    <h3 style="margin-bottom:14px">${icon("doc")} Ù…Ù„Ù: ${esc(e.name)}</h3>
     <form id="ownForm" class="ef-grid" novalidate>
-      <label>الاسم
+      <label>Ø§Ù„Ø§Ø³Ù…
         <input id="owName" value="${esc(e.name || "")}" required />
       </label>
-      <label>${e.type === "doctor" ? "التخصص" : "الوصف المختصر"}
+      <label>${e.type === "doctor" ? "Ø§Ù„ØªØ®ØµØµ" : "Ø§Ù„ÙˆØµÙ Ø§Ù„Ù…Ø®ØªØµØ±"}
         <input id="owSpec" value="${esc(e.spec || "")}" />
       </label>
       ${e.type === "doctor" ? `
-      <label>الصفة / الدرجة<input id="owDegree" value="${esc(e.degree || "")}" /></label>
-      <label>سنوات الخبرة<input id="owExp" type="number" min="0" value="${e.exp ?? ""}" /></label>` : ""}
-      <label>المنطقة<input id="owArea" value="${esc(e.area || "")}" /></label>
-      <label>العنوان<input id="owAddress" value="${esc(e.address || "")}" /></label>
-      <label>الهاتف<input id="owPhone" dir="ltr" value="${esc(e.phone || "")}" /></label>
-      <label class="ef-full">صورة الجهة (URL رابط الصورة)<input id="owImage" dir="ltr" value="${esc(e.image_url || "")}" placeholder="https://..." /></label>
-      <label>أوقات العمل<input id="owHours" value="${esc(e.hours || "")}" /></label>
+      <label>Ø§Ù„ØµÙØ© / Ø§Ù„Ø¯Ø±Ø¬Ø©<input id="owDegree" value="${esc(e.degree || "")}" /></label>
+      <label>Ø³Ù†ÙˆØ§Øª Ø§Ù„Ø®Ø¨Ø±Ø©<input id="owExp" type="number" min="0" value="${e.exp ?? ""}" /></label>` : ""}
+      <label>Ø§Ù„Ù…Ù†Ø·Ù‚Ø©<input id="owArea" value="${esc(e.area || "")}" /></label>
+      <label>Ø§Ù„Ø¹Ù†ÙˆØ§Ù†<input id="owAddress" value="${esc(e.address || "")}" /></label>
+      <label>Ø§Ù„Ù‡Ø§ØªÙ<input id="owPhone" dir="ltr" value="${esc(e.phone || "")}" /></label>
+      <label class="ef-full">ØµÙˆØ±Ø© Ø§Ù„Ø¬Ù‡Ø© (URL Ø±Ø§Ø¨Ø· Ø§Ù„ØµÙˆØ±Ø©)<input id="owImage" dir="ltr" value="${esc(e.image_url || "")}" placeholder="https://..." /></label>
+      <label>Ø£ÙˆÙ‚Ø§Øª Ø§Ù„Ø¹Ù…Ù„<input id="owHours" value="${esc(e.hours || "")}" /></label>
       <div class="ef-full ef-checks">
-        <label><input type="checkbox" id="owWa" ${e.whatsapp ? "checked" : ""}/> متاحون على واتساب</label>
+        <label><input type="checkbox" id="owWa" ${e.whatsapp ? "checked" : ""}/> Ù…ØªØ§Ø­ÙˆÙ† Ø¹Ù„Ù‰ ÙˆØ§ØªØ³Ø§Ø¨</label>
       </div>
-      <label class="ef-full">الخدمات (افصل بفاصلة)<input id="owServices" value="${esc((e.services || []).join("، "))}" /></label>
-      <label class="ef-full">نبذة عنك / عن جهتك<textarea id="owNote" rows="3">${esc(e.note || "")}</textarea></label>
-      <label>خط العرض lat<input id="owLat" dir="ltr" value="${e.lat ?? ""}" /></label>
-      <label>خط الطول lng<input id="owLng" dir="ltr" value="${e.lng ?? ""}" /></label>
+      <label class="ef-full">Ø§Ù„Ø®Ø¯Ù…Ø§Øª (Ø§ÙØµÙ„ Ø¨ÙØ§ØµÙ„Ø©)<input id="owServices" value="${esc((e.services || []).join("ØŒ "))}" /></label>
+      <label class="ef-full">Ù†Ø¨Ø°Ø© Ø¹Ù†Ùƒ / Ø¹Ù† Ø¬Ù‡ØªÙƒ<textarea id="owNote" rows="3">${esc(e.note || "")}</textarea></label>
+      <label>Ø®Ø· Ø§Ù„Ø¹Ø±Ø¶ lat<input id="owLat" dir="ltr" value="${e.lat ?? ""}" /></label>
+      <label>Ø®Ø· Ø§Ù„Ø·ÙˆÙ„ lng<input id="owLng" dir="ltr" value="${e.lng ?? ""}" /></label>
       ${e.type === "pharmacy" ? `
       <div class="ef-full">
-        <p class="ef-oncall-title">أيام صيدلية المناوبة</p>
+        <p class="ef-oncall-title">Ø£ÙŠØ§Ù… ØµÙŠØ¯Ù„ÙŠØ© Ø§Ù„Ù…Ù†Ø§ÙˆØ¨Ø©</p>
         <div class="ef-days">
           ${DAYS.map((d) => `<label class="ef-day"><input type="checkbox" value="${esc(d)}" data-day ${days.includes(d) ? "checked" : ""}/> ${esc(d)}</label>`).join("")}
         </div>
       </div>` : ""}
       <div class="ef-full ef-actions">
-        <button class="btn btn-primary" type="submit">${icon("check")} حفظ التعديلات</button>
+        <button class="btn btn-primary" type="submit">${icon("check")} Ø­ÙØ¸ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„Ø§Øª</button>
       </div>
     </form>
   </div>`;
@@ -1605,7 +1618,7 @@ async function bindDashboard() {
   $("#ownForm").addEventListener("submit", async (ev) => {
     ev.preventDefault();
     const name = $("#owName").value.trim();
-    if (!name) return showToast("الاسم مطلوب", "err");
+    if (!name) return showToast("Ø§Ù„Ø§Ø³Ù… Ù…Ø·Ù„ÙˆØ¨", "err");
     const num = (sel) => ($(sel).value.trim() === "" ? null : Number($(sel).value));
     const payload = {
       name,
@@ -1616,7 +1629,7 @@ async function bindDashboard() {
       image_url: $("#owImage").value.trim() || null,
       whatsapp: $("#owWa").checked,
       hours: $("#owHours").value.trim() || null,
-      services: $("#owServices").value.split(/[,،]/).map((x) => x.trim()).filter(Boolean),
+      services: $("#owServices").value.split(/[,ØŒ]/).map((x) => x.trim()).filter(Boolean),
       note: $("#owNote").value.trim() || null,
       lat: num("#owLat"),
       lng: num("#owLng"),
@@ -1626,18 +1639,18 @@ async function bindDashboard() {
       payload.exp = num("#owExp");
     }
     const ok = await dashApi("/rest/v1/entities?id=eq." + encodeURIComponent(eid), "PATCH", payload);
-    if (ok === null) return showToast("تعذر الحفظ — أعد تسجيل الدخول", "err");
+    if (ok === null) return showToast("ØªØ¹Ø°Ø± Ø§Ù„Ø­ÙØ¸ â€” Ø£Ø¹Ø¯ ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„", "err");
     if (e.type === "pharmacy") {
       const ds = $$("#ownForm [data-day]:checked").map((c) => c.value);
       await dashApi("/rest/v1/oncall?pharmacy_id=eq." + encodeURIComponent(eid), "DELETE");
       if (ds.length) await dashApi("/rest/v1/oncall", "POST", ds.map((d) => ({ day: d, pharmacy_id: eid })));
     }
-    showToast("تم حفظ تعديلاتك — ظاهرة في الموقع الآن", "ok");
+    showToast("ØªÙ… Ø­ÙØ¸ ØªØ¹Ø¯ÙŠÙ„Ø§ØªÙƒ â€” Ø¸Ø§Ù‡Ø±Ø© ÙÙŠ Ø§Ù„Ù…ÙˆÙ‚Ø¹ Ø§Ù„Ø¢Ù†", "ok");
     loadRemoteData();
   });
 }
 
-/* ربط نموذج الدخول — يُستخدم في صفحة الدخول ولوحة التحكم عند انتهاء الجلسة */
+/* Ø±Ø¨Ø· Ù†Ù…ÙˆØ°Ø¬ Ø§Ù„Ø¯Ø®ÙˆÙ„ â€” ÙŠÙØ³ØªØ®Ø¯Ù… ÙÙŠ ØµÙØ­Ø© Ø§Ù„Ø¯Ø®ÙˆÙ„ ÙˆÙ„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ… Ø¹Ù†Ø¯ Ø§Ù†ØªÙ‡Ø§Ø¡ Ø§Ù„Ø¬Ù„Ø³Ø© */
 function bindLoginForm() {
   const f = $("#loginForm");
   if (!f) return;
@@ -1647,9 +1660,9 @@ function bindLoginForm() {
     const pass = $("#lgPass").value;
     const errEl = $("#loginError");
     if (errEl) errEl.hidden = true;
-    if (!user || !pass) return showToast("أدخل البريد وكلمة السر", "warn");
+    if (!user || !pass) return showToast("Ø£Ø¯Ø®Ù„ Ø§Ù„Ø¨Ø±ÙŠØ¯ ÙˆÙƒÙ„Ù…Ø© Ø§Ù„Ø³Ø±", "warn");
     const cfg = window.SUPABASE_CONFIG;
-    if (!cfg || !cfg.url || !cfg.anonKey) return showToast("نظام الدخول غير مهيأ بعد", "warn");
+    if (!cfg || !cfg.url || !cfg.anonKey) return showToast("Ù†Ø¸Ø§Ù… Ø§Ù„Ø¯Ø®ÙˆÙ„ ØºÙŠØ± Ù…Ù‡ÙŠØ£ Ø¨Ø¹Ø¯", "warn");
     try {
       const r = await fetch(cfg.url + "/auth/v1/token?grant_type=password", {
         method: "POST",
@@ -1667,53 +1680,54 @@ function bindLoginForm() {
             role: (s.user && s.user.user_metadata && s.user.user_metadata.role) || "entity",
           }));
         } catch (_) {}
-        showToast("تم تسجيل الدخول بنجاح — مرحباً بك");
+        showToast("ØªÙ… ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„ Ø¨Ù†Ø¬Ø§Ø­ â€” Ù…Ø±Ø­Ø¨Ø§Ù‹ Ø¨Ùƒ");
         location.hash = "#/dashboard";
       } else {
         if (errEl) errEl.hidden = false;
-        showToast("بيانات الدخول غير صحيحة أو الحساب غير مُنشأ بعد", "err");
+        showToast("Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø¯Ø®ÙˆÙ„ ØºÙŠØ± ØµØ­ÙŠØ­Ø© Ø£Ùˆ Ø§Ù„Ø­Ø³Ø§Ø¨ ØºÙŠØ± Ù…ÙÙ†Ø´Ø£ Ø¨Ø¹Ø¯", "err");
       }
     } catch (_) {
-      showToast("تعذّر الاتصال بخدمة الدخول", "warn");
+      showToast("ØªØ¹Ø°Ù‘Ø± Ø§Ù„Ø§ØªØµØ§Ù„ Ø¨Ø®Ø¯Ù…Ø© Ø§Ù„Ø¯Ø®ÙˆÙ„", "warn");
     }
   });
 }
 
-/* زر «دخول الجهة / لوحة التحكم» في الترويسة حسب الجلسة */
+/* Ø²Ø± Â«Ø¯Ø®ÙˆÙ„ Ø§Ù„Ø¬Ù‡Ø© / Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…Â» ÙÙŠ Ø§Ù„ØªØ±ÙˆÙŠØ³Ø© Ø­Ø³Ø¨ Ø§Ù„Ø¬Ù„Ø³Ø© */
 function updateEntityBtn() {
   const btn = $("#entityBtn");
   if (!btn) return;
   const label = btn.querySelector("span");
   if (getSession()) {
     btn.setAttribute("href", "#/dashboard");
-    if (label) label.textContent = "لوحة الجهة";
+    if (label) label.textContent = "Ù„ÙˆØ­Ø© Ø§Ù„Ø¬Ù‡Ø©";
   } else {
     btn.setAttribute("href", "#/login");
-    if (label) label.textContent = "دخول الجهة";
+    if (label) label.textContent = "Ø¯Ø®ÙˆÙ„ Ø§Ù„Ø¬Ù‡Ø©";
   }
 }
 
-/* ================= التوجيه ================= */
+/* ================= Ø§Ù„ØªÙˆØ¬ÙŠÙ‡ ================= */
 const ROUTES = [
-  { re: /^\/$/, key: "home", title: "الرئيسية", view: () => viewHome(), after: afterHome },
-  { re: /^\/doctors$/, key: "doctors", title: "الأطباء", view: (q) => viewList("doctor", q), after: () => bindList("doctor") },
-  { re: /^\/pharmacies$/, key: "pharmacies", title: "الصيدليات", view: (q) => viewList("pharmacy", q), after: () => bindList("pharmacy") },
-  { re: /^\/oncall$/, key: "oncall", title: "الصيدليات المناوبة", view: viewOncall, after: bindOncall },
-  { re: /^\/hospitals$/, key: "hospitals", title: "المشافي", view: (q) => viewList("hospital", q), after: () => bindList("hospital") },
-  { re: /^\/labs$/, key: "labs", title: "المخابر", view: (q) => viewList("lab", q), after: () => bindList("lab") },
-  { re: /^\/radiology$/, key: "radiology", title: "مراكز الأشعة", view: (q) => viewList("radiology", q), after: () => bindList("radiology") },
-  { re: /^\/health-centers$/, key: "health-centers", title: "المراكز الصحية", view: (q) => viewList("health-center", q), after: () => bindList("health-center") },
-  { re: /^\/entity\/([A-Za-z0-9-]+)$/, key: "", title: "تفاصيل الجهة", view: (q, m) => viewEntity(m[1]), after: (q, m) => afterEntity(m[1]) },
-  { re: /^\/ask$/, key: "ask", title: "اسأل طبياً", view: viewAsk, after: bindAsk },
-  { re: /^\/search$/, key: "", title: "البحث", view: viewSearch, after: () => bindSearch() },
-  { re: /^\/about$/, key: "about", title: "عن المنصة", view: viewAbout },
-  { re: /^\/packages$/, key: "", title: "باقات الاشتراك", view: viewPackages },
-  { re: /^\/dashboard$/, key: "dashboard", title: "لوحة الجهة", view: viewDashboard, after: () => { getSession() ? bindDashboard() : bindLoginForm(); } },
-  { re: /^\/login$/, key: "login", title: "دخول الجهة", view: viewLogin, after: () => bindLoginForm() },
-  { re: /^\/privacy$/, key: "", title: "سياسة الخصوصية", view: viewPrivacy },
-  { re: /^\/terms$/, key: "", title: "شروط الاستخدام", view: viewTerms },
-  { re: /^\/disclaimer$/, key: "", title: "إخلاء المسؤولية الطبية", view: viewDisclaimer },
-  { re: /^\/content-policy$/, key: "", title: "سياسة المحتوى الطبي", view: viewContentPolicy },
+  { re: /^\/$/, key: "home", title: "Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©", view: () => viewHome(), after: afterHome },
+  { re: /^\/doctors$/, key: "doctors", title: "Ø§Ù„Ø£Ø·Ø¨Ø§Ø¡", view: (q) => viewList("doctor", q), after: () => bindList("doctor") },
+  { re: /^\/pharmacies$/, key: "pharmacies", title: "Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª", view: (q) => viewList("pharmacy", q), after: () => bindList("pharmacy") },
+  { re: /^\/oncall$/, key: "oncall", title: "Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª Ø§Ù„Ù…Ù†Ø§ÙˆØ¨Ø©", view: viewOncall, after: bindOncall },
+  { re: /^\/hospitals$/, key: "hospitals", title: "Ø§Ù„Ù…Ø´Ø§ÙÙŠ", view: (q) => viewList("hospital", q), after: () => bindList("hospital") },
+  { re: /^\/labs$/, key: "labs", title: "Ø§Ù„Ù…Ø®Ø§Ø¨Ø±", view: (q) => viewList("lab", q), after: () => bindList("lab") },
+  { re: /^\/radiology$/, key: "radiology", title: "Ù…Ø±Ø§ÙƒØ² Ø§Ù„Ø£Ø´Ø¹Ø©", view: (q) => viewList("radiology", q), after: () => bindList("radiology") },
+  { re: /^\/health-centers$/, key: "health-centers", title: "Ø§Ù„Ù…Ø±Ø§ÙƒØ² Ø§Ù„ØµØ­ÙŠØ©", view: (q) => viewList("health-center", q), after: () => bindList("health-center") },
+  { re: /^\/entity\/([A-Za-z0-9-]+)$/, key: "", title: "ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø¬Ù‡Ø©", view: (q, m) => viewEntity(m[1]), after: (q, m) => afterEntity(m[1]) },
+  { re: /^\/ask$/, key: "ask", title: "Ø§Ø³Ø£Ù„ Ø·Ø¨ÙŠØ§Ù‹", view: viewAsk, after: bindAsk },
+  { re: /^\/search$/, key: "", title: "Ø§Ù„Ø¨Ø­Ø«", view: viewSearch, after: () => bindSearch() },
+  { re: /^\/featured$/, key: "featured", title: "المميزون", view: viewFeatured, after: afterFeatured },
+  { re: /^\/about$/, key: "about", title: "Ø¹Ù† Ø§Ù„Ù…Ù†ØµØ©", view: viewAbout },
+  { re: /^\/packages$/, key: "", title: "Ø¨Ø§Ù‚Ø§Øª Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ", view: viewPackages },
+  { re: /^\/dashboard$/, key: "dashboard", title: "Ù„ÙˆØ­Ø© Ø§Ù„Ø¬Ù‡Ø©", view: viewDashboard, after: () => { getSession() ? bindDashboard() : bindLoginForm(); } },
+  { re: /^\/login$/, key: "login", title: "Ø¯Ø®ÙˆÙ„ Ø§Ù„Ø¬Ù‡Ø©", view: viewLogin, after: () => bindLoginForm() },
+  { re: /^\/privacy$/, key: "", title: "Ø³ÙŠØ§Ø³Ø© Ø§Ù„Ø®ØµÙˆØµÙŠØ©", view: viewPrivacy },
+  { re: /^\/terms$/, key: "", title: "Ø´Ø±ÙˆØ· Ø§Ù„Ø§Ø³ØªØ®Ø¯Ø§Ù…", view: viewTerms },
+  { re: /^\/disclaimer$/, key: "", title: "Ø¥Ø®Ù„Ø§Ø¡ Ø§Ù„Ù…Ø³Ø¤ÙˆÙ„ÙŠØ© Ø§Ù„Ø·Ø¨ÙŠØ©", view: viewDisclaimer },
+  { re: /^\/content-policy$/, key: "", title: "Ø³ÙŠØ§Ø³Ø© Ø§Ù„Ù…Ø­ØªÙˆÙ‰ Ø§Ù„Ø·Ø¨ÙŠ", view: viewContentPolicy },
 ];
 
 function parseHash() {
@@ -1743,7 +1757,7 @@ function render() {
 
   if (!route) {
     view.innerHTML = view404();
-    document.title = "الصفحة غير موجودة — دليل صوران الطبي";
+    document.title = "Ø§Ù„ØµÙØ­Ø© ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯Ø© â€” Ø¯Ù„ÙŠÙ„ ØµÙˆØ±Ø§Ù† Ø§Ù„Ø·Ø¨ÙŠ";
     window.scrollTo({ top: 0 });
     setActiveNav("");
     return;
@@ -1751,7 +1765,7 @@ function render() {
 
   const m = path.match(route.re);
   view.innerHTML = route.view(q, m || []);
-  document.title = `${route.title} — ${SITE.name}`;
+  document.title = `${route.title} â€” ${SITE.name}`;
   setActiveNav(route.key || navKeyFor(path));
   updateEntityBtn();
   window.scrollTo({ top: 0 });
@@ -1766,7 +1780,7 @@ function setActiveNav(key) {
     a.classList.toggle("active", a.getAttribute("data-route") === key));
 }
 
-/* ================= الترويسة: قائمة، ثيم، بحث، إشعارات ================= */
+/* ================= Ø§Ù„ØªØ±ÙˆÙŠØ³Ø©: Ù‚Ø§Ø¦Ù…Ø©ØŒ Ø«ÙŠÙ…ØŒ Ø¨Ø­Ø«ØŒ Ø¥Ø´Ø¹Ø§Ø±Ø§Øª ================= */
 function closeMenu() {
   const nav = $("#mainNav");
   const btn = $("#btnMenu");
@@ -1784,7 +1798,7 @@ function initHeader() {
     if (ev.target.closest("a")) closeMenu();
   });
 
-  /* اختصار لوحة المفاتيح: فتح صفحة البحث */
+  /* Ø§Ø®ØªØµØ§Ø± Ù„ÙˆØ­Ø© Ø§Ù„Ù…ÙØ§ØªÙŠØ­: ÙØªØ­ ØµÙØ­Ø© Ø§Ù„Ø¨Ø­Ø« */
   document.addEventListener("keydown", (ev) => {
     if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === "k") {
       ev.preventDefault();
@@ -1793,7 +1807,7 @@ function initHeader() {
   });
 }
 
-/* ================= الإقلاع ================= */
+/* ================= Ø§Ù„Ø¥Ù‚Ù„Ø§Ø¹ ================= */
 (async function boot() {
   const year = $("#year");
   if (year) year.textContent = fmtNum(new Date().getFullYear());
@@ -1802,7 +1816,7 @@ function initHeader() {
   window.addEventListener("hashchange", render);
   if (!location.hash) location.replace("#/");
 
-  /* جلب البيانات الحية من Supabase — عند الفشل تُستخدم بيانات data.js */
+  /* Ø¬Ù„Ø¨ Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø­ÙŠØ© Ù…Ù† Supabase â€” Ø¹Ù†Ø¯ Ø§Ù„ÙØ´Ù„ ØªÙØ³ØªØ®Ø¯Ù… Ø¨ÙŠØ§Ù†Ø§Øª data.js */
   try { await loadRemoteData(); } catch (_) {}
   render();
 })();
