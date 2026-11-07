@@ -1638,14 +1638,6 @@ a.entity-card:hover { color: var(--ink); }
 .oc-dots .scroll-dot.active { background: var(--primary); width: 22px; border-radius: var(--r-full); }
 
 /* على الجوال: صورة أصغر + تخطيط رأسي */
-@media (max-width: 640px) {
-  .oc-carousel { padding: 4px 30px; }
-  .oc-arrow { width: 32px; height: 32px; }
-  .oc-arrow .ic { width: 16px; height: 16px; }
-  .oc-media { width: 100%; min-width: 0; height: 130px; min-height: 0; }
-  .oc-body { padding: 11px 13px; }
-  .oc-head .oc-badge { margin-inline-start: 0; }
-}
 .oncall-card {
   display: flex;
   align-items: stretch;
@@ -1656,7 +1648,8 @@ a.entity-card:hover { color: var(--ink); }
   transition: all .2s cubic-bezier(.4,0,.2,1);
   text-decoration: none;
   color: var(--ink);
-  width: 100%;
+  flex: 0 0 calc(50% - 7px);
+  width: calc(50% - 7px);
 }
 .oncall-card:hover {
   border-color: var(--primary);
@@ -1895,3 +1888,14 @@ a.entity-card:hover { color: var(--ink); }
 .ad-go { flex: none; color: var(--primary-darker); opacity: .8; }
 
 
+
+/* على الجوال: صورة أصغر + تخطيط رأسي */
+@media (max-width: 640px) {
+  .oc-carousel { padding: 4px 30px; }
+  .oc-arrow { width: 32px; height: 32px; }
+  .oc-arrow .ic { width: 16px; height: 16px; }
+  .oncall-card { flex: 0 0 100%; width: 100%; }
+  .oc-media { width: 100%; min-width: 0; height: 130px; min-height: 0; }
+  .oc-body { padding: 11px 13px; }
+  .oc-head .oc-badge { margin-inline-start: 0; }
+}
