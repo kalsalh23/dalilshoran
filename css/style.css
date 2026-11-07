@@ -1307,7 +1307,6 @@ a.entity-card:hover { color: var(--ink); }
 
 /* ??????? ?????? ??? ?????? */
 @media (max-width: 640px) {
-  .footer-grid { grid-template-columns: 1fr; gap: 20px; padding-bottom: 20px; }
   .notif-card { flex-direction: column; align-items: flex-start; gap: 12px; }
   .notif-card .btn { width: 100%; }
 }
