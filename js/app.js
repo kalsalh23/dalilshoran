@@ -571,10 +571,23 @@ function viewList(type, params) {
     : "ابحث بالاسم…";
 
   const specSel = showSpec ? `
-    <select id="fSpec" aria-label="تصفية حسب التخصص">
-      <option value="">كل التخصصات</option>
-      ${specs.map((s) => `<option value="${esc(s)}" ${f.spec === s ? "selected" : ""}>${esc(s)}</option>`).join("")}
-    </select>` : "";
+    <div class="spec-filter" id="specFilter" data-open="false">
+      <button class="spec-filter-btn" id="fSpecBtn" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="تصفية حسب التخصص">
+        <span class="spec-filter-label">${esc(f.spec || "كل التخصصات")}</span>
+        ${icon("chevLeft")}
+      </button>
+      <div class="spec-filter-panel hero-suggest" id="fSpecPanel" hidden>
+        <button class="suggest-item" type="button" data-spec="">
+          <span class="s-icon" style="--tc:var(--primary)">${icon("search")}</span>
+          <span class="r-body"><strong>كل التخصصات</strong><small>عرض جميع الأطباء</small></span>
+        </button>
+        ${specs.map((s) => `
+        <button class="suggest-item" type="button" data-spec="${esc(s)}">
+          <span class="s-icon" style="--tc:var(--primary)">${icon("steth")}</span>
+          <span class="r-body"><strong>${esc(s)}</strong><small>تصفية النتائج</small></span>
+        </button>`).join("")}
+      </div>
+    </div>` : "";
 
   const areaSel = showArea ? `
     <select id="fArea" aria-label="تصفية حسب المنطقة">
@@ -644,13 +657,30 @@ function applyList(type) {
 
 function bindList(type) {
   const f = state.filters[type];
-  const q = $("#fQ"), spec = $("#fSpec"), area = $("#fArea"), sort = $("#fSort"), clear = $("#fClear");
+  const q = $("#fQ"), area = $("#fArea"), sort = $("#fSort"), clear = $("#fClear");
   let deb;
   if (q) q.addEventListener("input", () => {
     clearTimeout(deb);
     deb = setTimeout(() => { f.q = q.value.trim(); applyList(type); }, 180);
   });
-  if (spec) spec.addEventListener("change", () => { f.spec = spec.value; applyList(type); });
+  const specFilter = $("#specFilter"), specBtn = $("#fSpecBtn"), specPanel = $("#fSpecPanel");
+  if (specFilter && specBtn && specPanel) {
+    const closeSpec = () => { specPanel.hidden = true; specBtn.setAttribute("aria-expanded", "false"); specFilter.dataset.open = "false"; };
+    const openSpec = () => { specPanel.hidden = false; specBtn.setAttribute("aria-expanded", "true"); specFilter.dataset.open = "true"; };
+    specBtn.addEventListener("click", (e) => { e.stopPropagation(); specPanel.hidden ? openSpec() : closeSpec(); });
+    specPanel.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-spec]");
+      if (!b) return;
+      f.spec = b.getAttribute("data-spec") || "";
+      closeSpec();
+      applyList(type);
+      const lbl = specBtn.querySelector(".spec-filter-label");
+      if (lbl) lbl.textContent = f.spec || "كل التخصصات";
+      specPanel.querySelectorAll(".suggest-item").forEach((it) => it.classList.toggle("is-active", (it.getAttribute("data-spec") || "") === f.spec));
+    });
+    specPanel.querySelectorAll(".suggest-item").forEach((it) => it.classList.toggle("is-active", (it.getAttribute("data-spec") || "") === f.spec));
+    document.addEventListener("click", (e) => { if (!specFilter.contains(e.target)) closeSpec(); }, { once: false });
+  }
   if (area) area.addEventListener("change", () => { f.area = area.value; applyList(type); });
   if (sort) sort.addEventListener("change", () => { f.sort = sort.value; applyList(type); });
   if (clear) clear.addEventListener("click", () => {
