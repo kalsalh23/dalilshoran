@@ -609,8 +609,8 @@ background: var(--rose-soft); color: var(--error);
 
 /* ---------- ?????? ??????? ---------- */
 .page-hero {
-  background: linear-gradient(225deg, var(--primary-dark), var(--primary-darker) 55%, var(--primary));
-  color: #EAF2EF; padding: 30px 0;
+  background: #0e6f78;
+  color: #fff; padding: 30px 0;
   border-radius: 0 0 var(--r-xl) var(--r-xl);
 }
 .page-hero h1 { color: #fff; font-size: clamp(20px, 2.8vw, 27px); margin: 0 0 6px; display: flex; align-items: center; gap: 10px; }
