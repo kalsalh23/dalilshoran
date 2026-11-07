@@ -1588,10 +1588,63 @@ a.entity-card:hover { color: var(--ink); }
   border-radius: var(--r-2xl);
   box-shadow: var(--shadow-card);
 }
-.oncall-today-card .oncall-mini {
+.oncall-today-card .oc-carousel {
+  position: relative;
+  overflow: hidden;
+  padding: 4px 38px;
+}
+.oc-track {
   display: flex;
-  flex-direction: column;
   gap: 14px;
+  transition: transform .45s cubic-bezier(.4,0,.2,1);
+  will-change: transform;
+}
+.oc-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
+  transition: all .18s;
+}
+.oc-arrow:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+.oc-arrow[aria-disabled="true"] { opacity: .35; cursor: not-allowed; }
+.oc-arrow-prev { inset-inline-start: 4px; }
+.oc-arrow-next { inset-inline-end: 4px; }
+.oc-arrow .ic { width: 18px; height: 18px; }
+.oc-dots {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 12px;
+}
+.oc-dots .scroll-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--border-strong);
+  border: 0;
+  cursor: pointer;
+  transition: all .2s;
+}
+.oc-dots .scroll-dot.active { background: var(--primary); width: 22px; border-radius: var(--r-full); }
+
+/* على الجوال: صورة أصغر + تخطيط رأسي */
+@media (max-width: 640px) {
+  .oc-carousel { padding: 4px 30px; }
+  .oc-arrow { width: 32px; height: 32px; }
+  .oc-arrow .ic { width: 16px; height: 16px; }
+  .oc-media { width: 100%; min-width: 0; height: 130px; min-height: 0; }
+  .oc-body { padding: 11px 13px; }
+  .oc-head .oc-badge { margin-inline-start: 0; }
 }
 .oncall-card {
   display: flex;

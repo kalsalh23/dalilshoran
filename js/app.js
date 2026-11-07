@@ -365,8 +365,13 @@ return `
       <a class="section-link" href="#/oncall">جدول المناوبة ${icon("arrowLeft")}</a>
     </div>
     <div class="oncall-today-card">
-      <div class="oncall-mini">
-        ${todayOncall.length ? todayOncall.map((p) => oncallCard(p)).join("") : `<p class="oncall-empty">لا توجد صيدليات مناوبة مسجلة لهذا اليوم — راجع جدول بقية أيام.</p>`}
+      <div class="oc-carousel" id="oncallCarousel" data-total="${todayOncall.length}">
+        <button class="oc-arrow oc-arrow-prev" type="button" aria-label="السابق" ${todayOncall.length <= 2 ? 'style="opacity:.35;cursor:not-allowed"' : ""}>${icon("arrowLeft")}</button>
+        <div class="oc-track">
+          ${todayOncall.length ? todayOncall.map((p) => oncallCard(p)).join("") : `<p class="oncall-empty">لا توجد صيدليات مناوبة مسجلة لهذا اليوم — راجع جدول بقية أيام.</p>`}
+        </div>
+        <button class="oc-arrow oc-arrow-next" type="button" aria-label="الacid" ${todayOncall.length <= 2 ? 'style="opacity:.35;cursor:not-allowed"' : ""}>${icon("arrowRight")}</button>
+        <div class="oc-dots" id="oncallDots"></div>
       </div>
     </div>
   </section>
@@ -439,6 +444,89 @@ function afterHome() {
   mountMap("homeMap", ENTITIES);
   bindScrollDots("featuredDocsScroll", "featuredDocsDots");
   bindScrollDots("featuredPharmScroll", "featuredPharmDots");
+  bindOncallCarousel();
+}
+
+/* Fleming: on-call pharmacy carousel — shows 2 pharmacies at a time,
+   prev/next arrows + dots, and auto-advances every 10 seconds.
+   Pauses on user interaction. */
+function bindOncallCarousel() {
+  const carousel = $("#oncallCarousel");
+  if (!carousel) return;
+  const track = carousel.querySelector(".oc-track");
+  const cards = track ? Array.from(track.querySelectorAll(":scope > article")) : [];
+  const total = Number(carousel.getAttribute("data-total") || cards.length);
+  if (total <= 2) {
+    // not enough for a rotating carousel — render dots only, no auto-rotate
+    const dotsEl = $("#oncallDots");
+    if (dotsEl && cards.length) {
+      dotsEl.innerHTML = cards.map((_, i) =>
+        `<button class="scroll-dot active" data-i="${i}" aria-label="العنصر ${i + 1}"></button>`).join("");
+    }
+    return;
+  }
+
+  const dotsEl = $("#oncallDots");
+  const prevBtn = carousel.querySelector(".oc-arrow-prev");
+  const nextBtn = carousel.querySelector(".oc-arrow-next");
+
+  // 2 cards visible per viewport
+  const visible = 2;
+  const step = () => {
+    const cw = cards[0].offsetWidth;
+    const gap = 14;
+    return { cw, gap, per: visible, advance: cw * visible + gap * (visible - 1) };
+  };
+
+  let index = 0;
+  const maxIndex = Math.max(0, total - visible);
+
+  const renderDots = () => {
+    const pages = Math.ceil(total / visible);
+    dotsEl.innerHTML = Array.from({ length: pages }, (_, i) =>
+      `<button class="scroll-dot ${i === 0 ? "active" : ""}" data-i="${i}" aria-label="الصفحة ${i + 1}"></button>`).join("");
+  };
+
+  const setIndex = (i) => {
+    index = Math.max(0, Math.min(maxIndex, i));
+    const { advance } = step();
+    track.style.transform = `translateX(${-index * advance}px)`;
+    const pages = Math.ceil(total / visible);
+    const activePage = Math.floor(index / visible);
+    dotsEl.querySelectorAll(".scroll-dot").forEach((d, i) =>
+      d.classList.toggle("active", i === activePage));
+    prevBtn.setAttribute("aria-disabled", index === 0 ? "true" : "false");
+    nextBtn.setAttribute("aria-disabled", index === maxIndex ? "true" : "false");
+  };
+
+  const next = () => setIndex(index + 1);
+  const prev = () => setIndex(index - 1);
+
+  nextBtn.addEventListener("click", () => { next(); restartAuto(); });
+  prevBtn.addEventListener("click", () => { prev(); restartAuto(); });
+  dotsEl.addEventListener("click", (ev) => {
+    const b = ev.target.closest(".scroll-dot");
+    if (!b) return;
+    const page = +b.dataset.i;
+    setIndex(page * visible);
+    restartAuto();
+  });
+
+  track.addEventListener("mouseenter", () => pauseAuto());
+  track.addEventListener("touchstart", () => pauseAuto(), { passive: true });
+  carousel.addEventListener("mouseleave", () => restartAuto());
+
+  renderDots();
+  setIndex(0);
+
+  let autoTimer = null;
+  function startAuto() {
+    pauseAuto();
+    autoTimer = setInterval(next, 10000);
+  }
+  function pauseAuto() { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } }
+  function restartAuto() { startAuto(); }
+  startAuto();
 }
 
 /* Fleming: carousel dot indicators — show how many cards are visible and which is active */
