@@ -766,9 +766,9 @@ function viewEntity(id) {
           </div>
         </div>
         <div class="detail-actions">
-          <a class="btn btn-primary" href="${telHref(e.phone)}">${icon("phone")} اتصال</a>
+          ${e.phone ? `<a class="btn btn-primary btn-lg" href="tel:${e.phone}">${icon("phone")} اتصال الآن — <span dir="ltr">${fmtPhone(e.phone)}</span></a>` : ""}
           ${e.whatsapp ? `<a class="btn btn-ghost" href="${waHref(e.phone)}" target="_blank" rel="noopener">${icon("chat")} واتساب</a>` : ""}
-          ${e.type !== "pharmacy" ? `<a class="btn btn-outline" href="${mapsLink(e.lat, e.lng, e.address)}" target="_blank" rel="noopener">${icon("pin")} الموقع</a>` : ""}
+          ${e.type !== "pharmacy" && e.type !== "doctor" ? `<a class="btn btn-outline" href="${mapsLink(e.lat, e.lng, e.address)}" target="_blank" rel="noopener">${icon("pin")} الموقع</a>` : ""}
           ${e.type !== "pharmacy" ? `<button class="btn btn-ghost" type="button" data-copy="${esc(e.phone)}">${icon("copy")} نسخ الرقم</button>` : ""}
           <button class="btn btn-ghost btn-icon" type="button" id="btnShare" title="مشاركة" aria-label="مشاركة">${icon("share")}</button>
         </div>
