@@ -366,11 +366,9 @@ return `
     </div>
     <div class="oncall-today-card">
       <div class="oc-carousel" id="oncallCarousel" data-total="${todayOncall.length}">
-        <button class="oc-arrow oc-arrow-prev" type="button" aria-label="السابق" ${todayOncall.length <= 2 ? 'style="opacity:.35;cursor:not-allowed"' : ""}>${icon("arrowLeft")}</button>
         <div class="oc-track">
-          ${todayOncall.length ? todayOncall.map((p) => oncallCard(p)).join("") : `<p class="oncall-empty">لا توجد صيدليات مناوبة مسجلة لهذا اليوم — راجع جدول بقية أيام.</p>`}
+          ${todayOncall.length ? todayOncall.map((p) => oncallCard(p)).join("") : `<p class="oncall-empty">لا توجد صيدليات مناوبة مسجلة لهذا اليوم — راجع جدول بقية أيام الأسبوع.</p>`}
         </div>
-        <button class="oc-arrow oc-arrow-next" type="button" aria-label="الacid" ${todayOncall.length <= 2 ? 'style="opacity:.35;cursor:not-allowed"' : ""}>${icon("arrowRight")}</button>
         <div class="oc-dots" id="oncallDots"></div>
       </div>
     </div>
@@ -459,8 +457,6 @@ function bindOncallCarousel() {
   if (total === 0) return;
 
   const dotsEl = $("#oncallDots");
-  const prevBtn = carousel.querySelector(".oc-arrow-prev");
-  const nextBtn = carousel.querySelector(".oc-arrow-next");
 
   const visible = 2;
   const gap = 14;

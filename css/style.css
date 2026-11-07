@@ -1540,40 +1540,22 @@ a.entity-card:hover { color: var(--ink); }
   border-radius: var(--r-2xl);
   box-shadow: var(--shadow-card);
 }
-.oncall-today-card .oc-carousel,
-#oncallCarousel {
+#oncallCarousel, .oc-carousel {
   position: relative;
   overflow: hidden;
   padding: 4px 8px;
+  touch-action: pan-y;
+  cursor: grab;
 }
+#oncallCarousel:active, .oc-carousel:active { cursor: grabbing; }
 .oc-track {
   display: flex;
   gap: 14px;
   transition: transform .45s cubic-bezier(.4,0,.2,1);
   will-change: transform;
+  user-select: none;
 }
-.oc-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 3;
-  width: 38px; height: 38px;
-  border-radius: 50%;
-  border: 1px solid var(--border-strong);
-  background: var(--surface);
-  color: var(--primary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: var(--shadow-card);
-  transition: all .18s;
-}
-.oc-arrow:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
-.oc-arrow[aria-disabled="true"] { opacity: .35; cursor: not-allowed; }
-.oc-arrow-prev { inset-inline-start: 4px; }
-.oc-arrow-next { inset-inline-end: 4px; }
-.oc-arrow .ic { width: 18px; height: 18px; }
+.oc-arrow { display: none !important; }
 .oc-dots {
   display: flex;
   justify-content: center;
@@ -1845,8 +1827,6 @@ a.entity-card:hover { color: var(--ink); }
 /* ??? ??????: ???? ???? + ????? ???? */
 @media (max-width: 640px) {
   .oc-carousel, #oncallCarousel { padding: 4px 8px; }
-  .oc-arrow { width: 32px; height: 32px; }
-  .oc-arrow .ic { width: 16px; height: 16px; }
   .oncall-card { flex: 0 0 100%; width: 100%; }
   .oc-media { width: 100%; min-width: 0; height: 130px; min-height: 0; }
   .oc-body { padding: 11px 13px; }
