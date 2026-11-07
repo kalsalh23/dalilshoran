@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    دليل صوران الطبي — ورقة الأنماط
    الهوية البصرية: Teal on Warm Pearl (Clinical Calm)
    مُستوحى من تطبيقات طبية حقيقية: Al-Razi Hub, Healthgrades, NearCare
@@ -380,9 +380,10 @@ input, select, textarea { font-family: inherit; }
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--r-lg); padding: 16px 20px;
   transition: all .18s ease; text-decoration: none;
+  width: 100%; box-sizing: border-box;
 }
 .oncall-mini-item:hover { border-color: var(--primary); background: var(--primary-soft); }
-.oncall-ic { color: var(--primary); flex: none; }
+.oncall-ic { color: var(--primary); flex: none; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: var(--primary-soft); border-radius: 50%; }
 .oncall-name { font-weight: 700; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .oncall-phone { direction: ltr; unicode-bidi: embed; font-size: 13px; color: var(--ink-soft); font-weight: 600; flex: none; }
 .oncall-badge {
@@ -1579,12 +1580,94 @@ a.entity-card:hover { color: var(--ink); }
   .f-bottom { flex-direction: column; align-items: center; text-align: center; gap: 4px; }
 }
 
-/* 4) بطاقة «صيدليات المناوبة اليوم» في الرئيسية */
-.oncall-today-card { padding: 14px; }
-.oncall-today-card .oncall-mini { gap: 8px; }
-a.oncall-mini-item { transition: background .15s, border-color .15s; }
-a.oncall-mini-item:hover { background: var(--primary-soft); border-color: var(--primary); }
-a.oncall-mini-item .ic:first-child { color: var(--primary); }
+/* 4) بطاقة «صيدليات المناظرة اليوم» في الرئيسية — تصميم حديث */
+.oncall-today-card {
+  padding: 18px 20px;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F4FAFA 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--r-2xl);
+  box-shadow: var(--shadow-card);
+}
+.oncall-today-card .oncall-mini {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+.oncall-mini-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--ink);
+  font-size: 15.5px;
+  font-weight: 500;
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 14px 16px;
+  transition: all .2s cubic-bezier(.4,0,.2,1);
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+.oncall-mini-item::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--primary), var(--secondary));
+  transform: scaleY(.4);
+  transform-origin: center;
+  transition: transform .2s ease;
+}
+.oncall-mini-item:hover {
+  border-color: var(--primary);
+  background: #F8FCFC;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -8px rgba(14, 111, 120, .30);
+}
+.oncall-mini-item:hover::before { transform: scaleY(1); }
+.oncall-mini-item .oncall-ic {
+  flex: none;
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--primary-soft), #E8F4F6);
+  border-radius: 50%;
+  color: var(--primary);
+  transition: all .2s ease;
+}
+.oncall-mini-item:hover .oncall-ic {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+}
+.oncall-mini-item .oncall-name {
+  font-weight: 700;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink);
+}
+.oncall-mini-item .oncall-phone {
+  direction: ltr;
+  unicode-bidi: embed;
+  font-size: 13px;
+  color: var(--ink-soft);
+  font-weight: 600;
+  flex: none;
+}
+.oncall-mini-item .oncall-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, var(--gold-soft), #FDE8D6);
+  color: var(--gold-dark);
+  padding: 3px 10px;
+  border-radius: var(--r-full);
+  font-size: 11px;
+  font-weight: 700;
+  flex: none;
+}
 
 /* ============================================================
    لوحة التحكم الشاملة + الإعلانات
