@@ -1253,7 +1253,7 @@ a.entity-card:hover { color: var(--ink); }
 .f-brand:hover .f-brand-name { color: var(--primary); }
 .f-desc { font-size: 13px; line-height: 1.9; color: var(--muted); margin: 12px 0 0; max-width: 36ch; }
 .f-col h4 {
-  font-size: 12.5px; font-weight: 800; margin: 0 0 14px; color: var(--ink);
+  font-size: 16px; font-weight: 800; margin: 0 0 14px; color: var(--ink);
   text-transform: none; letter-spacing: 0;
 }
 .f-links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
