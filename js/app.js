@@ -484,14 +484,53 @@ function afterHome() {
   }
 
   mountMap("homeMap", ENTITIES);
-  bindScrollDots("featuredDocsScroll", "featuredDocsDots");
-  bindScrollDots("featuredPharmScroll", "featuredPharmDots");
+  if (typeof bindFeaturedDoctorsCarousel === "function") bindFeaturedDoctorsCarousel();
+
   bindOncallCarousel();
 }
 
 /* Fleming: on-call pharmacy carousel — shows 2 pharmacies at a time,
    prev/next arrows + dots, and auto-advances every 10 seconds.
    Pauses on user interaction. */
+function bindFeaturedDoctorsCarousel() {
+  const carousel = document.getElementById("featuredDoctorsCarousel");
+  if (!carousel) return;
+  const track = carousel.querySelector(".oc-track");
+  const cards = track ? Array.from(track.querySelectorAll(":scope > article")) : [];
+  const total = Number(carousel.getAttribute("data-total") || cards.length);
+  const dotsEl = document.getElementById("featuredDoctorsDots");
+  if (!track || total === 0 || !dotsEl) return;
+
+  const getVisible = () => (window.matchMedia("(max-width: 640px)").matches ? 1 : 2);
+  let index = 0;
+  const maxIndex = () => Math.max(0, total - getVisible());
+  const advance = () => {
+    if (!cards[0]) return 0;
+    const gap = 14;
+    const v = getVisible();
+    return cards[0].getBoundingClientRect().width * v + gap * (v - 1);
+  };
+  const renderDots = () => {
+    const v = getVisible();
+    const pages = Math.max(1, Math.ceil(total / v));
+    dotsEl.innerHTML = Array.from({ length: pages }, (_, i) =>
+      `<button class="scroll-dot ${i === 0 ? "active" : ""}" type="button" data-i="${i}" aria-label="صفحة ${i + 1}"></button>`).join("");
+  };
+  const setIndex = (i) => {
+    index = Math.max(0, Math.min(maxIndex(), i));
+    track.style.transform = `translateX(${-index * (cards[0] ? (cards[0].getBoundingClientRect().width + 14) : 0)}px)`;
+    const v = getVisible();
+    const activePage = Math.min(Math.floor(index / v), dotsEl.querySelectorAll(".scroll-dot").length - 1);
+    dotsEl.querySelectorAll(".scroll-dot").forEach((d, j) => d.classList.toggle("active", j === activePage));
+  };
+  renderDots(); setIndex(0);
+  dotsEl.addEventListener("click", (e) => { const b = e.target.closest("[data-i]"); if (!b) return; setIndex(Number(b.dataset.i) * getVisible()); restart(); });
+  let timer = null; const restart = () => { clearInterval(timer); if (maxIndex() > 0) timer = setInterval(() => setIndex(index >= maxIndex() ? 0 : index + getVisible()), 6000); };
+  carousel.addEventListener("mouseenter", () => clearInterval(timer));
+  carousel.addEventListener("mouseleave", restart);
+  window.addEventListener("resize", () => { renderDots(); setIndex(Math.min(index, maxIndex())); restart(); }, { passive: true });
+  restart();
+}
 function bindOncallCarousel() {
   const carousel = $("#oncallCarousel");
   if (!carousel) return;
