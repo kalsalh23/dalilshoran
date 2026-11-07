@@ -1405,7 +1405,7 @@ a.entity-card:hover { color: var(--ink); }
 
 /* 2) هوامش محتوى موحّدة على الجوال — الحاوية تتنفس */
 @media (max-width: 640px) {
-  .container { padding-inline: 16px; }
+  .container { padding-inline: 8px; }
   .hero { padding: 22px 16px 26px; border-radius: var(--r-lg); }
   .section { padding: 26px 0 4px; }
   .page-hero { padding: 22px 0 26px; }
@@ -1544,9 +1544,9 @@ a.entity-card:hover { color: var(--ink); }
 .search-head input { font-size: 14px; }
 
 /* 2) هوامش أوضح في كل الاتجاهات */
-.container { padding-inline: clamp(20px, 5vw, 36px); }
+.container { padding-inline: clamp(8px, 5vw, 36px); }
 @media (max-width: 640px) {
-  .container { padding-inline: 20px; }
+  .container { padding-inline: 8px; }
 }
 
 /* 3) الفوتر المبسط: اختصارات + روابط قانونية + سطر المطوّر */
