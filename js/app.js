@@ -155,6 +155,10 @@ function doctorFeatureCard(d) {
         ${d.phone ? `
           <a class="oc-call" data-stop href="${telHref(d.phone)}" dir="ltr" aria-label="اتصال بـ ${esc(d.name)}">
             ${icon("phone")} ${fmtPhone(d.phone)}
+          </a>` : ""}
+        <a class="oc-map" data-stop href="#/entity/${d.id}">
+          ${icon("arrowLeft")} التفاصيل
+        </a>
       </div>
     </div>
   </article>`;
