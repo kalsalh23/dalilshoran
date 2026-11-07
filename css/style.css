@@ -675,7 +675,7 @@ background: var(--rose-soft); color: var(--error);
 }
 .toolbar .search-field {
   flex: 1 1 230px; display: flex; align-items: center; gap: 8px;
-  background: var(--subtle); border: 1px solid var(--border); border-radius: var(--r-md);
+  background: #ffffff; border: 1px solid var(--border); border-radius: var(--r-md);
   padding: 8px 14px; transition: border-color .15s;
 }
 .toolbar .search-field:focus-within { border-color: var(--primary); background: var(--surface); }
