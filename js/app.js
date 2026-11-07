@@ -1791,7 +1791,7 @@ window.addEventListener("unhandledrejection", function(e){ try{ showBootError(e 
 /* ================= الإقلاع ================= */
 (async function boot() {
   try {
-  const year = $(\
+    const year = $('#year');
   if (year) year.textContent = fmtNum(new Date().getFullYear());
 
   initHeader();
