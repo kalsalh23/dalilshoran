@@ -181,7 +181,6 @@ function featuredDoctorCarouselCard(d) {
       ${addr ? `<p class="oc-addr">${icon("pin")} <span>${esc(addr)}</span></p>` : ""}
       ${d.hours ? `<p class="oc-hours">${icon("clock")} ${esc(d.hours)}</p>` : ""}
       <div class="oc-meta">
-        ${d.phone ? `<a class="oc-call" data-stop href="${telHref(d.phone)}" dir="ltr" aria-label="اتصال بـ ${esc(d.name)}">${icon("phone")} ${fmtPhone(d.phone)}</a>` : ""}
         <a class="oc-map featured-doc-open" data-stop href="#/entity/${d.id}">${icon("arrowLeft")} التفاصيل</a>
       </div>
     </div>
@@ -518,9 +517,12 @@ function bindFeaturedDoctorsCarousel() {
   };
   const setIndex = (i) => {
     index = Math.max(0, Math.min(maxIndex(), i));
-    track.style.transform = `translateX(${-index * (cards[0] ? (cards[0].getBoundingClientRect().width + 14) : 0)}px)`;
+    const cardW = cards[0] ? cards[0].getBoundingClientRect().width : 0;
+    const dir = (document.dir || document.documentElement.dir || "rtl") === "rtl" ? 1 : -1;
+    track.style.transform = cardW ? `translateX(${dir * index * (cardW + 14)}px)` : "none";
     const v = getVisible();
-    const activePage = Math.min(Math.floor(index / v), dotsEl.querySelectorAll(".scroll-dot").length - 1);
+    const pages = Math.max(1, dotsEl.querySelectorAll(".scroll-dot").length);
+    const activePage = Math.min(Math.floor(index / v), pages - 1);
     dotsEl.querySelectorAll(".scroll-dot").forEach((d, j) => d.classList.toggle("active", j === activePage));
   };
   renderDots(); setIndex(0);
