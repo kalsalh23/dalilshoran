@@ -464,9 +464,9 @@ function bindOncallCarousel() {
 
   const visible = 2;
   const gap = 14;
-  // each step advances by one card
-  const advance = () => cards[0].offsetWidth + gap;
-  const maxIndex = Math.max(0, total - 1);
+  // each step advances by one full page (2 cards)
+  const advance = () => cards[0].offsetWidth * visible + gap * (visible - 1);
+  const maxIndex = Math.max(0, total - visible);
 
   let index = 0;
 
@@ -479,7 +479,6 @@ function bindOncallCarousel() {
   const setIndex = (i) => {
     index = Math.max(0, Math.min(maxIndex, i));
     track.style.transform = `translateX(${-index * advance()}px)`;
-    const pages = Math.ceil(total / visible);
     const activePage = Math.floor(index / visible);
     dotsEl.querySelectorAll(".scroll-dot").forEach((d, i) =>
       d.classList.toggle("active", i === activePage));
@@ -487,8 +486,8 @@ function bindOncallCarousel() {
     nextBtn.setAttribute("aria-disabled", index === maxIndex ? "true" : "false");
   };
 
-  const next = () => setIndex(index + 1);
-  const prev = () => setIndex(index - 1);
+  const next = () => setIndex(index + visible);
+  const prev = () => setIndex(index - visible);
 
   nextBtn.addEventListener("click", () => { next(); restartAuto(); });
   prevBtn.addEventListener("click", () => { prev(); restartAuto(); });
