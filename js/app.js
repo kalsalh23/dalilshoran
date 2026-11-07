@@ -470,16 +470,16 @@ function bindOncallCarousel() {
   const prevBtn = carousel.querySelector(".oc-arrow-prev");
   const nextBtn = carousel.querySelector(".oc-arrow-next");
 
-  // 2 cards visible per viewport
+  // 2 cards visible per viewport; each step advances by one card
   const visible = 2;
   const step = () => {
     const cw = cards[0].offsetWidth;
     const gap = 14;
-    return { cw, gap, per: visible, advance: cw * visible + gap * (visible - 1) };
+    return { cw, gap, advance: cw + gap };
   };
 
   let index = 0;
-  const maxIndex = Math.max(0, total - visible);
+  const maxIndex = Math.max(0, total - 1);
 
   const renderDots = () => {
     const pages = Math.ceil(total / visible);
