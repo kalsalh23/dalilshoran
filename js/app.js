@@ -612,12 +612,14 @@ function viewList(type, params) {
   /* Fleming: each type has its own filter set
    - doctors: search + specialization only
    - pharmacies: search + area only
+   - labs: area only (region filter)
    - others: search + area + sort */
   const specs = [...new Set(entitiesByType(type).map((e) => e.spec).filter(Boolean))].sort();
   const areas = [...new Set(entitiesByType(type).map((e) => e.area).filter(Boolean))].sort();
   const showSpec = specs.length && type === "doctor";
-  const showArea = areas.length && (type === "pharmacy" || type !== "doctor");
-  const showSort = type !== "doctor" && type !== "pharmacy";
+  const showArea = areas.length && (type === "pharmacy" || type === "lab" || (type !== "doctor" && type !== "pharmacy" && type !== "lab"));
+  const showSort = type !== "doctor" && type !== "pharmacy" && type !== "lab";
+  const showSearch = type !== "lab";
   const ph = type === "doctor" ? "Ø§Ø¨Ø­Ø« Ø¨Ø§Ø³Ù… Ø§Ù„Ø·Ø¨ÙŠØ¨ Ø£Ùˆ Ø§Ù„ØªØ®ØµØµâ€¦"
     : type === "pharmacy" ? "Ø§Ø¨Ø­Ø« Ø¨Ø§Ø³Ù… Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ©â€¦"
     : "Ø§Ø¨Ø­Ø« Ø¨Ø§Ù„Ø§Ø³Ù…â€¦";
@@ -667,7 +669,7 @@ function viewList(type, params) {
   </section>
   <div class="container">
     <div class="toolbar">
-      <div class="search-field">${icon("search")}<input id="fQ" type="search" placeholder="${ph}" value="${esc(f.q)}" /></div>
+      ${showSearch ? `<div class="search-field">${icon("search")}<input id="fQ" type="search" placeholder="${ph}" value="${esc(f.q)}" /></div>` : ""}
       ${specSel}
       ${areaSel}
       ${sortSel}
