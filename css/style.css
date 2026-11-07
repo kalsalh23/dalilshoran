@@ -1,12 +1,12 @@
-﻿/* ============================================================
-   دليل صوران الطبي — ورقة الأنماط
-   الهوية البصرية: Teal on Warm Pearl (Clinical Calm)
-   مُستوحى من تطبيقات طبية حقيقية: Al-Razi Hub, Healthgrades, NearCare
-   لون واحد مُ saturation (Teal Deep) يُmarks فقط الخطوة التالية
+/* ============================================================
+   ???? ????? ????? � ???? ???????
+   ?????? ???????: Teal on Warm Pearl (Clinical Calm)
+   ??????? ?? ??????? ???? ??????: Al-Razi Hub, Healthgrades, NearCare
+   ??? ???? ?? saturation (Teal Deep) ??marks ??? ?????? ???????
    ============================================================ */
 
 :root {
-  /* الهوية */
+  /* ?????? */
   --primary: #0E6F78;
   --primary-dark: #0B5E66;
   --primary-darker: #094B52;
@@ -15,12 +15,12 @@
   --secondary: #087F8C;
   --secondary-soft: #B6E3E9;
 
-  /* دافئ (للمميزين والمراتب) */
+  /* ???? (???????? ????????) */
   --gold: #B54708;
   --gold-dark: #8F3806;
   --gold-soft: #FDE8D6;
 
-  /* حالات */
+  /* ????? */
   --success: #1F7A4C;
   --success-dark: #155A36;
   --success-soft: #D1F0E3;
@@ -32,7 +32,7 @@
   --rose: #C9445A;
   --rose-soft: #FDE7E7;
 
-  /* خلفية دافئة (Pearl) — تقلل إجهاد العينين */
+  /* ????? ????? (Pearl) � ???? ????? ??????? */
   --background: #F7F5F1;
   --surface: #FFFFFF;
   --surface-alt: #F1EEE8;
@@ -44,12 +44,12 @@
   --ink-subtle: #7A736B;
   --muted: #55504A;
 
-  /* الظلال ((teal خفيفة */
+  /* ?????? ((teal ????? */
   --shadow-card: 0 1px 2px rgba(28, 38, 44, .05), 0 6px 20px -8px rgba(14, 111, 120, .20);
   --shadow-pop: 0 16px 40px -16px rgba(28, 38, 44, .28);
   --shadow-lg: 0 28px 56px -20px rgba(28, 38, 44, .28);
 
-  /* زوايا متحية — أصغر من النمط العام */
+  /* ????? ????? � ???? ?? ????? ????? */
   --r-sm: 8px;
   --r-md: 10px;
   --r-lg: 12px;
@@ -103,7 +103,7 @@ input, select, textarea { font-family: inherit; }
 
 .ic { width: 1.15em; height: 1.15em; flex: none; }
 
-/* ---------- الأزرار ---------- */
+/* ---------- ??????? ---------- */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   height: 42px; padding: 0 18px; border-radius: var(--r-md);
@@ -128,7 +128,7 @@ input, select, textarea { font-family: inherit; }
 .btn-block { width: 100%; }
 .btn-login { height: 38px; padding: 0 16px; font-size: 13.5px; }
 
-/* ---------- شرائح وشارات ---------- */
+/* ---------- ????? ?????? ---------- */
 .chip {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 6px 14px; border-radius: var(--r-full);
@@ -150,7 +150,7 @@ input, select, textarea { font-family: inherit; }
 .badge-blue  { background: var(--primary-soft); color: var(--primary-ink); }
 .badge-rose { background: var(--rose-soft); color: var(--rose); }
 
-/* ---------- الترويسة ---------- */
+/* ---------- ???????? ---------- */
 .mainbar {
   position: sticky; top: 0; z-index: 90;
   background: rgba(255, 255, 255, .92);
@@ -191,8 +191,8 @@ input, select, textarea { font-family: inherit; }
 .icon-btn .ic { width: 18px; height: 18px; }
 .burger { display: none; }
 
-/* ---------- البطل ---------- */
-/* Fleming: editorial hero — light warm approach (Clinical Calm) */
+/* ---------- ????? ---------- */
+/* Fleming: editorial hero � light warm approach (Clinical Calm) */
 .hero {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -237,7 +237,7 @@ input, select, textarea { font-family: inherit; }
   line-height: 1.6;
 }
 
-/* Fleming: floating search bar — icon inside, no separate button */
+/* Fleming: floating search bar � icon inside, no separate button */
 .hero-search {
   position: relative;
   max-width: 640px;
@@ -280,7 +280,7 @@ input, select, textarea { font-family: inherit; }
   display: none;
 }
 
-/* Fleming: quick shortcuts section — outside hero, below it */
+/* Fleming: quick shortcuts section � outside hero, below it */
 .quick-nav {
   margin-top: 20px;
   padding: 0;
@@ -349,7 +349,7 @@ input, select, textarea { font-family: inherit; }
   color: var(--gold-dark);
 }
 
-/* بطاقات أعلى الرئيسية (المناوبة + الطوارئ) */
+/* ?????? ???? ???????? (???????? + ???????) */
 .home-top { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
 .side-card {
   background: var(--surface); border: 1px solid var(--border);
@@ -364,7 +364,7 @@ input, select, textarea { font-family: inherit; }
   margin-inline-start: auto; font-size: 11.5px; color: var(--primary-darker);
   background: var(--gold); padding: 1px 11px; border-radius: var(--r-full); font-weight: 700;
 }
-/* Fleming: on-call items — pill badge + phone */
+/* Fleming: on-call items � pill badge + phone */
 .oncall-mini { display: flex; flex-direction: column; gap: 8px; }
 .oncall-mini-item {
   display: flex; align-items: center; gap: 14px;
@@ -399,7 +399,7 @@ input, select, textarea { font-family: inherit; }
 .emergency-item b { font-size: 15px; }
 .emergency-item small { font-size: 11px; color: var(--muted); }
 
-/* ---------- رؤوس الأقسام ---------- */
+/* ---------- ???? ??????? ---------- */
 .section { padding: 34px 0 6px; }
 .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; margin-bottom: 20px; }
 .section-head h2 { font-size: 20px; margin: 0; }
@@ -408,7 +408,7 @@ input, select, textarea { font-family: inherit; }
 .section-link .ic { transition: transform .2s; }
 .section-link:hover .ic { transform: translateX(-4px); }
 
-/* ---------- بطاقات الخدمات ---------- */
+/* ---------- ?????? ??????? ---------- */
 .services-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
 .service-tile {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
@@ -432,7 +432,7 @@ input, select, textarea { font-family: inherit; }
   padding: 1px 10px; border-radius: var(--r-full);
 }
 
-/* ---------- الكاروسيل والبطاقات ---------- */
+/* ---------- ????????? ????????? ---------- */
 .cards-scroll {
   display: grid; grid-auto-flow: column; grid-auto-columns: minmax(320px, 380px);
   gap: 14px; overflow-x: auto; padding: 4px 2px 14px;
@@ -450,7 +450,7 @@ input, select, textarea { font-family: inherit; }
 }
 .entity-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); border-color: var(--tc, var(--primary)); }
 
-/* Fleming: minimal horizontal card for home featured sections —
+/* Fleming: minimal horizontal card for home featured sections �
    carousel with dot indicators, reduced details: avatar + name + spec + call only.
    Area / phone text / map link removed from card; they live on the detail page. */
 .entity-card--min {
@@ -528,7 +528,7 @@ input, select, textarea { font-family: inherit; }
 .icon-call:hover { border-color: var(--primary); color: var(--primary-dark); background: var(--primary-soft); }
 .icon-call .ic { width: 15px; height: 15px; }
 
-/* ---------- المناوبة ---------- */
+/* ---------- ???????? ---------- */
 .oncall-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
 .oncall-day {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
@@ -557,7 +557,7 @@ background: var(--rose-soft); color: var(--error);
 }
 .day-tab.active .t-badge { background: rgba(255, 255, 255, .2); color: #fff; }
 
-/* ---------- الخريطة ---------- */
+/* ---------- ??????? ---------- */
 .map-wrap {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
   overflow: hidden; box-shadow: var(--shadow-card);
@@ -592,7 +592,7 @@ background: var(--rose-soft); color: var(--error);
 .leaflet-popup-content small { color: var(--muted); }
 .leaflet-popup-content a { font-weight: 700; }
 
-/* ---------- أشرطة CTA ---------- */
+/* ---------- ????? CTA ---------- */
 .cta-band {
   border-radius: var(--r-lg); padding: 24px 26px;
   display: flex; align-items: center; justify-content: space-between; gap: 20px;
@@ -606,7 +606,7 @@ background: var(--rose-soft); color: var(--error);
 .cta-amber h3 { color: var(--primary-darker); }
 .cta-amber p { color: rgba(0, 38, 35, .75); }
 
-/* ---------- ترويسة الصفحات ---------- */
+/* ---------- ?????? ??????? ---------- */
 .page-hero {
   background: linear-gradient(225deg, var(--primary-dark), var(--primary-darker) 55%, var(--primary));
   color: #EAF2EF; padding: 30px 0;
@@ -620,7 +620,7 @@ background: var(--rose-soft); color: var(--error);
 .breadcrumb a:hover { color: var(--gold); }
 .breadcrumb .ic { width: 12px; height: 12px; }
 
-/* ---------- أدوات القوائم ---------- */
+/* ---------- ????? ??????? ---------- */
 .toolbar {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
   padding: 12px 14px; margin: -24px 0 20px; position: relative; z-index: 4;
@@ -655,7 +655,7 @@ background: var(--rose-soft); color: var(--error);
 .empty-state h3 { margin-bottom: 4px; font-size: 17px; color: var(--ink); }
 .empty-state p { margin: 0; font-size: 13.5px; }
 
-/* ---------- تفاصيل الجهة ---------- */
+/* ---------- ?????? ????? ---------- */
 .detail-hero { padding-bottom: 0; }
 .detail-card {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl);
@@ -699,7 +699,7 @@ background: var(--rose-soft); color: var(--error);
 .note-box p { margin: 0; }
 .note-box.is-warn { background: var(--gold-soft); border-color: var(--gold); color: var(--gold-dark); }
 
-/* ---------- اسأل طبياً ---------- */
+/* ---------- ???? ????? ---------- */
 .ask-layout { display: grid; grid-template-columns: 1.35fr .65fr; gap: 24px; align-items: start; }
 .accordion { display: flex; flex-direction: column; gap: 10px; }
 .acc-item {
@@ -754,7 +754,7 @@ background: var(--rose-soft); color: var(--error);
 .my-q-del { border: 0; background: transparent; color: var(--muted); padding: 3px; border-radius: 6px; flex: none; }
 .my-q-del:hover { color: var(--error); background: var(--rose-soft); }
 
-/* ---------- الباقات ---------- */
+/* ---------- ??????? ---------- */
 .packages-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: stretch; }
 .package-card {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
@@ -777,7 +777,7 @@ background: var(--rose-soft); color: var(--error);
 .pkg-features li { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; color: var(--muted); }
 .pkg-features .ic { color: var(--primary); width: 15px; height: 15px; margin-top: 5px; flex: none; }
 
-/* ---------- الدخول ---------- */
+/* ---------- ?????? ---------- */
 .login-wrap { max-width: 400px; margin-inline: auto; }
 .login-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 28px 24px; box-shadow: var(--shadow-card); }
 .login-head { text-align: center; margin-bottom: 20px; }
@@ -795,7 +795,7 @@ background: var(--rose-soft); color: var(--error);
 .login-forgot a { display: inline-flex; align-items: center; gap: 5px; color: var(--primary); font-weight: 600; }
 .login-forgot a:hover { color: var(--primary-dark); text-decoration: underline; }
 
-/* ---------- صفحة عن المنصة ---------- */
+/* ---------- ???? ?? ?????? ---------- */
 .about-hero {
   border-radius: var(--r-xl);
   background: linear-gradient(225deg, var(--primary-dark), var(--primary-darker) 55%, var(--primary));
@@ -853,7 +853,7 @@ background: var(--rose-soft); color: var(--error);
 .support-card a.support-btn:hover { background: var(--primary-dark); color: #fff; }
 .support-card .support-btn span { direction: ltr; }
 
-/* ---------- النصوص القانونية ---------- */
+/* ---------- ?????? ????????? ---------- */
 .prose { max-width: 780px; }
 .prose h2 { font-size: 18px; margin: 26px 0 8px; }
 .prose h2:first-child { margin-top: 0; }
@@ -866,7 +866,7 @@ background: var(--rose-soft); color: var(--error);
 
 .page-wrap { padding-block: 26px 52px; padding-inline: 0; }
 
-/* بطاقة عامة ومسار تنقّل على خلفية فاتحة */
+/* ????? ???? ????? ????? ??? ????? ????? */
 .card {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--r-lg); padding: 18px; box-shadow: var(--shadow-card);
@@ -879,7 +879,7 @@ background: var(--rose-soft); color: var(--error);
 .breadcrumb.on-page a:hover { color: var(--primary); }
 .breadcrumb.on-page span { color: var(--ink); font-weight: 600; }
 
-/* ---------- نافذة البحث الشامل ---------- */
+/* ---------- ????? ????? ?????? ---------- */
 .search-overlay { position: fixed; inset: 0; z-index: 150; }
 .search-overlay[hidden] { display: none; }
 .search-backdrop {
@@ -909,7 +909,7 @@ background: var(--rose-soft); color: var(--error);
   border-radius: 5px; padding: 1px 7px; font-family: var(--font); font-size: 10.5px;
 }
 
-/* ---------- التوست ---------- */
+/* ---------- ?????? ---------- */
 .toast-wrap {
   position: fixed; bottom: 20px; inset-inline-start: 50%; transform: translateX(50%);
   z-index: 200; display: flex; flex-direction: column; gap: 8px; align-items: center;
@@ -931,7 +931,7 @@ background: var(--rose-soft); color: var(--error);
 .toast.hide { animation: toast-out .3s ease forwards; }
 @keyframes toast-out { to { opacity: 0; transform: translateY(10px); } }
 
-/* ---------- التوست ---------- */
+/* ---------- ?????? ---------- */
 @media (max-width: 1080px) {
   .services-grid { grid-template-columns: repeat(4, 1fr); }
   .mainnav > a { padding: 7px 8px; font-size: 13px; }
@@ -954,7 +954,6 @@ background: var(--rose-soft); color: var(--error);
   .oncall-strip { grid-template-columns: repeat(4, 1fr); }
   .ask-layout { grid-template-columns: 1fr; }
   .packages-grid { grid-template-columns: 1fr; max-width: 440px; margin-inline: auto; }
-  .footer-grid { grid-template-columns: 1fr 1fr; }
   .features-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 640px) {
@@ -963,7 +962,6 @@ background: var(--rose-soft); color: var(--error);
   .oncall-strip { grid-template-columns: repeat(2, 1fr); }
   .cta-band { flex-direction: column; text-align: center; padding: 22px 18px; }
   .section-head { flex-direction: column; align-items: flex-start; gap: 4px; }
-  .footer-grid { grid-template-columns: 1fr; gap: 22px; padding-top: 32px; }
   .cards-scroll { grid-auto-columns: 86%; }
   .toolbar { flex-direction: column; align-items: stretch; }
   .toolbar select { max-width: none; }
@@ -973,17 +971,17 @@ background: var(--rose-soft); color: var(--error);
   .hero { padding: 22px 16px 26px; }
 }
 
-/* ---------- حركة مخفّضة ---------- */
+/* ---------- ???? ?????? ---------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   html { scroll-behavior: auto; }
 }
 
 /* ============================================================
-   إضافات نمط المنصة المرجعية
+   ?????? ??? ?????? ????????
    ============================================================ */
 
-/* زر البحث الأخضر + زر دخول الجهة في الترويسة */
+/* ?? ????? ?????? + ?? ???? ????? ?? ???????? */
 .btn-search {
   background: var(--primary); color: #fff; height: auto; padding: 9px 18px;
   box-shadow: 0 4px 10px -2px rgba(66, 129, 119, .35);
@@ -996,15 +994,15 @@ background: var(--rose-soft); color: var(--error);
 .btn-entity:hover { border-color: var(--primary); color: var(--primary-dark); background: var(--surface); }
 @media (max-width: 640px) { .hide-xs { display: none; } .btn-entity { display: none; } }
 
-/* روابط تظهر على الشاشات العريضة فقط */
+/* ????? ???? ??? ??????? ??????? ??? */
 .nav-xl { display: none; }
 @media (min-width: 1200px) { .mainnav > a.nav-xl { display: inline-flex; } }
 
-/* البطاقة قابلة للضغط بالكامل */
+/* ??????? ????? ????? ??????? */
 a.entity-card { color: var(--ink); cursor: pointer; }
 a.entity-card:hover { color: var(--ink); }
 
-/* صفحة البحث (نمط SearchPage) */
+/* ???? ????? (??? SearchPage) */
 .page-title { font-size: 22px; margin-bottom: 16px; }
 .search-big { position: relative; display: flex; align-items: center; }
 .search-big > svg {
@@ -1045,7 +1043,7 @@ a.entity-card:hover { color: var(--ink); }
 .result-row .r-body small { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .s-empty { padding: 40px 20px; }
 
-/* صفحة الباقات (نمط PlansPage) */
+/* ???? ??????? (??? PlansPage) */
 .plans-page { max-width: 1000px; }
 .plans-head { text-align: center; margin-bottom: 28px; }
 .plans-head h1 { font-size: 26px; }
@@ -1089,7 +1087,7 @@ a.entity-card:hover { color: var(--ink); }
   .plan-card.is-gold { transform: none; }
 }
 
-/* بطاقة المطوّر (نمط DeveloperCard) */
+/* ????? ??????? (??? DeveloperCard) */
 .dev-feature {
   border-radius: var(--r-xl); padding: 1.5px; margin-top: 22px;
   background: linear-gradient(225deg, var(--primary-dark), var(--rose-dark));
@@ -1147,7 +1145,7 @@ a.entity-card:hover { color: var(--ink); }
 .dev-btn-fb:hover { color: #fff; opacity: .9; }
 @media (max-width: 640px) { .dev-body { flex-direction: column; align-items: flex-start; } }
 
-/* شريط أرقام الطوارئ في صفحة المناوبة */
+/* ???? ????? ??????? ?? ???? ???????? */
 .emg-strip { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .emg-pill {
   display: inline-flex; align-items: center; gap: 7px;
@@ -1159,62 +1157,69 @@ a.entity-card:hover { color: var(--ink); }
 .emg-pill b { color: var(--error); }
 .emg-pill:hover { border-color: var(--error); background: var(--rose-soft); }
 
-/* التذييل الفاتح (نمط Footer.tsx) — يتجاوز التذييل الداكن السابق */
-.footer { margin-top: 40px; background: var(--surface); border-top: 1px solid var(--border); color: var(--ink); }
-.footer-in { padding-top: 36px; }
-.footer-grid { display: grid; grid-template-columns: 1.1fr 1.2fr .9fr 1.1fr; gap: 28px; padding: 0 16px 26px; }
-.f-brand .brand-text strong { color: var(--primary-dark); }
-.f-desc { font-size: 13px; line-height: 1.9; color: var(--muted); margin: 10px 0 0; }
-.f-col h4 { font-size: 13.5px; margin-bottom: 12px; color: var(--ink); }
-.f-links, .f-links-2 { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-.f-links-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; }
-.f-links a, .f-links-2 a { display: block; color: var(--muted); font-size: 13px; padding: 2px 0; transition: color .15s; }
-.f-links a:hover, .f-links-2 a:hover { color: var(--primary); }
-.f-phone { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13.5px; font-weight: 600; }
-.f-phone .ic { color: var(--primary); }
-.f-social { display: flex; gap: 8px; margin-top: 14px; }
-.f-social a {
-  width: 38px; height: 38px; border-radius: var(--r-md);
-  display: inline-flex; align-items: center; justify-content: center;
-  border: 1px solid var(--border-strong); color: var(--muted); transition: all .15s;
+/* ??????? (site-footer) */
+.site-footer {
+  margin-top: 56px;
+  background: color-mix(in srgb, var(--surface) 92%, var(--subtle));
+  border-top: 1px solid var(--border);
+  color: var(--ink);
 }
-.f-social a:hover { border-color: var(--primary); color: var(--primary); }
-.f-social .ic { width: 17px; height: 17px; }
-.f-disclaimer {
-  display: flex; align-items: flex-start; gap: 9px;
-  background: var(--subtle); border-radius: var(--r-md);
-  padding: 11px 13px; font-size: 11.5px; line-height: 1.8; color: var(--muted); margin-top: 16px;
+.site-footer .footer-in { padding-block: 40px 0; }
+.footer-top {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.5fr) repeat(3, minmax(150px, 1fr));
+  gap: 32px 40px;
+  align-items: start;
 }
-.f-disclaimer .ic { color: var(--primary); flex: none; margin-top: 2px; }
-.notif-card {
-  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-  border: 1px solid color-mix(in srgb, var(--primary) 20%, #ffffff);
-  background: color-mix(in srgb, var(--primary-soft) 30%, #ffffff);
-  border-radius: 18px; padding: 16px 18px; margin: 6px 16px 0;
+.f-brand { display: inline-flex; align-items: center; text-decoration: none; }
+.f-brand-name { font-size: 17px; font-weight: 800; color: var(--primary-dark, var(--ink)); letter-spacing: -0.01em; }
+.f-brand:hover .f-brand-name { color: var(--primary); }
+.f-desc { font-size: 13px; line-height: 1.9; color: var(--muted); margin: 12px 0 0; max-width: 36ch; }
+.f-col h4 {
+  font-size: 12.5px; font-weight: 800; margin: 0 0 14px; color: var(--ink);
+  text-transform: none; letter-spacing: 0;
 }
-.notif-ic {
-  width: 44px; height: 44px; border-radius: var(--r-lg); flex: none;
-  display: inline-flex; align-items: center; justify-content: center;
-  background: var(--primary); color: #fff; box-shadow: 0 6px 14px -6px rgba(66, 129, 119, .5);
+.f-links { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.f-links li { margin: 0; padding: 0; }
+.f-links a {
+  display: inline-flex; align-items: center;
+  color: var(--muted); font-size: 13.5px; line-height: 1.5;
+  text-decoration: none; transition: color .15s, transform .15s;
 }
-.notif-ic .ic { width: 20px; height: 20px; }
-.notif-body { flex: 1; min-width: 220px; }
-.notif-title { margin: 0; font-weight: 700; font-size: 14px; color: var(--ink); }
-.notif-sub { margin: 2px 0 0; font-size: 12px; line-height: 1.8; color: var(--muted); }
+.f-links a:hover { color: var(--primary); transform: translateX(-2px); }
+[dir="ltr"] .f-links a:hover { transform: translateX(2px); }
+.f-emg { color: var(--ink); font-weight: 700; }
 .f-bottom {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
-  border-top: 1px solid var(--border); margin-top: 24px; padding: 18px 16px 22px;
-  font-size: 12px; color: var(--muted);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap;
+  border-top: 1px solid var(--border); margin-top: 32px; padding: 18px 0 24px;
+  font-size: 12.5px; color: var(--muted);
 }
-.f-bottom p { margin: 0; }
-.f-dev { display: inline-flex; align-items: center; gap: 6px; }
-.f-dev .ic { color: var(--primary); width: 14px; height: 14px; }
-.f-dev a { color: var(--primary); font-weight: 600; }
+.f-copy, .f-dev { margin: 0; }
+.f-dev { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.f-dev a { color: var(--primary); font-weight: 700; text-decoration: none; }
+.f-dev a:hover { text-decoration: underline; }
+@media (max-width: 900px) {
+  .footer-top { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 24px; }
+  .f-brand-col { grid-column: 1 / -1; max-width: 520px; }
+}
+@media (max-width: 640px) {
+  .site-footer { margin-top: 40px; }
+  .site-footer .footer-in { padding-block: 28px 0; }
+  .footer-top { grid-template-columns: 1fr; gap: 22px; }
+  .f-brand-col { grid-column: auto; }
+  .f-desc { max-width: none; }
+  .f-col h4 { margin-bottom: 10px; }
+  .f-links { gap: 9px; }
+  .f-bottom {
+    flex-direction: column; align-items: flex-start; gap: 8px;
+    margin-top: 24px; padding: 16px 0 calc(18px + env(safe-area-inset-bottom, 0px));
+  }
+}
 
-/* زر البحث داخل الهيرو */
+/* ?? ????? ???? ?????? */
 .hero-search-btn { padding: 0 22px; }
 
-/* شريط التنقل السفلي (نمط BottomNav) */
+/* ???? ?????? ?????? (??? BottomNav) */
 .bottom-nav { display: none; }
 @media (max-width: 900px) {
   body { padding-bottom: 66px; }
@@ -1242,7 +1247,7 @@ a.entity-card:hover { color: var(--ink); }
 }
 
 /* ============================================================
-   البطاقة الأفقية (نمط EntityCard.tsx)
+   ??????? ??????? (??? EntityCard.tsx)
    ============================================================ */
 .entity-card { padding: 14px; }
 .ec-flex { display: flex; gap: 13px; align-items: flex-start; }
@@ -1300,16 +1305,15 @@ a.entity-card:hover { color: var(--ink); }
   .cards-scroll { grid-auto-columns: 88%; }
 }
 
-/* تحسينات الفوتر على الجوال */
+/* ??????? ?????? ??? ?????? */
 @media (max-width: 640px) {
   .footer-grid { grid-template-columns: 1fr; gap: 20px; padding-bottom: 20px; }
   .notif-card { flex-direction: column; align-items: flex-start; gap: 12px; }
   .notif-card .btn { width: 100%; }
-  .f-bottom { flex-direction: column; align-items: center; text-align: center; padding-bottom: 18px; }
 }
 
 /* ============================================================
-   لوحة التحكم
+   ???? ??????
    ============================================================ */
 .dash-page { max-width: 920px; }
 .dash-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
@@ -1369,21 +1373,10 @@ a.entity-card:hover { color: var(--ink); }
 }
 
 /* ============================================================
-   إصلاحات الجوال والهوامش (تطبَّق أخيراً فتتغلب على ما سبق)
+   ??????? ?????? ???????? (?????? ?????? ?????? ??? ?? ???)
    ============================================================ */
 
-/* 1) الفوتر: إزالة ازدواج الهوامش — الحاوية تتكفل بالحشو */
 @media (max-width: 640px) {
-  .footer-in { padding-top: 28px; }
-  .footer-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 22px 16px;
-    padding: 0 0 22px;
-  }
-  .f-brand { grid-column: 1 / -1; }
-  .f-col:last-of-type { grid-column: 1 / -1; }
-  .f-links-2 { grid-template-columns: 1fr 1fr; gap: 7px 12px; }
-  .f-links a, .f-links-2 a { font-size: 12.5px; padding: 3px 0; }
   .notif-card {
     margin: 4px 0 0;
     padding: 16px;
@@ -1391,19 +1384,9 @@ a.entity-card:hover { color: var(--ink); }
   }
   .notif-body { min-width: 100%; }
   .notif-sub { font-size: 11.5px; line-height: 1.9; }
-  .f-bottom {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 6px;
-    padding: 16px 0 20px;
-    margin-top: 18px;
-  }
-  /* مسافة كافية فوق شريط التنقل السفلي الثابت */
-  .footer { margin-bottom: 0; padding-bottom: 12px; }
 }
 
-/* 2) هوامش محتوى موحّدة على الجوال — الحاوية تتنفس */
+/* 2) ????? ????? ?????? ??? ?????? � ??????? ????? */
 @media (max-width: 640px) {
   .container { padding-inline: 8px; }
   .hero { padding: 22px 16px 26px; border-radius: var(--r-lg); }
@@ -1423,7 +1406,7 @@ a.entity-card:hover { color: var(--ink); }
   .chips-lg .mini-tag { font-size: 11.5px; padding: 4px 12px; }
 }
 
-/* 3) شريط المناوبة على الجوال: أيام أوضح وأصغر حجماً */
+/* 3) ???? ???????? ??? ??????: ???? ???? ????? ????? */
 @media (max-width: 640px) {
   .oncall-day { padding: 10px 8px; }
   .oncall-day b { font-size: 12px; }
@@ -1431,10 +1414,10 @@ a.entity-card:hover { color: var(--ink); }
 }
 
 /* ============================================================
-   صفحة تفاصيل الجهة — نمط EntityDetailPage.tsx
+   ???? ?????? ????? � ??? EntityDetailPage.tsx
    ============================================================ */
 
-/* البطاقة الرئيسية: شريط علوي ملون + صورة دائرية بارزة */
+/* ??????? ????????: ???? ???? ???? + ???? ?????? ????? */
 .detail-card {
   border-radius: var(--r-xl); overflow: hidden; padding: 0;
   border: 1px solid var(--border); background: var(--surface);
@@ -1462,7 +1445,7 @@ a.entity-card:hover { color: var(--ink); }
 .detail-title .sub { color: var(--muted); font-size: 13.5px; margin: 0; }
 .entity-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
 
-/* أزرار الإجراءات الكبيرة — نمط الأزرار في الملف المرجعي */
+/* ????? ????????? ??????? � ??? ??????? ?? ????? ??????? */
 .detail-actions {
   display: flex; gap: 9px; flex-wrap: wrap;
   padding: 18px 22px 20px;
@@ -1470,7 +1453,7 @@ a.entity-card:hover { color: var(--ink); }
 .detail-actions .btn { flex: 1 1 140px; height: 46px; font-size: 14.5px; }
 .detail-actions .btn-icon { flex: 0 0 46px; width: 46px; padding: 0; }
 
-/* شبكة الأقسام الثلاثة: معلومات + دوام + خبرة (نمط القسم الجانبي) */
+/* ???? ??????? ???????: ??????? + ???? + ???? (??? ????? ???????) */
 .detail-info {
   padding: 0 22px 20px; margin-top: 0;
   display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px;
@@ -1492,7 +1475,7 @@ a.entity-card:hover { color: var(--ink); }
   .detail-actions .btn-icon { flex: 0 0 46px; }
 }
 
-/* بطاقة الجهات في القوائم — نمط EntityCard.tsx: مربع أكبر ونقطة التخصص */
+/* ????? ?????? ?? ??????? � ??? EntityCard.tsx: ???? ???? ????? ?????? */
 .ec-media {
   border-radius: 14px;
   transition: transform .5s ease;
@@ -1502,7 +1485,7 @@ a.entity-card:hover { color: var(--ink); }
 .ec-name { font-size: 16px; }
 .ec-spec { font-size: 12.5px; }
 
-/* إحصائيات صفحة «عن المنصة» */
+/* ???????? ???? �?? ??????� */
 .about-stats {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
   margin: 18px 0 22px;
@@ -1523,10 +1506,10 @@ a.entity-card:hover { color: var(--ink); }
 }
 
 /* ============================================================
-   تحديثات الجولة الثانية: تصغير البحث + فوتر مبسط + بطاقة المناوبة
+   ??????? ?????? ???????: ????? ????? + ???? ???? + ????? ????????
    ============================================================ */
 
-/* 1) مربعات البحث أصغر ومتناسقة في كل الواجهات */
+/* 1) ?????? ????? ???? ???????? ?? ?? ???????? */
 .hero-search { max-width: 500px; }
 .hero-search-box { padding: 4px 4px 4px 12px; gap: 8px; border-radius: var(--r-md); }
 .hero-search-box > svg { width: 17px; height: 17px; }
@@ -1534,7 +1517,7 @@ a.entity-card:hover { color: var(--ink); }
 .hero-search-box .btn, .hero-search-btn { height: 36px; padding: 0 18px; font-size: 13.5px; border-radius: var(--r-sm); box-shadow: none; }
 .toolbar .search-field { padding: 6px 12px; }
 .toolbar .search-field input { font-size: 13.5px; }
-/* على الجوال يتحول شريط الأدوات لعمود فيصبح flex-basis ارتفاعاً — نلغيه */
+/* ??? ?????? ????? ???? ??????? ????? ????? flex-basis ???????? � ????? */
 @media (max-width: 640px) {
   .toolbar .search-field { flex: 0 0 auto; }
   .ask-layout .toolbar .search-field { flex: 0 0 auto; }
@@ -1543,36 +1526,14 @@ a.entity-card:hover { color: var(--ink); }
 .search-big .btn { height: 34px; padding: 0 18px; }
 .search-head input { font-size: 14px; }
 
-/* 2) هوامش أوضح في كل الاتجاهات */
+/* 2) ????? ???? ?? ?? ????????? */
 .container { padding-inline: clamp(8px, 5vw, 36px); }
 @media (max-width: 640px) {
   .container { padding-inline: 8px; }
 }
 
-/* 3) الفوتر المبسط: اختصارات + روابط قانونية + سطر المطوّر */
-.footer { margin-top: 34px; }
-.footer-in { padding-top: 24px; }
-.f-quick {
-  display: flex; flex-wrap: wrap; gap: 8px;
-  padding-bottom: 18px; border-bottom: 1px solid var(--border);
-}
-.f-quick a {
-  padding: 5px 13px; border-radius: var(--r-full);
-  font-size: 12.5px; font-weight: 600;
-  background: var(--subtle); color: var(--ink); border: 1px solid var(--border);
-  transition: all .15s;
-}
-.f-quick a:hover { border-color: var(--primary); color: var(--primary-dark); background: var(--primary-soft); }
-.f-legal { display: flex; flex-wrap: wrap; gap: 6px 18px; padding-top: 13px; font-size: 11.5px; }
-.f-legal a { color: var(--muted); }
-.f-legal a:hover { color: var(--primary); }
-.f-bottom { margin-top: 18px; }
-@media (max-width: 640px) {
-  .f-quick a { font-size: 12px; padding: 5px 11px; }
-  .f-bottom { flex-direction: column; align-items: center; text-align: center; gap: 4px; }
-}
-/* 4) بطاقة «صيدليات المناظرة اليوم» في الرئيسية — بطاقة مستطيلة
-   صورة الصيدلية على اليمين + معلومات على اليسار */
+/* 4) ????? �??????? ???????? ?????� ?? ???????? � ????? ???????
+   ???? ???????? ??? ?????? + ??????? ??? ?????? */
 .oncall-today-card {
   padding: 18px 20px;
   background: linear-gradient(135deg, #FFFFFF 0%, #F4FAFA 100%);
@@ -1629,7 +1590,7 @@ a.entity-card:hover { color: var(--ink); }
 }
 .oc-dots .scroll-dot.active { background: var(--primary); width: 22px; border-radius: var(--r-full); }
 
-/* على الجوال: صورة أصغر + تخطيط رأسي */
+/* ??? ??????: ???? ???? + ????? ???? */
 .oncall-card {
   display: flex;
   align-items: stretch;
@@ -1773,7 +1734,7 @@ a.entity-card:hover { color: var(--ink); }
 .oc-map .ic { width: 14px; height: 14px; }
 .oc-map:hover { text-decoration: underline; }
 
-/* على الجوال: الصورة تختفي وتصبح بطاقة أفقية */
+/* ??? ??????: ?????? ????? ????? ????? ????? */
 @media (max-width: 640px) {
   .oncall-card { flex-direction: column; }
   .oc-media { width: 100%; min-width: 0; height: 140px; min-height: 0; }
@@ -1782,10 +1743,10 @@ a.entity-card:hover { color: var(--ink); }
 }
 
 /* ============================================================
-   لوحة التحكم الشاملة + الإعلانات
+   ???? ?????? ??????? + ?????????
    ============================================================ */
 
-/* تبويبات اللوحة */
+/* ??????? ?????? */
 .dash-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0 14px; }
 .dash-tab {
   display: inline-flex; align-items: center; gap: 6px;
@@ -1797,11 +1758,11 @@ a.entity-card:hover { color: var(--ink); }
 .dash-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
 .dash-tab .ic { width: 15px; height: 15px; }
 
-/* شريط أدوات التبويب */
+/* ???? ????? ??????? */
 .dash-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
 .dash-hint { font-size: 11.5px; color: var(--muted); }
 
-/* أزرار الصفوف */
+/* ????? ?????? */
 .di-actions { display: flex; gap: 6px; flex-wrap: wrap; flex: none; }
 .dash-btn {
   display: inline-flex; align-items: center; gap: 5px;
@@ -1814,7 +1775,7 @@ a.entity-card:hover { color: var(--ink); }
 .dash-btn .ic { width: 13px; height: 13px; }
 .dash-btn.danger:hover { border-color: var(--error); color: var(--error); background: var(--rose-soft); }
 
-/* نموذج إضافة/تعديل جهة أو إعلان */
+/* ????? ?????/????? ??? ?? ????? */
 .entity-form { margin-bottom: 16px; }
 .entity-form h3 { display: flex; align-items: center; gap: 8px; font-size: 15.5px; margin-bottom: 14px; }
 .ef-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -1853,7 +1814,7 @@ a.entity-card:hover { color: var(--ink); }
   .di-actions { width: 100%; justify-content: flex-end; }
 }
 
-/* الإعلانات في الموقع */
+/* ????????? ?? ?????? */
 .ads-strip { display: grid; gap: 10px; }
 .ad-banner {
   position: relative; display: flex; align-items: center; gap: 13px;
@@ -1881,7 +1842,7 @@ a.entity-card:hover { color: var(--ink); }
 
 
 
-/* على الجوال: صورة أصغر + تخطيط رأسي */
+/* ??? ??????: ???? ???? + ????? ???? */
 @media (max-width: 640px) {
   .oc-carousel { padding: 4px 30px; }
   .oc-arrow { width: 32px; height: 32px; }
@@ -1892,7 +1853,7 @@ a.entity-card:hover { color: var(--ink); }
   .oc-head .oc-badge { margin-inline-start: 0; }
 }
 
-/* 页面 المناظرة: هامش جانبي أوسع لـ cards-grid */
+/* ?? ????????: ???? ????? ???? ?? cards-grid */
 .oncall-page {
   padding-inline: clamp(28px, 6vw, 64px);
 }
