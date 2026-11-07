@@ -1,0 +1,12 @@
+{
+  "name": "dalilshoran-main",
+  "version": "1.0.0",
+  "description": "> **الموقع الحي:** https://dalilshoran.vercel.app > **المستودع:** https://github.com/kalsalh23/dalilshoran > **قاعدة البيانات:** Supabase (entities + oncall + faq + questions + messages)",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

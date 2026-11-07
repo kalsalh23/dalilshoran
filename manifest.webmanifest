@@ -1,0 +1,20 @@
+{
+  "name": "Guide صوران الطبي",
+  "short_name": "Guide صوران",
+  "description": "ال-guide الطبي لمدينة صوران: أطباء، صيدليات، مناوبة، مشافي، مخابر ومراكز صحية.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F7F5F1",
+  "theme_color": "#0E6F78",
+  "icons": [
+    {
+      "src": "assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
