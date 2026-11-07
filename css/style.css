@@ -1540,10 +1540,11 @@ a.entity-card:hover { color: var(--ink); }
   border-radius: var(--r-2xl);
   box-shadow: var(--shadow-card);
 }
-.oncall-today-card .oc-carousel {
+.oncall-today-card .oc-carousel,
+#oncallCarousel {
   position: relative;
   overflow: hidden;
-  padding: 4px 38px;
+  padding: 4px 8px;
 }
 .oc-track {
   display: flex;
@@ -1843,7 +1844,7 @@ a.entity-card:hover { color: var(--ink); }
 
 /* ??? ??????: ???? ???? + ????? ???? */
 @media (max-width: 640px) {
-  .oc-carousel { padding: 4px 30px; }
+  .oc-carousel, #oncallCarousel { padding: 4px 8px; }
   .oc-arrow { width: 32px; height: 32px; }
   .oc-arrow .ic { width: 16px; height: 16px; }
   .oncall-card { flex: 0 0 100%; width: 100%; }
