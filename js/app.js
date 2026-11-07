@@ -688,13 +688,13 @@ return `
   <section class="page-hero">
     <div class="container">
       <nav class="breadcrumb" aria-label="مسار التنقل">
-        <a href="#/">ال_principal</a> ${icon("chevLeft")} <a href="#/pharmacies">الsidliات</a> ${icon("chevLeft")} <span>المناوبة</span>
+        <a href="#/">الPrincipal</a> ${icon("chevLeft")} <a href="#/pharmacies">الsidliات</a> ${icon("chevLeft")} <span>المناوبة</span>
       </nav>
-      <h1>${icon("ambulance")} sidliات المناوبة</h1>
-      <p>جدول المناوبة_WEEKLY لsidliات مدينة صوران. اختر اليوم لعرض sidliات التي تعمل خارج أوقات الدوام.</p>
+      <h1>${icon("ambulance")} sidliات المناظرة</h1>
+      <p>جدول المناظرة Weekly لsidliات مدينة صوران. اختر اليوم لعرض sidliات التي تعمل خارج أوقات الدوام.</p>
     </div>
   </section>
-  <div class="container" style="padding:26px 0 56px">
+  <div class="container oncall-page" style="padding:26px 0 56px">
     <div class="day-tabs" role="tablist" aria-label="أيام الأسبوع">${tabs}</div>
     <div class="cards-grid" style="margin-top:20px">${cards}</div>
   </div>`;

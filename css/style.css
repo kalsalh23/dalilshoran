@@ -1899,3 +1899,18 @@ a.entity-card:hover { color: var(--ink); }
   .oc-body { padding: 11px 13px; }
   .oc-head .oc-badge { margin-inline-start: 0; }
 }
+
+/* 页面 المناظرة: هامش جانبي أوسع لـ cards-grid */
+.oncall-page {
+  padding-inline: clamp(28px, 6vw, 64px);
+}
+.oncall-page .cards-grid {
+  gap: 18px;
+}
+.oncall-page .day-tabs {
+  gap: 10px;
+  margin-bottom: 22px;
+}
+@media (max-width: 640px) {
+  .oncall-page { padding-inline: 20px; }
+}
