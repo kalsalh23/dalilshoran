@@ -1665,7 +1665,7 @@ function updateEntityBtn() {
 function featuredDoctorBigCard(d){
   const t=TYPES[d.type]||TYPES.doctor; const addr=[d.area,d.address].filter(Boolean).join(" — ");
   return `<article class="fdoc-card" data-go="#/entity/${d.id}" tabindex="0" role="link" aria-label="${esc(d.name)}">
-    <div class="fdoc-media"><img src="${esc(placeholderFor(d))}" alt="${esc(d.name)}" loading="lazy" />${d.rank?`<span class="rank-ribbon">${icon("star")} ${fmtNum(d.rank)}</span>`:""}</div>
+    <div class="fdoc-media"><img src="assets/placeholders/doctor-male.jpg" alt="${esc(d.name)}" loading="lazy" />${d.rank?`<span class="rank-ribbon">${icon("star")} ${fmtNum(d.rank)}</span>`:""}</div>
     <div class="fdoc-body">
       <p class="fdoc-name">${esc(d.name)}</p>
       <p class="fdoc-spec">${icon(t.icon)} ${esc(d.spec||t.label)}</p>
