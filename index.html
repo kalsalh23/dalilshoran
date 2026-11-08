@@ -177,5 +177,13 @@
   <script src="js/config.js"></script>
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
+  <script>
+  (function(){
+    var done=false;
+    function hide(){ if(done) return; done=true; var el=document.getElementById('splashScreen'); if(!el) return; el.classList.add('is-hidden'); setTimeout(function(){ if(el&&el.parentNode) el.parentNode.removeChild(el); }, 500); }
+    setTimeout(hide, 4000);
+    window.__hideSplash = hide;
+  })();
+  </script>
 </body>
 </html>

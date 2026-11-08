@@ -1874,7 +1874,7 @@ function hideSplash() {
   el.classList.add("is-hidden");
   setTimeout(function(){ if (el && el.parentNode) el.parentNode.removeChild(el); }, 500);
 }
-function scheduleSplash() { setTimeout(hideSplash, 4000); }
+function scheduleSplash() { if (window.__hideSplash) return; setTimeout(hideSplash, 4000); } window.__appHideSplash = hideSplash;
 /* ================= الإقلاع ================= */
 (async function boot() {
   try {
