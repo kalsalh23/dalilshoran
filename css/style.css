@@ -1997,3 +1997,14 @@ a.entity-card:hover { color: var(--ink); }
 .splash-credit-phone{color:#f2c94c;text-decoration:none;font-weight:700;}
 .splash-credit-phone:hover{text-decoration:underline;}
 @media (prefers-reduced-motion: reduce){.splash-screen,.splash-spinner{transition:none;animation:none;}}
+
+/* Ask page -> medical guidelines */
+.guides-panel{max-width:860px;margin:0 auto 28px;background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow-card);padding:18px;}
+.guides-tools{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;margin-bottom:14px;}
+.guides-cats{display:flex;flex-wrap:wrap;gap:8px;}
+.guide-cat-chip{border:1px solid var(--border);background:var(--surface-2,#f8fafb);color:var(--ink);padding:8px 12px;border-radius:999px;font:inherit;font-size:13px;cursor:pointer;transition:.18s ease;}
+.guide-cat-chip:hover{border-color:var(--primary);color:var(--primary-dark);}
+.guide-cat-chip.is-active{background:var(--primary);border-color:var(--primary);color:#fff;}
+.guides-note{display:flex;align-items:flex-start;gap:8px;margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--primary-soft,#e6f4f1);color:var(--primary-darker,var(--primary-dark));font-size:13px;line-height:1.7;}
+.guides-note .ic{width:16px;height:16px;flex:none;margin-top:2px;}
+@media (max-width:640px){.guides-panel{padding:14px;border-radius:14px;}}

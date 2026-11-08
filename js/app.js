@@ -889,41 +889,29 @@ function afterEntity(id) {
 
 /* ================= العرض: اسأل طبياً ================= */
 function viewAsk() {
+  const cats = ["الكل", ...new Set((FAQ || []).map((f) => f.cat).filter(Boolean))];
+  const chips = cats.map((c) => `<button class="guide-cat-chip${c === (state.askCat || "الكل") ? " is-active" : ""}" type="button" data-ask-cat="${esc(c)}">${esc(c)}</button>`).join("");
   return `
   <section class="page-hero">
     <div class="container">
       <nav class="breadcrumb" aria-label="مسار التنقل">
-        <a href="#/">الرئيسية</a> ${icon("chevLeft")} <span>اسأل</span>
+        <a href="#/">الرئيسية</a> ${icon("chevLeft")} <span>إرشادات طبية</span>
       </nav>
-      <h1>${icon("chat")} اسأل</h1>
-      <p>اكتب سؤالك وسترى الجواب. للحالات الطارئة اتصل بالإسعاف.</p>
+      <h1>${icon("shield")} إرشادات طبية</h1>
+      <p>نصائح وإجابات موثوقة لأكثر الأسئلة الصحية شيوعاً. للحالات الطارئة اتصل بالإسعاف فوراً.</p>
     </div>
   </section>
-<div class="container page-wrap">
-  <div class="form-card" style="max-width:720px;margin:0 auto 24px">
-    <div class="field">
-      <label for="askQ" style="font-size:18px">سؤالك</label>
-      <input id="askQ" type="text" placeholder="اكتب سؤالك هنا…" style="font-size:18px;margin-bottom:16px" />
+  <div class="container page-wrap">
+    <div class="guides-panel">
+      <div class="guides-tools">
+        <div class="search-field" style="flex:1 1 260px;min-width:220px">${icon("search")}<input id="askQ" type="search" placeholder="ابحث في الإرشادات الطبية…" value="${esc(state.askQuery || "")}" aria-label="بحث في الإرشادات" /></div>
+        <div class="guides-cats" id="askCats">${chips}</div>
+      </div>
+      <div class="faq-list" id="faqList"></div>
+      <div class="guides-note">${icon("info")} هذه الإرشادات للتوعية العامة ولا تغني عن مراجعة الطبيب أو الصيدلي.</div>
     </div>
-    <button id="askSearchBtn" class="btn btn-primary btn-block" type="button" style="font-size:18px;padding:14px">${icon("search")} بحث</button>
-  </div>
-
-<div class="my-questions" id="myQuestions"></div>
-  <div class="form-card" style="max-width:720px;margin:24px auto 0">
-    <form id="askForm" class="form-grid" novalidate>
-      <div class="field">
-        <label for="aqText" style="font-size:18px"> neutrally سؤال جديد</label>
-        <textarea id="aqText" placeholder="اكتب سؤالك هنا…" required style="font-size:18px;min-height:120px"></textarea>
-      </div>
-      <div class="field">
-        <label for="aqPhone">رقم الهاتف (اختياري)</label>
-        <input id="aqPhone" type="tel" inputmode="tel" placeholder="09XX XXX XXX" dir="ltr" style="text-align:end;font-size:18px" />
-      </div>
-      <button class="btn btn-primary btn-block" type="submit" style="font-size:18px;padding:14px">${icon("send")} neutrally</button>
-    </form>
   </div>`;
 }
-
 function applyFaq() {
   const list = $("#faqList");
   if (!list) return;
@@ -937,90 +925,30 @@ function applyFaq() {
         <summary><span class="acc-q">؟</span> ${esc(f.q)} <span class="acc-cat">${esc(f.cat)}</span>${icon("chevDown", "chev")}</summary>
         <div class="acc-body"><p>${esc(f.a)}</p></div>
       </details>`).join("")
-    : `<div class="empty-state">${icon("search")}<h3>لا توجد إجابة مطابقة</h3><p>جرّب كلمات أخرى أو أرسل سؤالك من النموذج المجاور.</p></div>`;
+    : `<div class="empty-state">${icon("search")}<h3>لا توجد إرشادات مطابقة</h3><p>جرّب كلمات أخرى أو اختر تصنيفاً مختلفاً.</p></div>`;
 }
 
-function myQuestionsHtml() {
-  let arr = [];
-  try { arr = JSON.parse(localStorage.getItem("ds-questions") || "[]"); } catch (_) {}
-  if (!arr.length) return "";
-  return `
-    <h3 style="font-size:16px">${icon("doc")} أسئلتي المرسلة</h3>
-    ${arr.map((q, i) => `
-      <div class="my-q-item">
-        <p>${esc(q.text)}
-          <span class="my-q-meta">${esc(q.date)} · <strong style="color:var(--accent-600)">قيد المراجعة</strong></span>
-        </p>
-        <button class="my-q-del" type="button" data-del-q="${i}" title="حذف السؤال" aria-label="حذف السؤال">${icon("x")}</button>
-      </div>`).join("")}`;
-}
+function myQuestionsHtml(){return "";}
 
 function bindAsk() {
-  const q = $("#askQ");
-  if (q) q.addEventListener("input", () => { state.askQuery = q.value; });
-
-  /* Fleming: click a suggested chip to populate search */
-  $$(".suggested-chip").forEach((c) =>
-    c.addEventListener("click", () => {
-      const text = c.getAttribute("data-q") || "";
-      if (q) q.value = text;
-      state.askQuery = text;
-      const btn = $("#askSearchBtn");
-      if (btn) btn.click();
-    }));
-
-  const btn = $("#askSearchBtn");
-  if (btn) btn.addEventListener("click", () => {
-    const v = q ? q.value.trim() : "";
-    if (!v) { showToast("اكتب سؤالاً أو اختر من مقترحات", "warn"); return; }
-    state.askQuery = v;
-    const url = "#/search?q=" + encodeURIComponent(v);
-    location.hash = url;
+  const q = document.getElementById("askQ");
+  if (q) q.addEventListener("input", function(){ state.askQuery = q.value; applyFaq(); });
+  const cats = document.getElementById("askCats");
+  if (cats) cats.addEventListener("click", function(ev){
+    var b = ev.target.closest("[data-ask-cat]"); if (!b) return;
+    state.askCat = b.getAttribute("data-ask-cat") || "الكل";
+    bindAskRenderCats();
+    applyFaq();
   });
-
-  const form = $("#askForm");
-  if (form) form.addEventListener("submit", async (ev) => {
-    ev.preventDefault();
-    const text = $("#aqText").value.trim();
-    if (text.length < 10) { showToast("اكتب سؤالاً أوضح (10 أحرف على الأقل)", "warn"); return; }
-    const nameEl = $("#aqName");
-const nameVal = nameEl ? nameEl.value.trim() : "";
-    const phoneVal = $("#aqPhone").value.trim();
-    let arr = [];
-    try { arr = JSON.parse(localStorage.getItem("ds-questions") || "[]"); } catch (_) {}
-    arr.unshift({
-      text,
-      name: nameVal,
-      phone: phoneVal,
-      date: new Date().toLocaleDateString("ar-SY"),
-    });
-    localStorage.setItem("ds-questions", JSON.stringify(arr.slice(0, 20)));
-    form.reset();
-    $("#myQuestions").innerHTML = myQuestionsHtml();
-    const sent = await supabaseInsert("questions", { name: nameVal, phone: phoneVal, question: text });
-    showToast(
-      sent ? "تم استلام سؤالك — سيُراجع قريباً" : "حُفظ سؤالك محلياً (تعذّر الاتصال بالخادم)",
-      sent ? "ok" : "warn",
-    );
-  });
-
-  const mq = $("#myQuestions");
-  if (mq) {
-    mq.innerHTML = myQuestionsHtml();
-    mq.addEventListener("click", (ev) => {
-      const del = ev.target.closest("[data-del-q]");
-      if (!del) return;
-      let arr = [];
-      try { arr = JSON.parse(localStorage.getItem("ds-questions") || "[]"); } catch (_) {}
-      arr.splice(Number(del.getAttribute("data-del-q")), 1);
-      localStorage.setItem("ds-questions", JSON.stringify(arr));
-      mq.innerHTML = myQuestionsHtml();
-      showToast("تم حذف السؤال");
-    });
-  }
+  bindAskRenderCats();
+  applyFaq();
+}
+function bindAskRenderCats(){
+  var cats = document.getElementById("askCats"); if (!cats) return;
+  var all = ["الكل"].concat(Array.from(new Set((FAQ||[]).map(function(f){return f.cat;}).filter(Boolean))));
+  cats.innerHTML = all.map(function(c){ return '<button class="guide-cat-chip'+(c === (state.askCat||"الكل") ? ' is-active' : '')+'" type="button" data-ask-cat="'+esc(c)+'">'+esc(c)+'</button>'; }).join("");
 }
 
-/* ================= العرض: نتائج البحث (نمط SearchPage) ================= */
 function viewSearch(params) {
   const q = params.get("q") || "";
   const { entities, faqs } = searchAll(q);
