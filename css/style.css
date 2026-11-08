@@ -2051,3 +2051,8 @@ a.entity-card:hover { color: var(--ink); }
 .detail-hero .chips-lg .mini-tag { color: var(--ink, #111827); }
 .detail-hero .info-box small,
 .detail-hero .map-note { color: var(--muted, #4b5563); }
+
+/* Ask FAQ spacing */
+.faq-list{display:flex;flex-direction:column;gap:10px;}
+.faq-list .acc-item{margin:0;}
+
