@@ -755,9 +755,8 @@ function bindList(type) {
 function viewOncall(params) {
   const raw = params.get("day");
   const parsed = raw === null || raw === "" ? NaN : parseInt(raw, 10);
-  const day = Number.isNaN(parsed) ? state.oncallDay : Math.min(6, Math.max(0, parsed));
+  const today = todayIdx(); let day = Number.isNaN(parsed) ? today : Math.min(6, Math.max(0, parsed)); if (raw === null || raw === "") day = today;
   state.oncallDay = day;
-  const today = todayIdx();
   const list = oncallPharmacies(DAYS[day]);
   const note = day === today
     ? "هذه صيدليات المناوبة اليوم — اتصل قبل التوجه للتأكد من توفر الدواء المطلوب."
@@ -765,7 +764,7 @@ function viewOncall(params) {
 
   const tabs = DAYS.map((d, i) => `
     <button class="day-tab ${i === day ? "active" : ""}" type="button" data-day="${i}">
-      ${d}${i === today ? '<span class="t-badge">اليوم</span>' : ""}
+      ${d}${i === today ? '<span class="t-badge">اليوم</span>' : i === (today + 1) % 7 ? '<span class="t-badge t-badge-tomorrow">غداً</span>' : ""}
     </button>`).join("");
 
   const cards = list.length ? list.map((p) => oncallCard(p)).join("")
@@ -775,15 +774,15 @@ return `
   <section class="page-hero">
     <div class="container">
       <nav class="breadcrumb" aria-label="مسار التنقل">
-        <a href="#/">الPrincipal</a> ${icon("chevLeft")} <a href="#/pharmacies">الsidliات</a> ${icon("chevLeft")} <span>المناوبة</span>
+        <a href="#/">الرئيسية</a> ${icon("chevLeft")} <a href="#/pharmacies">الصيدليات</a> ${icon("chevLeft")} <span>المناوبة</span>
       </nav>
-      <h1>${icon("ambulance")} sidliات المناظرة</h1>
-      <p>جدول المناظرة Weekly لsidliات مدينة صوران. اختر اليوم لعرض sidliات التي تعمل خارج أوقات الدوام.</p>
+      <h1>${icon("ambulance")} الصيدليات المناوبة</h1>
+      <p>جدول المناوبة الأسبوعي لصيدليات مدينة صوران. اختر اليوم لعرض الصيدليات المناوبة.</p>
     </div>
   </section>
   <div class="container oncall-page" style="padding:26px 0 56px">
     <div class="day-tabs" role="tablist" aria-label="أيام الأسبوع">${tabs}</div>
-    <div class="cards-grid" style="margin-top:20px">${cards}</div>
+    <div id="oncallDayNote" class="guides-note" style="margin:14px 0 0">${icon("info")} ${esc(DAYS[day])}${day === today ? " (اليوم)" : day === (today + 1) % 7 ? " (غداً)" : ""} — ${esc(day === today ? "صيدليات المناوبة اليوم — اتصل قبل التوجه." : day === (today + 1) % 7 ? "صيدليات المناوبة ليوم غد — اتصل قبل التوجه." : "صيدليات المناوبة لليوم المحدد — اتصل قبل التوجه.")}</div><div class="cards-grid" style="margin-top:18px">${cards}</div>
   </div>`;
 }
 
