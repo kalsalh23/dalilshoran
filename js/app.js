@@ -240,7 +240,7 @@ function placeholderFor(e) {
     var n = String(e.name || "");
     var female = /دكتورة|طبيبة|أنثى|female/i.test(n) || /لينا|سمر|هدى|رنا|آية|سارة|ريم|نور|ميساء|هبة|ميس|غادة|رهف|سناء|منى|إيمان|أمل/i.test(n);
     if (/أحمد|محمد|سمير|خالد|رامي|باسل|عماد|فادي|حسن|عمر|يوسف|علي|محمود|إبراهيم|عبد/i.test(n.replace(/^د\.?\s*/,'').split(/\s+/)[0]||"")) female = false;
-    return female ? "assets/placeholders/doctor-female.svg" : "assets/placeholders/doctor-male.svg";
+    return female ? "assets/placeholders/doctor-female.svg" : "assets/placeholders/doctor-male.jpg";
   }
   return "assets/placeholders/" + (e.type || "health-center") + ".svg";
 }
