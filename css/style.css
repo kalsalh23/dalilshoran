@@ -2038,20 +2038,16 @@ a.entity-card:hover { color: var(--ink); }
 .detail-avatar { overflow: hidden; padding: 0; }
 .detail-avatar > img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; }
 
-/* entity detail text: ensure readable dark color (not white) */
+/* entity detail text: readable colors (profile name white on hero background) */
 .detail-hero .detail-title h1,
 .detail-hero .detail-card h1,
+.detail-card .detail-title h1 { color: #fff; }
 .detail-hero .detail-title .sub,
 .detail-hero .detail-title p,
-.detail-card .detail-title h1,
-.detail-card .detail-title .sub,
-.detail-card .entity-badges { color: var(--ink, #111827); }
-.detail-hero .detail-title .sub,
-.detail-card .detail-title .sub { color: var(--muted, #4b5563); }
+.detail-card .detail-title .sub { color: rgba(255,255,255,.88); }
+.detail-card .entity-badges { color: inherit; }
 .detail-hero .info-box p,
-.detail-hero .info-box small,
 .detail-hero .note-box p,
-.detail-hero .detail-section,
 .detail-hero .chips-lg .mini-tag { color: var(--ink, #111827); }
 .detail-hero .info-box small,
 .detail-hero .map-note { color: var(--muted, #4b5563); }
