@@ -755,20 +755,26 @@ function bindList(type) {
 function viewOncall(params) {
   const raw = params.get("day");
   const parsed = raw === null || raw === "" ? NaN : parseInt(raw, 10);
-  const today = todayIdx(); let day = Number.isNaN(parsed) ? today : Math.min(6, Math.max(0, parsed)); if (raw === null || raw === "") day = today;
+  const today = todayIdx();
+  const tomorrow = (today + 1) % 7;
+  let day = Number.isNaN(parsed) ? today : Math.min(6, Math.max(0, parsed));
+  if (raw === null || raw === "") day = today;
+  if (day !== today && day !== tomorrow) day = today;
   state.oncallDay = day;
   const list = oncallPharmacies(DAYS[day]);
-  const note = day === today
-    ? "هذه صيدليات المناوبة اليوم — اتصل قبل التوجه للتأكد من توفر الدواء المطلوب."
-    : "هذه صيدليات المناوبة لليوم المحدد — قد تتغير الجدولة، تابع تحديثات الدليل.";
+  const isToday = day === today;
+  const note = isToday ? "صيدليات المناوبة اليوم — اتصل قبل التوجه للتأكد." : "صيدليات المناوبة ليوم غد — اتصل قبل التوجه للتأكد.";
 
-  const tabs = DAYS.map((d, i) => `
-    <button class="day-tab ${i === day ? "active" : ""}" type="button" data-day="${i}">
-      ${d}${i === today ? '<span class="t-badge">اليوم</span>' : i === (today + 1) % 7 ? '<span class="t-badge t-badge-tomorrow">غداً</span>' : ""}
+  const tabs = [
+    { i: today, label: DAYS[today], badge: "اليوم" },
+    { i: tomorrow, label: DAYS[tomorrow], badge: "غداً" },
+  ].map((d) => `
+    <button class="day-tab ${d.i === day ? "active" : ""}" type="button" data-day="${d.i}">
+      <span>${esc(d.label)}</span><span class="t-badge${d.i === tomorrow ? " t-badge-tomorrow" : ""}">${d.badge}</span>
     </button>`).join("");
 
   const cards = list.length ? list.map((p) => oncallCard(p)).join("")
-    : `<div class="empty-state">${icon("pill")}<h3>لا توجد صيدليات مناوبة مسجلة</h3><p>راجع جدول بقية الأيام أو تواصل مع الاستعلامات.</p></div>`;
+    : `<div class="empty-state">${icon("pill")}<h3>لا توجد صيدليات مناوبة مسجلة</h3><p>جرّب التبديل بين اليوم وغداً أو تواصل مع الاستعلامات.</p></div>`;
 
 return `
   <section class="page-hero">
@@ -777,15 +783,15 @@ return `
         <a href="#/">الرئيسية</a> ${icon("chevLeft")} <a href="#/pharmacies">الصيدليات</a> ${icon("chevLeft")} <span>المناوبة</span>
       </nav>
       <h1>${icon("ambulance")} الصيدليات المناوبة</h1>
-      <p>جدول المناوبة الأسبوعي لصيدليات مدينة صوران. اختر اليوم لعرض الصيدليات المناوبة.</p>
+      <p>جدول مناوبة الصيدليات في صوران — اختر اليوم أو غداً.</p>
     </div>
   </section>
   <div class="container oncall-page" style="padding:26px 0 56px">
-    <div class="day-tabs" role="tablist" aria-label="أيام الأسبوع">${tabs}</div>
-    <div id="oncallDayNote" class="guides-note" style="margin:14px 0 0">${icon("info")} ${esc(DAYS[day])}${day === today ? " (اليوم)" : day === (today + 1) % 7 ? " (غداً)" : ""} — ${esc(day === today ? "صيدليات المناوبة اليوم — اتصل قبل التوجه." : day === (today + 1) % 7 ? "صيدليات المناوبة ليوم غد — اتصل قبل التوجه." : "صيدليات المناوبة لليوم المحدد — اتصل قبل التوجه.")}</div><div class="cards-grid" style="margin-top:18px">${cards}</div>
+    <div class="day-tabs day-tabs-compact" role="tablist" aria-label="اليوم وغداً">${tabs}</div>
+    <div id="oncallDayNote" class="guides-note" style="margin:14px 0 0">${icon("info")} ${esc(DAYS[day])}${isToday ? " (اليوم)" : " (غداً)"} — ${esc(note)}</div>
+    <div class="cards-grid" style="margin-top:18px">${cards}</div>
   </div>`;
 }
-
 function bindOncall() {
   $$(".day-tab").forEach((b) =>
     b.addEventListener("click", () => {
