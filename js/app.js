@@ -192,9 +192,7 @@ function oncallCard(p) {
   return `
   <article class="oncall-card" data-go="#/entity/${p.id}" tabindex="0" role="link" aria-label="${esc(p.name)}">
     <div class="oc-media">
-      ${p.image_url
-        ? `<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" />`
-        : `<div class="oc-media-fallback">${icon("pill")}</div>`}
+      <img src="${esc(placeholderFor(p))}" alt="${esc(p.name)}" loading="lazy" />
     </div>
     <div class="oc-body">
       <div class="oc-head">
