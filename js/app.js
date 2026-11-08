@@ -167,9 +167,7 @@ function featuredDoctorCarouselCard(d) {
   return `
   <article class="oncall-card featured-doc-card" data-go="#/entity/${d.id}" tabindex="0" role="link" aria-label="${esc(d.name)}">
     <div class="oc-media featured-doc-media">
-      ${d.image_url
-        ? `<img src="${esc(d.image_url)}" alt="${esc(d.name)}" loading="lazy" />`
-        : `<div class="oc-media-fallback">${icon(t.icon || "steth")}</div>`}
+      <img src="${esc(placeholderFor(d))}" alt="${esc(d.name)}" loading="lazy" />
     </div>
     <div class="oc-body">
       <div class="oc-head">
