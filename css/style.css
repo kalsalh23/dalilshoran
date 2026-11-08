@@ -1288,7 +1288,7 @@ a.entity-card:hover { color: var(--ink); }
   .f-links { gap: 9px; }
   .f-bottom {
     flex-direction: column; align-items: center; gap: 8px;
-    margin-top: 24px; padding: 16px 0 calc(18px + env(safe-area-inset-bottom, 0px)); text-align: center;
+    margin-top: 16px; padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px)); text-align: center;
   }
 }
 
