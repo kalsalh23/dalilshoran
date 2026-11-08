@@ -238,7 +238,7 @@ function placeholderFor(e) {
     if (/أحمد|محمد|سمير|خالد|رامي|باسل|عماد|فادي|حسن|عمر|يوسف|علي|محمود|إبراهيم|عبد/i.test(n.replace(/^د\.?\s*/,'').split(/\s+/)[0]||"")) female = false;
     return female ? "assets/placeholders/doctor-female.jpg" : "assets/placeholders/doctor-male.jpg";
   }
-  var map={pharmacy:"assets/placeholders/pharmacy.jpg",hospital:"assets/placeholders/hospital.jpg",lab:"assets/placeholders/lab.svg",radiology:"assets/placeholders/radiology.svg","health-center":"assets/placeholders/health-center.svg"}; return map[e.type] || ("assets/placeholders/" + (e.type || "health-center") + ".svg");
+  var map={pharmacy:"assets/placeholders/pharmacy.jpg",hospital:"assets/placeholders/hospital.jpg",lab:"assets/placeholders/lab.jpg",radiology:"assets/placeholders/radiology.svg","health-center":"assets/placeholders/health-center.svg"}; return map[e.type] || ("assets/placeholders/" + (e.type || "health-center") + ".svg");
 }
 
 function routeSlug(type){return ({ doctor:'doctors', pharmacy:'pharmacies', hospital:'hospitals', lab:'labs', radiology:'radiology', 'health-center':'health-centers' }[type]);}
