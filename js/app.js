@@ -110,7 +110,7 @@ function entityCard(e, { rank = false, hours = false, image = false } = {}) {
   <article class="entity-card" data-go="#/entity/${e.id}" style="--tc:${t.color}" tabindex="0" role="link" aria-label="${esc(e.name)}">
     ${e.featured && rank !== false && e.rank ? `<span class="rank-ribbon">${icon("star")} ${fmtNum(e.rank)}</span>` : ""}
     <div class="ec-flex">
-      <div class="ec-media">${e.image_url ? `<img src="${esc(e.image_url)}" alt="${esc(e.name)}" loading="lazy" />` : icon(t.icon)}</div>
+      <div class="ec-media"><img src="${esc(placeholderFor(e))}" alt="${esc(e.name)}" loading="lazy" /></div>
       <div class="ec-body">
         <p class="ec-name">${esc(e.name)}</p>
         <p class="ec-spec"><span class="ec-dot"></span>${esc(e.spec || t.label)}</p>
@@ -141,7 +141,7 @@ function entityCardMin(e, { rank = false } = {}) {
   <article class="entity-card entity-card--min" data-go="#/entity/${e.id}" style="--tc:${t.color}" tabindex="0" role="link" aria-label="${esc(e.name)}">
     ${e.featured && rank !== false && e.rank ? `<span class="rank-ribbon">${icon("star")} ${fmtNum(e.rank)}</span>` : ""}
     <div class="ec-min">
-      <div class="ec-media ec-media--lg">${e.image_url ? `<img src="${esc(e.image_url)}" alt="${esc(e.name)}" loading="lazy" />` : icon(t.icon)}</div>
+      <div class="ec-media ec-media--lg"><img src="${esc(placeholderFor(e))}" alt="${esc(e.name)}" loading="lazy" /></div>
       <div class="ec-min-body">
         <p class="ec-name">${esc(e.name)}</p>
         <p class="ec-spec"><span class="ec-dot"></span>${esc(e.spec || t.label)}</p>
@@ -231,6 +231,18 @@ document.addEventListener("keydown", (ev) => {
 
 function isOnCallToday(id) {
   return (ONCALL[DAYS[todayIdx()]] || []).includes(id);
+}
+
+function placeholderFor(e) {
+  if (!e) return "assets/placeholders/health-center.svg";
+  if (e.image_url) return e.image_url;
+  if (e.type === "doctor") {
+    var n = String(e.name || "");
+    var female = /دكتورة|طبيبة|أنثى|female/i.test(n) || /لينا|سمر|هدى|رنا|آية|سارة|ريم|نور|ميساء|هبة|ميس|غادة|رهف|سناء|منى|إيمان|أمل/i.test(n);
+    if (/أحمد|محمد|سمير|خالد|رامي|باسل|عماد|فادي|حسن|عمر|يوسف|علي|محمود|إبراهيم|عبد/i.test(n.replace(/^د\.?\s*/,'').split(/\s+/)[0]||"")) female = false;
+    return female ? "assets/placeholders/doctor-female.svg" : "assets/placeholders/doctor-male.svg";
+  }
+  return "assets/placeholders/" + (e.type || "health-center") + ".svg";
 }
 
 function routeSlug(type){return ({ doctor:'doctors', pharmacy:'pharmacies', hospital:'hospitals', lab:'labs', radiology:'radiology', 'health-center':'health-centers' }[type]);}
@@ -824,7 +836,7 @@ function viewEntity(id) {
       <div class="detail-card" style="--tc:${t.color}">
         <div class="detail-banner"></div>
         <div class="detail-main">
-          <span class="detail-avatar" style="--tc:${t.color}">${e.image_url ? `<img src="${esc(e.image_url)}" alt="${esc(e.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />` : icon(t.icon)}</span>
+          <span class="detail-avatar" style="--tc:${t.color}"><img src="${esc(placeholderFor(e))}" alt="${esc(e.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" /></span>
           <div class="detail-title">
             <h1>${esc(e.name)}</h1>
             <p class="sub">${e.spec ? esc(e.spec) + " — " : ""}${esc(e.degree || t.label)}${e.owner ? " · " + esc(e.owner) : ""}</p>

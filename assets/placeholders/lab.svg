@@ -1,0 +1,8 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="مخبر">
+  <rect width="256" height="256" rx="28" fill="#eff6ff"/>
+  <path d="M98 56h60v20l-12 14v42l34 58a20 20 0 0 1-17 30H93a20 20 0 0 1-17-30l34-58V90L98 76z" fill="#ffffff" stroke="#0284c7" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M90 170h76" stroke="#bae6fd" stroke-width="10" stroke-linecap="round"/>
+  <path d="M104 188c10-8 18 8 28 0s18 8 28 0" fill="none" stroke="#0284c7" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="118" cy="156" r="6" fill="#38bdf8"/>
+  <circle cx="140" cy="144" r="5" fill="#38bdf8"/>
+</svg>

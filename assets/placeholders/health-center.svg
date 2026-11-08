@@ -1,0 +1,6 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="مركز صحي">
+  <rect width="256" height="256" rx="28" fill="#ecfeff"/>
+  <path d="M128 54l72 40v92a18 18 0 0 1-18 18H74a18 18 0 0 1-18-18V94z" fill="#ffffff" stroke="#0891b2" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M128 110v54M101 137h54" stroke="#0891b2" stroke-width="12" stroke-linecap="round"/>
+  <path d="M128 54v32" stroke="#0891b2" stroke-width="6" opacity=".4"/>
+</svg>

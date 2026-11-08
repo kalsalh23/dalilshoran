@@ -1,0 +1,8 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="طبيب">
+  <rect width="256" height="256" rx="28" fill="#e8f4ff"/>
+  <circle cx="128" cy="86" r="34" fill="#f2c9a0"/>
+  <path d="M92 78c4-22 20-36 36-36s32 14 36 36c-10 4-22 6-36 6s-26-2-36-6z" fill="#3b4558"/>
+  <rect x="62" y="128" width="132" height="96" rx="24" fill="#ffffff" stroke="#2563eb" stroke-width="6"/>
+  <path d="M128 150v48M104 174h48" stroke="#2563eb" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="128" cy="122" r="8" fill="#3b4558"/>
+</svg>
