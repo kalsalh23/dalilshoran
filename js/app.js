@@ -119,7 +119,7 @@ function entityCard(e, { rank = false, hours = false, image = false } = {}) {
         ${hours ? `<p class="ec-hours">${icon("clock")} ${esc(e.hours)}</p>` : ""}
         <div class="ec-meta2">
           ${e.phone ? `<span class="ec-phone" dir="ltr">${icon("phone")} ${fmtPhone(e.phone)}</span>` : ""}
-          <a class="ec-map" data-stop href="${mapsLink(e.lat, e.lng, addr)}" target="_blank" rel="noopener">${icon("pin")} الموقع</a>
+          ${e.type === "doctor" ? "" : `<a class="ec-map" data-stop href="${mapsLink(e.lat, e.lng, addr)}" target="_blank" rel="noopener">${icon("pin")} الموقع</a>`}
         </div>
       </div>
       <div class="ec-side">
@@ -834,7 +834,7 @@ function viewEntity(id) {
         <div class="detail-actions">
           <a class="btn btn-primary" href="${telHref(e.phone)}">${icon("phone")} اتصال</a>
           ${e.whatsapp ? `<a class="btn btn-ghost" href="${waHref(e.phone)}" target="_blank" rel="noopener">${icon("chat")} واتساب</a>` : ""}
-          ${e.type !== "pharmacy" ? `<a class="btn btn-outline" href="${mapsLink(e.lat, e.lng, e.address)}" target="_blank" rel="noopener">${icon("pin")} الموقع</a>` : ""}
+          ${(e.type !== "pharmacy" && e.type !== "doctor") ? `<a class="btn btn-outline" href="${mapsLink(e.lat, e.lng, e.address)}" target="_blank" rel="noopener">${icon("pin")} الموقع</a>` : ""}
           ${e.type !== "pharmacy" ? `<button class="btn btn-ghost" type="button" data-copy="${esc(e.phone)}">${icon("copy")} نسخ الرقم</button>` : ""}
           <button class="btn btn-ghost btn-icon" type="button" id="btnShare" title="مشاركة" aria-label="مشاركة">${icon("share")}</button>
         </div>
@@ -866,12 +866,12 @@ function viewEntity(id) {
       <div class="section-head"><div><h2>${e.type === "doctor" ? "التخصصات والخدمات" : "الخدمات المتوفرة"}</h2></div></div>
       <div class="chips-lg">${services}</div>
     </div>` : ""}
-
+    ${e.type === "doctor" ? "" : `
     <div class="detail-section">
       <div class="section-head"><div><h2>الموقع على الخريطة</h2><p>${esc(e.area)} — ${esc(e.address)}</p></div></div>
       <div class="map-wrap"><div id="entityMap"></div></div>
       <p class="map-note">${icon("info")} الموقع تقريبي — استخدم تطبيق الخرائط على هاتفك للوصول الدقيق.</p>
-    </div>
+    </div>`}
 
   </div>`;
 }
@@ -879,7 +879,7 @@ function viewEntity(id) {
 function afterEntity(id) {
   const e = entityById(id);
   if (!e) return;
-  mountMap("entityMap", [e]);
+  if (e.type !== "doctor" && document.getElementById("entityMap")) mountMap("entityMap", [e]);
   const share = $("#btnShare");
   if (share) share.addEventListener("click", async () => {
     const url = location.href;
