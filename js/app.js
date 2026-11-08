@@ -1867,6 +1867,14 @@ function showBootError(err) {
 }
 window.addEventListener("error", function(e){ try{ showBootError(e && (e.error || e.message)); }catch(_){} });
 window.addEventListener("unhandledrejection", function(e){ try{ showBootError(e && e.reason); }catch(_){} });
+function hideSplash() {
+  var el = document.getElementById("splashScreen");
+  if (!el || el.__hidden) return;
+  el.__hidden = true;
+  el.classList.add("is-hidden");
+  setTimeout(function(){ if (el && el.parentNode) el.parentNode.removeChild(el); }, 500);
+}
+function scheduleSplash() { setTimeout(hideSplash, 3000); }
 /* ================= الإقلاع ================= */
 (async function boot() {
   try {
