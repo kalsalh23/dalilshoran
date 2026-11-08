@@ -903,9 +903,12 @@ function viewAsk() {
   </section>
   <div class="container page-wrap">
     <div class="guides-panel">
-      <div class="guides-tools">
-        <div class="search-field" style="flex:1 1 260px;min-width:220px">${icon("search")}<input id="askQ" type="search" placeholder="ابحث في الإرشادات الطبية…" value="${esc(state.askQuery || "")}" aria-label="بحث في الإرشادات" /></div>
-        <div class="guides-cats" id="askCats">${chips}</div>
+      <div class="guides-search-wrap">
+        <label class="guides-search" for="askQ">
+          <span class="guides-search-ic" aria-hidden="true">${icon("search")}</span>
+          <input id="askQ" type="search" placeholder="ابحث عن سؤال أو عرض صحي…" value="${esc(state.askQuery || "")}" aria-label="بحث في الإرشادات الطبية" autocomplete="off" />
+        </label>
+        <div class="guides-cats" id="askCats" aria-label="تصنيفات الإرشادات">${chips}</div>
       </div>
       <div class="faq-list" id="faqList"></div>
       <div class="guides-note">${icon("info")} هذه الإرشادات للتوعية العامة ولا تغني عن مراجعة الطبيب أو الصيدلي.</div>
@@ -922,7 +925,7 @@ function applyFaq() {
   list.innerHTML = items.length
     ? items.map((f) => `
       <details class="acc-item">
-        <summary><span class="acc-q">؟</span> ${esc(f.q)} <span class="acc-cat">${esc(f.cat)}</span>${icon("chevDown", "chev")}</summary>
+        <summary><span class="acc-q">؟</span> <span class="acc-q-text">${esc(f.q)}</span>${icon("chevDown", "chev")}</summary>
         <div class="acc-body"><p>${esc(f.a)}</p></div>
       </details>`).join("")
     : `<div class="empty-state">${icon("search")}<h3>لا توجد إرشادات مطابقة</h3><p>جرّب كلمات أخرى أو اختر تصنيفاً مختلفاً.</p></div>`;
