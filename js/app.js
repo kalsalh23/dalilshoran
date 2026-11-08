@@ -542,100 +542,50 @@ function bindFeaturedDoctorsCarousel() {
   restart();
 }
 function bindOncallCarousel() {
-  const carousel = $("#oncallCarousel");
+  const carousel = document.getElementById("oncallCarousel");
   if (!carousel) return;
   const track = carousel.querySelector(".oc-track");
   const cards = track ? Array.from(track.querySelectorAll(":scope > article")) : [];
   const total = Number(carousel.getAttribute("data-total") || cards.length);
-  if (total === 0) return;
+  const dotsEl = document.getElementById("oncallDots");
+  if (!track || total === 0) return;
 
-  const dotsEl = $("#oncallDots");
+  const getVisible = () => (window.matchMedia("(max-width: 640px)").matches ? 1 : 2);
+  let index = 0;
+  const gap = () => { try { return parseFloat(getComputedStyle(track).gap) || 14; } catch(_){ return 14; } };
+  const maxIndex = () => Math.max(0, total - getVisible());
+  const cardW = () => cards[0] ? cards[0].getBoundingClientRect().width : 0;
+  const renderDots = () => {
+    if (!dotsEl) return;
+    const v = getVisible();
+    const pages = Math.max(1, Math.ceil(total / v));
+    dotsEl.innerHTML = Array.from({ length: pages }, (_, i) =>
+      `<button class="scroll-dot ${i === 0 ? "active" : ""}" type="button" data-i="${i}" aria-label="صفحة ${i + 1}"></button>`).join("");
+  };
+  const setIndex = (i) => {
+    index = Math.max(0, Math.min(maxIndex(), i));
+    const w = cardW();
+    const dir = (document.dir || document.documentElement.dir || "rtl") === "rtl" ? 1 : -1;
+    track.style.transform = w ? `translateX(${dir * index * (w + gap())}px)` : "none";
+    if (!dotsEl) return;
+    const v = getVisible();
+    const pages = Math.max(1, dotsEl.querySelectorAll(".scroll-dot").length);
+    const activePage = Math.min(Math.floor(index / v), pages - 1);
+    dotsEl.querySelectorAll(".scroll-dot").forEach((d, j) => d.classList.toggle("active", j === activePage));
+  };
+  renderDots(); setIndex(0);
+  if (dotsEl) dotsEl.addEventListener("click", (e) => { const b = e.target.closest("[data-i]"); if (!b) return; setIndex(Number(b.dataset.i) * getVisible()); restart(); });
   const prevBtn = carousel.querySelector(".oc-arrow-prev");
   const nextBtn = carousel.querySelector(".oc-arrow-next");
-
-  const visible = 2;
-  const gap = 14;
-  // each step advances by one full page (2 cards)
-  const advance = () => cards[0].offsetWidth * visible + gap * (visible - 1);
-  const maxIndex = Math.max(0, total - visible);
-
-  let index = 0;
-
-  const renderDots = () => {
-    const pages = Math.ceil(total / visible);
-    dotsEl.innerHTML = Array.from({ length: pages }, (_, i) =>
-      `<button class="scroll-dot ${i === 0 ? "active" : ""}" data-i="${i}" aria-label="الصفحة ${i + 1}"></button>`).join("");
-  };
-
-  const setIndex = (i) => {
-    index = Math.max(0, Math.min(maxIndex, i));
-    track.style.transform = `translateX(${-index * advance()}px)`;
-    const activePage = Math.floor(index / visible);
-    dotsEl.querySelectorAll(".scroll-dot").forEach((d, i) =>
-      d.classList.toggle("active", i === activePage));
-    prevBtn.setAttribute("aria-disabled", index === 0 ? "true" : "false");
-    nextBtn.setAttribute("aria-disabled", index === maxIndex ? "true" : "false");
-  };
-
-  const next = () => setIndex(index + visible);
-  const prev = () => setIndex(index - visible);
-
-  nextBtn.addEventListener("click", () => { next(); restartAuto(); });
-  prevBtn.addEventListener("click", () => { prev(); restartAuto(); });
-  dotsEl.addEventListener("click", (ev) => {
-    const b = ev.target.closest(".scroll-dot");
-    if (!b) return;
-    setIndex(+b.dataset.i * visible);
-    restartAuto();
-  });
-
-  track.addEventListener("mouseenter", () => pauseAuto());
-  track.addEventListener("touchstart", () => pauseAuto(), { passive: true });
-  carousel.addEventListener("mouseleave", () => restartAuto());
-
-  renderDots();
-  setIndex(0);
-
-  let autoTimer = null;
-  function startAuto() {
-    pauseAuto();
-    autoTimer = setInterval(next, 10000);
-  }
-  function pauseAuto() { if (autoTimer) { clearInterval(autoTimer); autoTimer = null; } }
-  function restartAuto() { startAuto(); }
-  startAuto();
+  if (prevBtn) prevBtn.addEventListener("click", () => { setIndex(index - getVisible()); restart(); });
+  if (nextBtn) nextBtn.addEventListener("click", () => { setIndex(index + getVisible()); restart(); });
+  let timer = null;
+  const restart = () => { clearInterval(timer); if (maxIndex() > 0) timer = setInterval(() => setIndex(index >= maxIndex() ? 0 : index + getVisible()), 6000); };
+  carousel.addEventListener("mouseenter", () => clearInterval(timer));
+  carousel.addEventListener("mouseleave", restart);
+  window.addEventListener("resize", () => { renderDots(); setIndex(Math.min(index, maxIndex())); restart(); }, { passive: true });
+  restart();
 }
-
-/* Fleming: carousel dot indicators — show how many cards are visible and which is active */
-function bindScrollDots(scrollId, dotsId) {
-  const scroll = $("#" + scrollId);
-  const dots = $("#" + dotsId);
-  if (!scroll || !dots) return;
-  const count = scroll.querySelectorAll(":scope > *").length;
-  if (count < 2) return;
-  const html = Array.from({ length: count }, (_, i) =>
-    `<button class="scroll-dot" data-i="${i}" aria-label="العنصر ${i + 1}" ${i === 0 ? "aria-current=\"true\"" : ""}></button>`).join("");
-  dots.innerHTML = html;
-  const update = () => {
-    const cardWidth = scroll.querySelector(":scope > *").offsetWidth;
-    const left = scroll.scrollLeft;
-    const idx = Math.round(left / (cardWidth + 14));
-    dots.querySelectorAll(".scroll-dot").forEach((d, i) => {
-      const on = i === idx;
-      d.classList.toggle("active", on);
-      d.setAttribute("aria-current", on ? "true" : "false");
-    });
-  };
-  scroll.addEventListener("scroll", update, { passive: true });
-  dots.addEventListener("click", (ev) => {
-    const b = ev.target.closest(".scroll-dot");
-    if (!b) return;
-    const i = +b.dataset.i;
-    const cardWidth = scroll.querySelector(":scope > *").offsetWidth;
-    scroll.scrollTo({ left: i * (cardWidth + 14), behavior: "smooth" });
-  });
-}
-
 /* ================= العرض: قوائم الجهات ================= */
 const TYPE_INTRO = {
   doctor: "عيادات وأطباء داخل مدينة صوران مع التخصصات وأوقات العمل وأرقام الاتصال المباشر.",
