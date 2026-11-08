@@ -244,7 +244,12 @@ function placeholderFor(e) {
 function routeSlug(type){return ({ doctor:'doctors', pharmacy:'pharmacies', hospital:'hospitals', lab:'labs', radiology:'radiology', 'health-center':'health-centers' }[type]);}
 function entitiesByType(type){return (ENTITIES||[]).filter(function(e){return e&&e.type===type;});}
 function featuredBy(type,limit){var l=entitiesByType(type).filter(function(e){return e&&e.featured;}).sort(function(a,b){return (a.rank||99)-(b.rank||99);}); return typeof limit==='number'?l.slice(0,limit):l;}
-function oncallPharmacies(dayName){var ids=(ONCALL&&ONCALL[dayName])?ONCALL[dayName]:[]; return ids.map(function(id){return (ENTITIES||[]).find(function(e){return e&&e.id===id;});}).filter(Boolean);}
+function isoDateLocal(d){ var dt=d?new Date(d):new Date(); var y=dt.getFullYear(),m=String(dt.getMonth()+1).padStart(2,"0"),da=String(dt.getDate()).padStart(2,"0"); return y+"-"+m+"-"+da; }
+function oncallPharmaciesForDate(dateStr){ var s=window.ONCALL_SCHEDULE||[]; var ids=s.filter(function(r){return r && r.day===dateStr;}).map(function(r){return r.pharmacy_id;}); return ids.map(function(id){return (ENTITIES||[]).find(function(e){return e&&e.id===id;});}).filter(Boolean); }
+function oncallPharmacies(dayName, dateStr){
+  if(dateStr){ var byDate=oncallPharmaciesForDate(dateStr); if(byDate.length) return byDate; }
+  var ids=(ONCALL&&ONCALL[dayName])?ONCALL[dayName]:[]; return ids.map(function(id){return (ENTITIES||[]).find(function(e){return e&&e.id===id;});}).filter(Boolean);
+}
 
 
 /* ================= البحث ================= */
@@ -360,7 +365,7 @@ function viewHome() {
     ? featuredDoctors.map((d) => featuredDoctorCarouselCard(d)).join("")
     : `<p class="oncall-empty">لا يوجد أطباء مميزون حالياً.</p>`;
   const featuredPharmacies = (typeof featuredBy === "function" ? featuredBy("pharmacy", 5) : ENTITIES.filter((e)=>e && e.type==="pharmacy").slice(0,5)).map((p) => entityCardMin(p, { rank: true })).join("");
-  const todayOncall = typeof oncallPharmacies === "function" ? oncallPharmacies(todayName) : [];
+  const todayOncall = typeof oncallPharmacies === "function" ? oncallPharmacies(todayName, isoDateLocal(new Date())) : [];
   const legend = Object.entries(TYPES).map(([k, t]) => `<span class="legend-item"><i style="--c:${t.color}"></i>${t.plural}</span>`).join("");
 
   return `
@@ -716,14 +721,16 @@ function viewOncall(params) {
   const parsed = raw === null || raw === "" ? NaN : parseInt(raw, 10);
   const today = todayIdx();
   const tomorrow = (today + 1) % 7;
+  const todayDate = isoDateLocal(new Date());
+  const tomorrowDate = isoDateLocal(new Date(Date.now() + 86400000));
   let day = Number.isNaN(parsed) ? today : Math.min(6, Math.max(0, parsed));
   if (raw === null || raw === "") day = today;
   if (day !== today && day !== tomorrow) day = today;
   state.oncallDay = day;
-  const list = oncallPharmacies(DAYS[day]);
+  const dayDate = day === today ? todayDate : tomorrowDate;
+  const list = oncallPharmacies(DAYS[day], dayDate);
   const isToday = day === today;
   const note = isToday ? "صيدليات المناوبة اليوم — اتصل قبل التوجه للتأكد." : "صيدليات المناوبة ليوم غد — اتصل قبل التوجه للتأكد.";
-
   const tabs = [
     { i: today, label: DAYS[today], badge: "اليوم" },
     { i: tomorrow, label: DAYS[tomorrow], badge: "غداً" },
@@ -1268,11 +1275,17 @@ async function loadRemoteData() {
       .then((r) => (r.ok ? r.json() : null))
       .catch(() => null);
 
-  const [ent, onc, faq, ads] = await Promise.all([
+  const now = new Date();
+  const y = now.getFullYear(), mo = now.getMonth();
+  const from = new Date(y, mo, 1).toISOString().slice(0,10);
+  const to = new Date(y, mo + 2, 0).toISOString().slice(0,10);
+  const [ent, onc, faq, ads, ocSched, settings] = await Promise.all([
     get("/rest/v1/entities?select=*&order=sort_order.asc,id.asc"),
     get("/rest/v1/oncall?select=*"),
     get("/rest/v1/faq?select=*&order=sort_order.asc,id.asc"),
     get("/rest/v1/ads?select=*&active=eq.true&order=sort_order.asc,created_at.asc"),
+    get("/rest/v1/oncall_schedule?select=*&day=gte." + from + "&day=lte." + to),
+    get("/rest/v1/app_settings?select=*"),
   ]);
 
   let used = false;
@@ -1291,6 +1304,7 @@ async function loadRemoteData() {
     Object.keys(ONCALL).forEach((k) => delete ONCALL[k]);
     Object.assign(ONCALL, next);
   }
+  window.ONCALL_SCHEDULE = Array.isArray(ocSched) ? ocSched : [];
   if (Array.isArray(faq) && faq.length) {
     FAQ.length = 0;
     FAQ.push(...faq);
@@ -1300,9 +1314,13 @@ async function loadRemoteData() {
     ADS.length = 0;
     ADS.push(...ads);
   }
+  if (Array.isArray(settings)) {
+    window.APP_SETTINGS = window.APP_SETTINGS || {};
+    settings.forEach(function(r){ if(r && r.key) window.APP_SETTINGS[r.key] = r.value; });
+    try { if (window.APP_SETTINGS.site && typeof window.APP_SETTINGS.site === "object") Object.assign(SITE, window.APP_SETTINGS.site); } catch(_){}
+  }
   return used;
 }
-
 /* شريط الإعلانات — يُستخدم في الرئيسية وصفحات التفاصيل */
 function adBanner(a) {
   return `

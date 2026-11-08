@@ -3,10 +3,11 @@
    ============================================================ */
 
 .adm-body { background: var(--subtle); }
+.adm-login[hidden], .adm-app[hidden] { display: none !important; }
 
 /* ---------- شاشة الدخول ---------- */
 .adm-login {
-  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  min-height: 100dvh; display: flex; align-items: center; justify-content: center;
   padding: 20px;
   background: linear-gradient(225deg, var(--primary-dark), var(--primary-darker) 60%, var(--primary));
 }
@@ -26,7 +27,7 @@
 .adm-login-card input {
   width: 100%; height: 44px; border: 1px solid var(--border-strong);
   border-radius: var(--r-md); padding: 0 14px; margin-bottom: 10px;
-  font-family: inherit; font-size: 14px; outline: 0; text-align: start;
+  font-family: inherit; font-size: 16px; outline: 0; text-align: start;
   transition: border-color .15s;
 }
 .adm-login-card input:focus { border-color: var(--primary); }
@@ -35,11 +36,11 @@
 .adm-back:hover { color: var(--primary); }
 
 /* ---------- الهيكل العام ---------- */
-.adm-app { display: flex; min-height: 100vh; }
+.adm-app { display: flex; min-height: 100dvh; }
 .adm-side {
   width: 230px; flex: none; background: var(--primary-dark); color: #fff;
   display: flex; flex-direction: column; padding: 20px 14px;
-  position: sticky; top: 0; height: 100vh;
+  position: sticky; top: 0; height: 100dvh; overflow-y: auto;
 }
 .adm-brand { padding: 4px 10px 18px; border-bottom: 1px solid rgba(255,255,255,.12); margin-bottom: 14px; }
 .adm-brand strong { display: block; font-size: 16px; }
@@ -49,7 +50,7 @@
   text-align: start; padding: 10px 14px; border: 0; background: transparent;
   color: rgba(255,255,255,.75); border-radius: var(--r-md);
   font-family: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer;
-  transition: all .15s;
+  transition: all .15s; min-height: 42px;
 }
 .adm-nav button:hover { background: rgba(255,255,255,.08); color: #fff; }
 .adm-nav button.active { background: var(--primary); color: #fff; font-weight: 700; }
@@ -57,16 +58,16 @@
 .adm-who { margin: 0; font-size: 11px; color: rgba(255,255,255,.6); overflow-wrap: anywhere; }
 .adm-logout {
   border: 1px solid rgba(255,255,255,.25); background: transparent; color: #fff;
-  border-radius: var(--r-md); padding: 8px; font-family: inherit; font-size: 12.5px;
-  font-weight: 700; cursor: pointer; transition: all .15s;
+  border-radius: var(--r-md); padding: 10px; font-family: inherit; font-size: 12.5px;
+  font-weight: 700; cursor: pointer; transition: all .15s; min-height: 42px;
 }
 .adm-logout:hover { background: rgba(255,255,255,.1); }
 .adm-site-link { font-size: 12px; color: var(--gold); text-align: center; }
 .adm-site-link:hover { color: #fff; }
 
-.adm-main { flex: 1; padding: 26px 28px; max-width: calc(100% - 230px); min-width: 0; }
-.adm-main h1 { font-size: 21px; }
-.adm-main > .adm-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+.adm-main { flex: 1; padding: 20px 16px; max-width: calc(100% - 230px); min-width: 0; }
+.adm-main h1 { font-size: 20px; }
+.adm-main > .adm-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
 .adm-head p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
 
 /* بطاقات وأقسام */
@@ -112,16 +113,36 @@
 .adm-empty h3 { font-size: 16px; color: var(--ink); margin-bottom: 2px; }
 .adm-empty p { font-size: 13px; margin: 0; }
 
-/* نموذج الجهة داخل اللوحة */
-.adm-form-wrap { margin-bottom: 16px; }
+/* رفع صورة */
+.adm-upload { display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px dashed var(--border-strong, #cdd); border-radius: var(--r-md, 10px); background: var(--subtle, #f7f9f9); }
+.adm-upload input[type="file"] { font-size: 14px; max-width: 100%; }
+.adm-img-prev { max-width: 160px; max-height: 120px; width: auto; border-radius: 10px; object-fit: cover; border: 1px solid var(--border, #e3e8e8); }
+.ef-check { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; min-height: 40px; }
+.ef-check input { width: 18px; height: 18px; }
+
+@media (max-width: 860px) {
+  .adm-upload input[type="file"] { font-size: 16px; }
+}
 
 /* الجوال */
 @media (max-width: 860px) {
   .adm-app { flex-direction: column; }
-  .adm-side { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 14px; }
-  .adm-brand { border: 0; margin: 0; padding: 0; }
-  .adm-nav { flex-direction: row; flex-wrap: wrap; }
-  .adm-nav button { padding: 7px 12px; font-size: 12.5px; }
-  .adm-side-foot { border: 0; padding: 0; flex-direction: row; align-items: center; }
-  .adm-main { max-width: 100%; padding: 18px 16px; }
+  .adm-side { width: 100%; height: auto; position: static; flex-direction: column; gap: 8px; padding: 12px; }
+  .adm-brand { border: 0; margin: 0; padding: 0 4px 4px; }
+  .adm-nav { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; gap: 6px; padding-bottom: 2px; }
+  .adm-nav button { padding: 9px 12px; font-size: 12.5px; white-space: nowrap; flex: 0 0 auto; }
+  .adm-side-foot { border: 0; padding: 4px 0 0; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .adm-who { width: 100%; }
+  .adm-main { max-width: 100%; padding: 14px 12px 24px; }
+  .adm-login { padding: 14px; }
+  .adm-login-card { padding: 24px 18px; }
+  .adm-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .adm-row { flex-direction: column; gap: 10px; }
+  .adm-row .di-actions { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; }
+  .adm-row .dash-btn { flex: 1 1 auto; min-height: 40px; }
+  .adm-toolbar { gap: 8px; }
+  .adm-search { flex: 1 1 100%; }
+  .ef-grid { grid-template-columns: 1fr !important; }
+  .adm-main .adm-head { align-items: flex-start; }
+  .adm-main .adm-head .btn { width: 100%; justify-content: center; }
 }
