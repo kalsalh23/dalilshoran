@@ -1240,7 +1240,7 @@ a.entity-card:hover { color: var(--ink); }
   border-top: 1px solid var(--border);
   color: var(--ink);
 }
-.site-footer .footer-in { padding-block: 40px 0; }
+.site-footer .footer-in { padding-block: 40px 50px; }
 .footer-top {
   display: grid;
   grid-template-columns: minmax(240px, 1.5fr) repeat(3, minmax(150px, 1fr));
@@ -1280,7 +1280,7 @@ a.entity-card:hover { color: var(--ink); }
 }
 @media (max-width: 640px) {
   .site-footer { margin-top: 40px; }
-  .site-footer .footer-in { padding-block: 28px 0; }
+  .site-footer .footer-in { padding-block: 28px 110px; }
   .footer-top { grid-template-columns: 1fr; gap: 22px; }
   .f-brand-col { grid-column: auto; }
   .f-desc { max-width: none; }
