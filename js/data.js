@@ -434,8 +434,8 @@ SITE.developer = {
   name: "م. قصي مهند الصالح",
   title: "مطوّر وتقني المنصة",
   phone: "+963952639157",
-  instagram: "https://www.instagram.com/kosai_al_saleh?igsh=cWM0dzEzaThqN2sz",
-  facebook: "https://www.facebook.com/share/17m6YZ1NKS/",
+  instagram: "https://www.instagram.com/kosai_al_saleh?dlrf=cWM0dzEzaThqN2sz",
+  facebook: "https://www.facebook.com/share/1KU17b6MHs/",
 };
 
 /* ---------- الإعلانات — تُحمَّل من جدول ads في Supabase عند الإقلاع ----------
