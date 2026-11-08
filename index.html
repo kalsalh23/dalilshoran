@@ -6,11 +6,16 @@
   <title>دليل صوران الطبي — كل الخدمات الطبية في مدينة صوران</title>
   <meta name="description" content="دليل صوران الطبي: أطباء، صيدليات، صيدليات المناوبة، مشافي، مخابر تحليلات، مراكز أشعة ومراكز صحية في مدينة صوران — ابحث، اتصل، واعرف المناوبة اليوم." />
   <meta name="theme-color" content="#0E6F78" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="دليل صوران الطبي" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta property="og:title" content="دليل صوران الطبي" />
   <meta property="og:description" content="كل الخدمات الطبية في مدينة صوران — في مكان واحد." />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="ar_SY" />
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="apple-touch-icon" href="assets/favicon.svg" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -182,6 +187,9 @@
     setTimeout(hide, 4000);
     window.__hideSplash = hide;
   })();
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').then(function(r){ console.log('SW registered', r.scope); }).catch(function(e){ console.warn('SW register failed', e); });
+  }
   </script>
 </body>
 </html>

@@ -1,12 +1,13 @@
 {
-  "name": "Guide صوران الطبي",
-  "short_name": "Guide صوران",
-  "description": "ال-guide الطبي لمدينة صوران: أطباء، صيدليات، مناوبة، مشافي، مخابر ومراكز صحية.",
+  "name": "دليل صوران الطبي",
+  "short_name": "دليل صوران",
+  "description": "الدليل الطبي لمدينة صوران: أطباء، صيدليات، مناوبة، مشافٍ، مخابر، أشعة ومراكز صحية — ابحث، اتصل، واعرف المناوبة اليوم.",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#F7F5F1",
   "theme_color": "#0E6F78",
   "icons": [
@@ -15,6 +16,20 @@
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
+    },
+    {
+      "src": "assets/favicon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
-  ]
+  ],
+  "categories": ["medical", "health", "lifestyle"],
+  "languages": ["ar"]
 }
