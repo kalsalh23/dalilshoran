@@ -27,6 +27,10 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" crossorigin="" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" crossorigin="" />
   <link rel="stylesheet" href="css/style.css" />
+  <script>
+    /* إزالة أي أيقونة جرش متبقية من إصدار مخبأ سابق */
+    (function(){ var b=document.getElementById('btnNotify'); var d=document.getElementById('notifyDot'); if(b)b.remove(); if(d)d.remove(); })();
+  </script>
 </head>
 <body>
   <div id="splashScreen" class="splash-screen" role="status" aria-live="polite" aria-label="جارٍ تحميل دليل صوران الطبي">
