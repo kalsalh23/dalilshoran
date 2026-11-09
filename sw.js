@@ -27,6 +27,12 @@ self.addEventListener("activate", (e) => {
 });
 
 self.addEventListener("fetch", (e) => {
+  const url = new URL(e.request.url);
+  /* الصفحة الرئيسية تُجلب دائماً من الشبكة لتجنب عرض نسخة مخبأة قديمة */
+  if (url.pathname === "/" || url.pathname.endsWith("index.html")) {
+    e.respondWith(fetch(e.request));
+    return;
+  }
   e.respondWith(
     caches.match(e.request).then((r) => r || fetch(e.request))
   );
