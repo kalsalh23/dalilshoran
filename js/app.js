@@ -107,10 +107,10 @@ function entityCard(e, { rank = false, hours = false, image = false } = {}) {
   const addr = [e.area, e.address].filter(Boolean).join(" — ");
 
   return `
-  <article class="entity-card" data-go="#/entity/${e.id}" style="--tc:${t.color}" tabindex="0" role="link" aria-label="${esc(e.name)}">
+  <article class="entity-card entity-card--photo" data-go="#/entity/${e.id}" style="--tc:${t.color}" tabindex="0" role="link" aria-label="${esc(e.name)}">
     ${e.featured && rank !== false && e.rank ? `<span class="rank-ribbon">${icon("star")} ${fmtNum(e.rank)}</span>` : ""}
     <div class="ec-flex">
-      <div class="ec-media"><img src="${esc(placeholderFor(e))}" alt="${esc(e.name)}" loading="lazy" /></div>
+      <div class="ec-media-photo"><img src="${esc(placeholderFor(e))}" alt="${esc(e.name)}" loading="lazy" /></div>
       <div class="ec-body">
         <p class="ec-name">${esc(e.name)}</p>
         <p class="ec-spec"><span class="ec-dot"></span>${esc(e.spec || t.label)}</p>
@@ -1781,25 +1781,46 @@ function showBootError(err) {
 window.addEventListener("error", function(e){ try{ showBootError(e && (e.error || e.message)); }catch(_){} });
 window.addEventListener("unhandledrejection", function(e){ try{ showBootError(e && e.reason); }catch(_){} });
 function hideSplash() {
-  var el = document.getElementById("splashScreen");
   if (!el || el.__hidden) return;
   el.__hidden = true;
   el.classList.add("is-hidden");
   setTimeout(function(){ if (el && el.parentNode) el.parentNode.removeChild(el); }, 500);
 }
 function scheduleSplash() { if (window.__hideSplash) return; setTimeout(hideSplash, 4000); } window.__appHideSplash = hideSplash;
+/* ================= الإشعارات: التهيئة وزر الجرس ================= */
+async function initNotificationsUI() {
+  if (!window.DSNotifications) return;
+  await window.DSNotifications.init();
+  const btn = $("#btnNotify");
+  const dot = $("#notifyDot");
+  if (!btn) return;
+  if (window.DSNotifications.state.enabled && dot) dot.hidden = false;
+  btn.addEventListener("click", async () => {
+    const res = await window.DSNotifications.toggle();
+    if (res.ok) {
+      if (dot) dot.hidden = false;
+      if (res.activated) showToast("تم تفعيل الإشعارات — ستصلك تنبيهات المناوبة والإعلانات", "ok");
+      else if (res.deactivated) { dot.hidden = true; showToast("تم إلغاء تفعيل الإشعارات", "ok"); }
+      else showToast("تم تحديث إعدادات الإشعارات", "ok");
+    } else {
+      showToast(res.error || "تعذر تحديث الإشعارات", "warn");
+    }
+  });
+}
+
 /* ================= الإقلاع ================= */
 (async function boot() {
   try {
     const year = $('#year');
-  if (year) year.textContent = fmtNum(new Date().getFullYear());
+    if (year) year.textContent = fmtNum(new Date().getFullYear());
 
-  initHeader();
-  window.addEventListener("hashchange", render);
-  if (!location.hash) location.replace("#/");
+    initHeader();
+    await initNotificationsUI();
+    window.addEventListener("hashchange", render);
+    if (!location.hash) location.replace("#/");
 
-  /* جلب البيانات الحية من Supabase — عند الفشل تُستخدم بيانات data.js */
-  try { await loadRemoteData(); } catch (_) {}
-  render();
-  } catch (err) { showBootError(err); }
+    /* جلب البيانات الحية من Supabase — عند الفشل تُستخدم بيانات data.js */
+    try { await loadRemoteData(); } catch (_) {}
+    render();
+    } catch (err) { showBootError(err); }
 })();

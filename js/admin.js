@@ -298,7 +298,23 @@ async function saveEntity(type) {
   const saved = id ? await api("/rest/v1/entities?id=eq." + encodeURIComponent(id), "PATCH", payload) : await api("/rest/v1/entities", "POST", payload);
   if (saved === null) { showToast("تعذر الحفظ", "err"); if (btn) { btn.disabled = false; btn.textContent = id ? "حفظ التعديلات" : "إضافة"; } return false; }
   if (type === "pharmacy" && $("#efOncallWrap")) { const days = $$("#efOncallWrap [data-day]:checked").map(c => c.value); await api("/rest/v1/oncall?pharmacy_id=eq." + encodeURIComponent(payload.id), "DELETE"); if (days.length) await api("/rest/v1/oncall", "POST", days.map(d => ({ day: d, pharmacy_id: payload.id }))); }
-  showToast(id ? "تم الحفظ" : "تمت الإضافة", "ok"); return true;
+  showToast(id ? "تم الحفظ" : "تمت الإضافة", "ok");
+  /* إرسال إشعار Push عند إضافة جهة جديدة */
+  if (!id) {
+    try {
+      await fetch(window.location.origin + "/api/send-push", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: "دليل صوران الطبي — جهة جديدة",
+          body: "تمت إضافة " + esc(cfg.label) + " جديدة: " + esc(name),
+          url: "./",
+          tag: "ds-entity",
+        }),
+      });
+    } catch (_) {}
+  }
+  return true;
 }
 
 /* ---------- المناوبة الشهرية ---------- */
@@ -348,7 +364,23 @@ async function renderAds(main) {
   main.addEventListener("submit", async (ev) => { if (ev.target.id === "adForm") { ev.preventDefault(); if (await saveAd()) renderTab(); } });
 }
 function openAdForm(wrap, a) { const v = a || { placement: "home", active: true, sort_order: 100 }; wrap.innerHTML = `<div class="adm-card"><h3 style="margin-bottom:14px">${a ? "تعديل الإعلان" : "إعلان جديد"}</h3><form id="adForm" class="ef-grid" novalidate><input type="hidden" id="afId" value="${esc(a ? a.id : "")}" /><label class="ef-full">العنوان *<input id="afTitle" required value="${esc(v.title || "")}" /></label><label class="ef-full">النص<input id="afBody" value="${esc(v.body || "")}" /></label><label class="ef-full">رابط الصورة<input id="afImg" dir="ltr" value="${esc(v.image_url || "")}" placeholder="https://..." /></label><label>رابط الانتقال<input id="afLink" dir="ltr" value="${esc(v.link_url || "")}" /></label><label>المكان<select id="afPlacement"><option value="home" ${v.placement === "home" ? "selected" : ""}>الرئيسية</option><option value="detail" ${v.placement === "detail" ? "selected" : ""}>التفاصيل</option><option value="all" ${v.placement === "all" ? "selected" : ""}>الكل</option></select></label><label>الترتيب<input id="afSort" type="number" value="${v.sort_order ?? 100}" /></label><div class="ef-full ef-checks"><label><input type="checkbox" id="afActive" ${v.active ? "checked" : ""}/> نشط</label></div><div class="ef-full ef-actions"><button class="btn btn-primary" type="submit">حفظ</button> <button class="btn btn-ghost" type="button" id="afCancel">إلغاء</button></div></form></div>`; $("#afCancel").onclick = () => { wrap.innerHTML = ""; }; }
-async function saveAd() { const id = $("#afId").value.trim(); const title = $("#afTitle").value.trim(); if (!title) return showToast("اكتب العنوان", "err"); const payload = { title, body: $("#afBody").value.trim() || null, image_url: $("#afImg").value.trim() || null, link_url: $("#afLink").value.trim() || null, placement: $("#afPlacement").value, active: $("#afActive").checked, sort_order: Number($("#afSort").value) || 100 }; const ok = id ? await api("/rest/v1/ads?id=eq." + encodeURIComponent(id), "PATCH", payload) : await api("/rest/v1/ads", "POST", payload); if (ok === null) return showToast("تعذر الحفظ", "err"); showToast("تم الحفظ", "ok"); return true; }
+async function saveAd() { const id = $("#afId").value.trim(); const title = $("#afTitle").value.trim(); if (!title) return showToast("اكتب العنوان", "err"); const payload = { title, body: $("#afBody").value.trim() || null, image_url: $("#afImg").value.trim() || null, link_url: $("#afLink").value.trim() || null, placement: $("#afPlacement").value, active: $("#afActive").checked, sort_order: Number($("#afSort").value) || 100 }; const ok = id ? await api("/rest/v1/ads?id=eq." + encodeURIComponent(id), "PATCH", payload) : await api("/rest/v1/ads", "POST", payload); if (ok === null) return showToast("تعذر الحفظ", "err"); showToast("تم الحفظ", "ok");
+  /* إرسال إشعار Push عند إضافة إعلان جديد */
+  if (!id) {
+    try {
+      await fetch(window.location.origin + "/api/send-push", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: "دليل صوران الطبي — إعلان جديد",
+          body: esc(title),
+          url: "./",
+          tag: "ds-ad",
+        }),
+      });
+    } catch (_) {}
+  }
+  return true; }
 
 /* ---------- حسابات الجهات ---------- */
 async function renderAccounts(main) {
