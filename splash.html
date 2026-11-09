@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>دليل صوران الطبي — شاشة بداية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  /* ================= الأساسيات ================= */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    background: linear-gradient(180deg, #0a3d46 0%, #0e6f78 100%);
+    color: #ffffff;
+    overflow: hidden;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 40px 20px;
+    text-align: center;
+  }
+
+  /* ================= الشعار (الوسط الأعلى) ================= */
+  .logo-wrap {
+    width: 170px;
+    height: 170px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  svg#logo {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  /* المسارات تبدأ بتراكب Stroke وتُرسم بالتأثير line-drawing */
+  .logo-path {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    /* الرسم self-draw خلال 1.5 ثانية */
+    animation: drawLine 1.5s ease-out forwards;
+  }
+  /* الصليب الطبي يتم رسمه بعد الدرع قليلاً للتسلسل */
+  .logo-cross {
+    animation: drawLine 1.2s ease-out 0.3s forwards;
+  }
+  /* نقطة المركز تُرسم آخر */
+  .logo-dot {
+    animation: drawLine 0.8s ease-out 0.8s forwards;
+  }
+
+  @keyframes drawLine {
+    to { stroke-dashoffset: 0; }
+  }
+
+  /* بعد انتهاء الرسم: ملء المسارات بالألوان الأصلية */
+  .logo-path.filled,
+  .logo-cross.filled,
+  .logo-dot.filled {
+    fill: url(#logoGradient);
+    stroke: #ffffff;
+    animation: none;
+  }
+  /* الدرع الخارجي يبقى Stroke أبيض رقيق */
+  .logo-shield.filled {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 3;
+    animation: none;
+  }
+
+  /* ================= الخطوط العربية (الوسط) ================= */
+  .text-wrap {
+    margin: 16px 0 8px 0;
+    line-height: 1.5;
+  }
+  h1.title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  p.subtitle {
+    font-size: 18px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.9);
+    letter-spacing: 0.3px;
+  }
+
+  /* ================= التذييل السفلي ================= */
+  .footer {
+    width: 100%;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 30px;
+  }
+
+  /* مؤشر التحميل الدوار */
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255,255,255,0.15);
+    border-top: 4px solid #ffc107; /* اللون الأصفر المميز */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .dev-label {
+    font-size: 12px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.6); /* opacity 0.6 */
+    letter-spacing: 0.4px;
+  }
+  .dev-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: #ffffff;
+    margin-bottom: 2px;
+  }
+  .dev-phone {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffc107; /* أصفر مثل لون الشعار */
+    letter-spacing: 0.5px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- الشعار مع تأثير Line Drawing -->
+  <div class="logo-wrap">
+    <svg id="logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#0e6f78"/>
+          <stop offset="100%" stop-color="#1a9e9e"/>
+        </linearGradient>
+      </defs>
+
+      <!-- الدرع الخارجي (يحتفظ بالـ Stroke الأبيض بعد الملء) -->
+      <path id="shield" class="logo-path logo-shield"
+        d="M100 22 C145 22 180 52 180 100 L125 180 L100 198 L75 180 L20 100 C20 52 55 22 100 22 Z" />
+
+      <!-- الصليب الطبي -->
+      <path id="cross" class="logo-path logo-cross"
+        d="M90 72 H110 V92 H110 V108 H90 V108 H90 V92 H70 V92 H70 V72 H90 Z" />
+
+      <!-- نقطة المركز الصغيرة -->
+      <circle id="dot" class="logo-path logo-dot"
+        cx="100" cy="90" r="7" />
+    </svg>
+  </div>
+
+  <!-- النصوص العربية -->
+  <div class="text-wrap">
+    <h1 class="title">دليل صوران الطبي</h1>
+    <p class="subtitle">صحتك أقرب إليك</p>
+  </div>
+
+  <!-- التذييل السفلي -->
+  <div class="footer">
+    <div class="spinner" aria-label="جاري التحميل"></div>
+    <div class="dev-label">تطوير المنصة</div>
+    <div class="dev-name">قصي مهند الصالح</div>
+    <div class="dev-phone">0952639157</div>
+  </div>
+
+  <script>
+    // ============================================================
+    // تفعيل ملء الشعار بعد انتهاء تأثير Line Drawing
+    // بعد 1.6 ثانية (أطول قليلاً من زمن الرسوم المتحركة 1.5s)
+    // نضيف كلاس filled لكل المسارات لتحصل على اللون الأصلي
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const paths = document.querySelectorAll('.logo-path');
+        paths.forEach(p => p.classList.add('filled'));
+      }, 1600);
+    });
+  </script>
+</body>
+</html>
