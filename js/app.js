@@ -113,6 +113,7 @@ function entityCard(e, { rank = false, hours = false, image = false } = {}) {
       <div class="ec-media-photo"><img src="${esc(placeholderFor(e))}" alt="${esc(e.name)}" loading="lazy" /></div>
       <div class="ec-body">
         <p class="ec-name">${esc(e.name)}</p>
+        ${e.type === "pharmacy" && e.pharmacist ? `<p class="ec-pharmacist">${icon("user")} الصيدلي: ${esc(e.pharmacist)}</p>` : ""}
         <p class="ec-spec"><span class="ec-dot"></span>${esc(e.spec || t.label)}</p>
         ${e.type === "doctor" && e.exp ? `<p class="ec-exp">خبرة ${fmtNum(e.exp)} سنوات</p>` : ""}
         ${addr ? `<p class="ec-addr">${icon("pin")} <span>${esc(addr)}</span></p>` : ""}
@@ -819,6 +820,10 @@ function viewEntity(id) {
           <div class="info-box">${icon("user")}
             <div><h4>الصفة</h4><p>${esc(e.degree)}</p><small>${esc(e.spec)}</small></div>
           </div>` : ""}
+          ${e.type === "pharmacy" && e.pharmacist ? `
+          <div class="info-box">${icon("user")}
+            <div><h4>الصيدلي المسؤول</h4><p>${esc(e.pharmacist)}</p></div>
+          </div>` : ""}
         </div>
         ${e.note ? `<div style="padding:0 22px 20px"><div class="note-box">${icon("info")}<p>${esc(e.note)}</p></div></div>` : ""}
       </div>
@@ -838,6 +843,15 @@ function viewEntity(id) {
       <div class="map-wrap"><div id="entityMap"></div></div>
       <p class="map-note">${icon("info")} الموقع تقريبي — استخدم تطبيق الخرائط على هاتفك للوصول الدقيق.</p>
     </div>`}
+    ${(e.type === "hospital" || e.type === "health-center") && e.staff && e.staff.length ? `
+    <div class="detail-section">
+      <div class="section-head"><div><h2>${icon("user")} الفريق الطبي</h2><p>الموظفون والمهام الوظيفية وأيام الدوام</p></div></div>
+      <div class="staff-list">${e.staff.map((s) => `
+        <div class="staff-item">
+          <div class="staff-name">${esc(s.name)}</div>
+          <div class="staff-meta">${esc(s.jobTitle)} · ${esc(s.time)} · ${esc(s.days)}</div>
+        </div>`).join("")}</div>
+    </div>` : ""}
 
   </div>`;
 }
@@ -1787,32 +1801,6 @@ function hideSplash() {
   setTimeout(function(){ if (el && el.parentNode) el.parentNode.removeChild(el); }, 500);
 }
 function scheduleSplash() { if (window.__hideSplash) return; setTimeout(hideSplash, 4000); } window.__appHideSplash = hideSplash;
-/* ================= الإشعارات: التهيئة وزر الجرس ================= */
-async function initNotificationsUI() {
-  if (!window.DSNotifications) return;
-  await window.DSNotifications.init();
-  const btn = $("#btnNotify");
-  const dot = $("#notifyDot");
-  if (!btn) return;
-  if (window.DSNotifications.state.enabled && dot) dot.hidden = false;
-  btn.addEventListener("click", async () => {
-    const res = await window.DSNotifications.toggle();
-    if (res.ok) {
-      if (res.activated) {
-        if (dot) dot.hidden = false;
-        showToast("تم تفعيل الإشعارات — ستصلك تنبيهات المناوبة والإعلانات", "ok");
-      } else if (res.deactivated) {
-        if (dot) dot.hidden = true;
-        showToast("تم إلغاء تفعيل الإشعارات", "ok");
-      } else {
-        showToast("تم تحديث إعدادات الإشعارات", "ok");
-      }
-    } else {
-      showToast(res.error || "تعذر تحديث الإشعارات", "warn");
-    }
-  });
-}
-
 /* ================= الإقلاع ================= */
 (async function boot() {
   try {
@@ -1820,7 +1808,6 @@ async function initNotificationsUI() {
     if (year) year.textContent = fmtNum(new Date().getFullYear());
 
     initHeader();
-    await initNotificationsUI();
     window.addEventListener("hashchange", render);
     if (!location.hash) location.replace("#/");
 

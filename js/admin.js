@@ -28,11 +28,11 @@ const ENTITY_FORMS = {
   },
   pharmacy: {
     label: "صيدلية", plural: "الصيدليات", specLabel: "وصف مختصر", specPlaceholder: "اختياري", degreeLabel: "ترخيص/ملاحظات (اختياري)",
-    fields: ["name","owner","spec","area","address","phone","whatsapp","hours","shift24","oncallWeek","image_file","featured","active"],
+    fields: ["name","pharmacist","spec","degree","area","address","phone","whatsapp","hours","shift24","oncallWeek","image_file","featured","active"],
   },
   hospital: {
     label: "مشفى", plural: "المشافي", specLabel: "التخصصات/الخدمات الرئيسية", specPlaceholder: "مثال: طوارئ، جراحة، توليد…", degreeLabel: "التصنيف/الجهة المشغلة",
-    fields: ["name","spec","degree","area","address","phone","whatsapp","hours","image_file","featured","active"],
+    fields: ["name","spec","degree","staff","area","address","phone","whatsapp","hours","image_file","featured","active"],
   },
   lab: {
     label: "مخبر تحاليل", plural: "المخابر", specLabel: "أنواع التحاليل", specPlaceholder: "مثال: دم، هرمونات، PCR…", degreeLabel: "اعتماد/ملاحظات",
@@ -44,7 +44,7 @@ const ENTITY_FORMS = {
   },
   "health-center": {
     label: "مركز صحي", plural: "المراكز الصحية", specLabel: "الخدمات المقدمة", specPlaceholder: "مثال: لقاحات، رعاية أولية…", degreeLabel: "الجهة التابعة",
-    fields: ["name","spec","degree","area","address","phone","whatsapp","hours","image_file","featured","active"],
+    fields: ["name","spec","degree","staff","area","address","phone","whatsapp","hours","image_file","featured","active"],
   },
 };
 
@@ -172,19 +172,20 @@ function downloadFile(name, content, type) { const a = document.createElement("a
 function entitiesToCsv(list) {
   const cols = [
     ["id","المعرف"],["name","الاسم"],["type","النوع"],["spec","الاختصاص/الوصف"],["degree","الدرجة/التصنيف"],
-    ["exp","سنوات الخبرة"],["owner","المالك/المسؤول"],["area","المنطقة"],["address","العنوان"],
+    ["exp","سنوات الخبرة"],["owner","المالك/المسؤول"],["pharmacist","الصيدلي المسؤول"],["area","المنطقة"],["address","العنوان"],
     ["phone","الهاتف"],["whatsapp","واتساب"],["hours","ساعات العمل"],["shift24","24 ساعة"],
-    ["featured","مميزة"],["active","نشطة"],["image_url","رابط الصورة"],["services","الخدمات"],["note","ملاحظات"],
+    ["featured","مميزة"],["active","نشطة"],["image_url","رابط الصورة"],["services","الخدمات"],["staff","الموظفين"],["note","ملاحظات"],
   ];
   const typeLabel = (t) => (ENTITY_FORMS[t] && ENTITY_FORMS[t].label) || t || "";
-  const q = (v) => {
+  const q = (v, k) => {
     if (v == null) return "";
+    if (k === "staff" && Array.isArray(v)) return v.map(s => `${s.name} (${s.jobTitle})`).join("، ");
     let s = Array.isArray(v) ? v.join("، ") : (typeof v === "boolean" ? (v ? "نعم" : "لا") : String(v));
     if (/[",\n\r]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"';
     return s;
   };
-  const head = cols.map(c => q(c[1])).join(",");
-  const rows = list.map(e => cols.map(([k]) => q(k === "type" ? typeLabel(e.type) : e[k])).join(","));
+  const head = cols.map(c => q(c[1], c[0])).join(",");
+  const rows = list.map(e => cols.map(([k]) => q(k === "type" ? typeLabel(e.type) : e[k], k)).join(","));
   return "\uFEFF" + [head, ...rows].join("\r\n");
 }
 
@@ -246,6 +247,7 @@ function field(type, name, e, cfg) {
     case "degree": return L(cfg.degreeLabel, `<input id="efDegree" value="${esc(v.degree || "")}" />`);
     case "exp": return L("سنوات الخبرة", `<input id="efExp" type="number" min="0" value="${v.exp ?? ""}" />`);
     case "owner": return L(type === "pharmacy" ? "الصيدلي/المالك" : "المالك/المسؤول", `<input id="efOwner" value="${esc(v.owner || "")}" />`);
+    case "pharmacist": return L("اسم الصيدلي المسؤول", `<input id="efPharmacist" value="${esc(v.pharmacist || "")}" placeholder="مثال: أحمد محمد" />`);
     case "area": return L("المنطقة/الحي", `<input id="efArea" value="${esc(v.area || "")}" />`);
     case "address": return Lf("العنوان التفصيلي", `<input id="efAddress" value="${esc(v.address || "")}" />`);
     case "phone": return L("الهاتف", `<input id="efPhone" dir="ltr" inputmode="tel" value="${esc(v.phone || "")}" />`);
@@ -253,6 +255,7 @@ function field(type, name, e, cfg) {
     case "hours": return Lf("ساعات العمل", `<input id="efHours" value="${esc(v.hours || "")}" placeholder="مثال: يومياً 9 ص - 9 م" />`);
     case "shift24": return `<label class="ef-check"><input type="checkbox" id="ef24" ${v.shift24 ? "checked" : ""}/> تعمل 24 ساعة</label>`;
     case "services": return Lf("الخدمات (افصل بفاصلة ،)", `<input id="efServices" value="${esc((v.services || []).join("، "))}" />`);
+    case "staff": return `<div class="ef-full"><label>الموظفون (أضف موظفاً واحداً في كل سطر، الصيغة: الاسم|المسمى الوظيفي|الوقت|الأيام)</label><textarea id="efStaff" rows="4" placeholder="أحمد محمد|صيادلة|صباحاً|السبت، الاثنين، الأربعاء\nسارة علي|تمريض|مساءً|الأحد، الثلاثاء، الخميس">${esc(Array.isArray(v.staff) ? v.staff.map(s => `${s.name}|${s.jobTitle}|${s.time}|${s.days}`).join("\n") : "")}</textarea><p class="adm-hint">مثال: أحمد محمد|صيدلي|صباحاً|السبت، الاثنين، الأربعاء</p></div>`;
     case "note": return Lf("نبذة/ملاحظات", `<textarea id="efNote" rows="2">${esc(v.note || "")}</textarea>`);
     case "image_file": return `<div class="ef-full"><label>الصورة (رفع ملف)</label><div class="adm-upload"><input id="efImageFile" type="file" accept="image/*" /><input id="efImageUrl" type="hidden" value="${esc(v.image_url || "")}" />${v.image_url ? `<img id="efImagePreview" class="adm-img-prev" src="${esc(v.image_url)}" alt="" />` : `<img id="efImagePreview" class="adm-img-prev" src="" alt="" hidden />`}<button type="button" class="dash-btn" id="efImageClear" ${v.image_url ? "" : "hidden"}>إزالة الصورة</button><p class="adm-hint">اختر صورة من الجهاز. تُرفع إلى Supabase Storage (bucket: ${esc(IMG_BUCKET)}).</p></div></div>`;
     case "image_url": return Lf("صورة (رابط)", `<input id="efImage" dir="ltr" value="${esc(v.image_url || "")}" />`);
@@ -278,6 +281,15 @@ function openEntityForm(wrap, type, e, oncallDays) {
   $("#efCancel").onclick = () => { wrap.innerHTML = ""; }; wrap.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+function parseStaff(text) {
+  if (!text || !text.trim()) return null;
+  const lines = String(text).split(/\n/).map(l => l.trim()).filter(Boolean);
+  return lines.map(l => {
+    const parts = l.split("|").map(p => p.trim());
+    return { name: parts[0] || "", jobTitle: parts[1] || "", time: parts[2] || "", days: parts[3] || "" };
+  }).filter(s => s.name);
+}
+
 async function saveEntity(type) {
   const id = ($("#efId") && $("#efId").value.trim()) || ""; const name = $("#efName") ? $("#efName").value.trim() : "";
   if (!name) return showToast("اكتب الاسم", "err");
@@ -294,7 +306,7 @@ async function saveEntity(type) {
     } else if (up.url) image_url = up.url;
   }
   const so = Number(g("#efSort")) || 100;
-  const payload = { id: id || ("e" + Date.now().toString(36)), type, name, spec: g("#efSpec").trim() || null, degree: g("#efDegree").trim() || null, exp: num("#efExp"), owner: g("#efOwner").trim() || null, area: g("#efArea").trim() || null, address: g("#efAddress").trim() || null, phone: g("#efPhone").trim() || null, whatsapp: chk("#efWa"), hours: g("#efHours").trim() || null, featured: chk("#efFeat"), shift24: chk("#ef24"), active: $("#efActive") ? $("#efActive").checked : true, rank: so, sort_order: so, image_url, services: g("#efServices") ? g("#efServices").split(/[,،]/).map(x => x.trim()).filter(Boolean) : [], note: g("#efNote").trim() || null, lat: num("#efLat"), lng: num("#efLng") };
+  const payload = { id: id || ("e" + Date.now().toString(36)), type, name, spec: g("#efSpec").trim() || null, degree: g("#efDegree").trim() || null, exp: num("#efExp"), owner: g("#efOwner").trim() || null, pharmacist: type === "pharmacy" ? (g("#efPharmacist").trim() || null) : null, area: g("#efArea").trim() || null, address: g("#efAddress").trim() || null, phone: g("#efPhone").trim() || null, whatsapp: chk("#efWa"), hours: g("#efHours").trim() || null, featured: chk("#efFeat"), shift24: chk("#ef24"), active: $("#efActive") ? $("#efActive").checked : true, rank: so, sort_order: so, image_url, services: g("#efServices") ? g("#efServices").split(/[,،]/).map(x => x.trim()).filter(Boolean) : [], staff: (type === "hospital" || type === "health-center") ? parseStaff(g("#efStaff").value) : null, note: g("#efNote").trim() || null, lat: num("#efLat"), lng: num("#efLng") };
   const saved = id ? await api("/rest/v1/entities?id=eq." + encodeURIComponent(id), "PATCH", payload) : await api("/rest/v1/entities", "POST", payload);
   if (saved === null) { showToast("تعذر الحفظ", "err"); if (btn) { btn.disabled = false; btn.textContent = id ? "حفظ التعديلات" : "إضافة"; } return false; }
   if (type === "pharmacy" && $("#efOncallWrap")) { const days = $$("#efOncallWrap [data-day]:checked").map(c => c.value); await api("/rest/v1/oncall?pharmacy_id=eq." + encodeURIComponent(payload.id), "DELETE"); if (days.length) await api("/rest/v1/oncall", "POST", days.map(d => ({ day: d, pharmacy_id: payload.id }))); }

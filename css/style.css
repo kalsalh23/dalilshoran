@@ -749,6 +749,16 @@ background: var(--rose-soft); color: var(--error);
 .chips-lg { display: flex; flex-wrap: wrap; gap: 8px; }
 .chips-lg .mini-tag { font-size: 12.5px; padding: 5px 14px; border-radius: var(--r-full); background: var(--surface); border: 1px solid var(--border-strong); }
 
+/* قسم الفريق الطبي (المشافي / المراكز الصحية) */
+.staff-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.staff-item {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface-alt); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 10px 14px;
+}
+.staff-name { font-weight: 700; color: var(--ink); min-width: 0; }
+.staff-meta { color: var(--muted); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
 .note-box {
   display: flex; gap: 11px; background: var(--primary-soft);
   border: 1px solid color-mix(in srgb, var(--primary) 25%, #ffffff);
@@ -1342,6 +1352,8 @@ a.entity-card:hover { color: var(--ink); }
 }
 .entity-card:hover .ec-name { color: var(--primary); }
 .ec-spec { display: flex; align-items: center; gap: 7px; margin: 3px 0 0; font-size: 12.5px; font-weight: 500; color: var(--muted); }
+.ec-pharmacist { display: flex; align-items: center; gap: 6px; margin: 2px 0 0; font-size: 12px; font-weight: 600; color: var(--primary-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ec-pharmacist .ic { width: 14px; height: 14px; flex: none; }
 .ec-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--tc, var(--primary)); flex: none; }
 .ec-exp { margin: 2px 0 0; font-size: 11.5px; color: var(--muted); }
 .ec-addr { display: flex; align-items: flex-start; gap: 5px; margin: 4px 0 0; font-size: 11.5px; color: var(--muted); }
