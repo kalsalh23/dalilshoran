@@ -2055,3 +2055,47 @@ a.entity-card:hover { color: var(--ink); }
 .faq-list{display:flex;flex-direction:column;gap:10px;}
 .faq-list .acc-item{margin:0;}
 
+/* نقطة الإشعار على زر الجرس */
+.notify-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  background: var(--danger, #e11d48);
+  border-radius: 50%;
+  display: block;
+}
+.icon-btn { position: relative; }
+
+/* صور كبيرة في بطاقات الكيانات العادية (نفس آلية المناوبة والمميزين) */
+.entity-card--photo .ec-flex {
+  flex-direction: row;
+  gap: 16px;
+  align-items: flex-start;
+}
+.entity-card--photo .ec-media-photo {
+  flex: none;
+  width: 110px;
+  min-width: 110px;
+  height: 110px;
+  min-height: 110px;
+  border-radius: var(--r-xl);
+  background: linear-gradient(135deg, var(--primary-soft), #E8F4F6);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.entity-card--photo .ec-media-photo img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.entity-card--photo .ec-body {
+  padding: 4px 0;
+  min-width: 0;
+}
+.entity-card--photo .ec-side {
+  align-self: center;
+  padding-inline-start: 4px;
+}
+
