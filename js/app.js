@@ -1798,10 +1798,15 @@ async function initNotificationsUI() {
   btn.addEventListener("click", async () => {
     const res = await window.DSNotifications.toggle();
     if (res.ok) {
-      if (dot) dot.hidden = false;
-      if (res.activated) showToast("تم تفعيل الإشعارات — ستصلك تنبيهات المناوبة والإعلانات", "ok");
-      else if (res.deactivated) { dot.hidden = true; showToast("تم إلغاء تفعيل الإشعارات", "ok"); }
-      else showToast("تم تحديث إعدادات الإشعارات", "ok");
+      if (res.activated) {
+        if (dot) dot.hidden = false;
+        showToast("تم تفعيل الإشعارات — ستصلك تنبيهات المناوبة والإعلانات", "ok");
+      } else if (res.deactivated) {
+        if (dot) dot.hidden = true;
+        showToast("تم إلغاء تفعيل الإشعارات", "ok");
+      } else {
+        showToast("تم تحديث إعدادات الإشعارات", "ok");
+      }
     } else {
       showToast(res.error || "تعذر تحديث الإشعارات", "warn");
     }

@@ -4,8 +4,6 @@
    ============================================================ */
 
 const VAPID_PUBLIC_KEY = "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEFLadp29wAw5jYiOMC2ttw3-M48n5hisr-sa_teQfIvHKL_ERY6dRiM-O7GT9ns-96Y6McQB5JyEuF2FUMrRyPw";
-const SUPABASE_URL = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.url) || "";
-const SUPABASE_ANON_KEY = (window.SUPABASE_CONFIG && window.SUPABASE_CONFIG.anonKey) || "";
 
 const pushState = {
   supported: false,
@@ -44,7 +42,7 @@ async function initNotifications() {
 async function toggle() {
   if (!pushState.supported) return { ok: false, error: "الإشعارات غير مدعومة في هذا المتصفح" };
   if (!pushState.enabled) {
-    if (pushState.permission === "denied") return { ok: false, error: "الإشعارات محظورة في هذا المتصفح — activeها من إعدادات الموقع" };
+    if (pushState.permission === "denied") return { ok: false, error: "الإشعارات محظورة في هذا المتصفح — فعّلها من إعدادات الموقع" };
     const perm = await Notification.requestPermission();
     pushState.permission = perm;
     if (perm !== "granted") return { ok: false, error: "لم يتم منح إذن الإشعارات" };
@@ -64,11 +62,21 @@ async function subscribe() {
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
     });
+    /* احفظ على السيرفر أولاً، وبعد النجاح فقط سويّن الحالة محلياً كمفعل */
+    const saved = await saveSubscriptionToServer(sub);
+    if (!saved) {
+      /* فشل الحفظ على السيرفر — نفك الاشتراك المحلي ونعيد الحالة معطلة */
+      try { await sub.unsubscribe(); } catch (_) {}
+      pushState.subscription = null;
+      pushState.enabled = false;
+      return { ok: false, error: "فشل حفظ الاشتراك على الخادم" };
+    }
     pushState.subscription = sub;
     pushState.enabled = true;
-    await saveSubscriptionToServer(sub);
     return { ok: true, subscription: sub };
   } catch (e) {
+    pushState.subscription = null;
+    pushState.enabled = false;
     return { ok: false, error: e && e.message ? e.message : "فشل الاشتراك في الإشعارات" };
   }
 }
@@ -94,8 +102,8 @@ async function saveSubscriptionToServer(sub) {
 }
 
 async function unsubscribe() {
-if (!pushState.subscription) return { ok: false };
-    try {
+  if (!pushState.subscription) return { ok: false };
+  try {
     await pushState.subscription.unsubscribe();
     pushState.enabled = false;
     pushState.subscription = null;
@@ -105,8 +113,7 @@ if (!pushState.subscription) return { ok: false };
 
 function showLocalNotification(title, options = {}) {
   if (!pushState.enabled) return;
-  const reg = navigator.serviceWorker.ready.then((r) => r);
-  reg.then((registration) => {
+  navigator.serviceWorker.ready.then((registration) => {
     registration.showNotification(title, {
       icon: options.icon || "./assets/favicon.svg",
       badge: options.icon || "./assets/favicon.svg",
