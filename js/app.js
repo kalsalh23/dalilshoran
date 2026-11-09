@@ -843,7 +843,7 @@ function viewEntity(id) {
       <div class="map-wrap"><div id="entityMap"></div></div>
       <p class="map-note">${icon("info")} الموقع تقريبي — استخدم تطبيق الخرائط على هاتفك للوصول الدقيق.</p>
     </div>`}
-    ${(e.type === "hospital" || e.type === "health-center") && e.staff && e.staff.length ? `
+    ${(e.type === "hospital" || e.type === "health-center" || e.type === "lab") && e.staff && e.staff.length ? `
     <div class="detail-section">
       <div class="section-head"><div><h2>${icon("user")} الفريق الطبي</h2><p>الموظفون والمهام الوظيفية وأيام الدوام</p></div></div>
       <div class="staff-list">${e.staff.map((s) => `
