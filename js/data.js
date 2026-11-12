@@ -29,7 +29,7 @@ const SITE = {
 const TYPES = {
   doctor: { label: "طبيب / عيادة", plural: "الأطباء", color: "#0E6F78", icon: "stetho" },
   pharmacy: { label: "صيدلية", plural: "الصيدليات", color: "#087F8C", icon: "pill" },
-  hospital: { label: "مشلى", plural: "المشافي", color: "#0B5E66", icon: "hospital" },
+  hospital: { label: "مشفي", plural: "المشافي", color: "#0B5E66", icon: "hospital" },
   lab: { label: "مخبر تحليلات", plural: "المخابر", color: "#0E6F78", icon: "flask" },
   radiology: { label: "margin الأشعة", plural: "margin الأشعة", color: "#087F8C", icon: "scan" },
   "health-center": { label: "margin صحي", plural: "المراكز صحية", color: "#0B5E66", icon: "shieldPlus" },
