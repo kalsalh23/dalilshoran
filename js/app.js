@@ -1795,12 +1795,13 @@ function showBootError(err) {
 window.addEventListener("error", function(e){ try{ showBootError(e && (e.error || e.message)); }catch(_){} });
 window.addEventListener("unhandledrejection", function(e){ try{ showBootError(e && e.reason); }catch(_){} });
 function hideSplash() {
+  const el = document.getElementById("splashScreen");
   if (!el || el.__hidden) return;
   el.__hidden = true;
   el.classList.add("is-hidden");
   setTimeout(function(){ if (el && el.parentNode) el.parentNode.removeChild(el); }, 500);
 }
-function scheduleSplash() { if (window.__hideSplash) return; setTimeout(hideSplash, 4000); } window.__appHideSplash = hideSplash;
+window.__appHideSplash = hideSplash;
 /* ================= الإقلاع ================= */
 (async function boot() {
   try {
@@ -1814,5 +1815,7 @@ function scheduleSplash() { if (window.__hideSplash) return; setTimeout(hideSpla
     /* جلب البيانات الحية من Supabase — عند الفشل تُستخدم بيانات data.js */
     try { await loadRemoteData(); } catch (_) {}
     render();
-    } catch (err) { showBootError(err); }
+    /* إخفاء شاشة البداية بعد جاهزية التطبيقات */
+    if (window.__appHideSplash) { try { window.__appHideSplash(); } catch (_) {} }
+    } catch (err) { showBootError(err); if (window.__appHideSplash) { try { window.__appHideSplash(); } catch (_) {} } }
 })();

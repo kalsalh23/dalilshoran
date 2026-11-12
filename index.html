@@ -35,21 +35,21 @@
 <body>
   <div id="splashScreen" class="splash-screen" role="status" aria-live="polite" aria-label="جارٍ تحميل دليل صوران الطبي">
     <div class="splash-inner">
-      <div class="splash-icon" aria-hidden="true">
-        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="32" cy="32" r="30" fill="rgba(255,255,255,.14)" stroke="rgba(255,255,255,.28)"/>
-          <path d="M32 14v36M14 32h36" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
-          <path d="M22 22c3 6 17 6 20 0M22 42c3-6 17-6 20 0" stroke="#f2c94c" stroke-width="3" stroke-linecap="round" opacity=".95"/>
+      <div class="splash-logo" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="48" height="48" rx="13" fill="#0E6F78"/>
+          <path d="M24 9.5c-6.1 0-11 4.8-11 10.8C13 27.6 24 39 24 39s11-11.4 11-18.7c0-6-4.9-10.8-11-10.8z" fill="#fff"/>
+          <path d="M24 15.5v9M19.5 20h9" stroke="#087F8C" stroke-width="3.4" stroke-linecap="round"/>
         </svg>
       </div>
-      <p class="splash-tagline">دليل صوران الطبي — صحتك أقرب إليك</p>
+      <h1 class="splash-appname">دلور صوران الطبي</h1>
+      <p class="splash-tagline">رعاتك صحية أclosest إليك</p>
     </div>
     <div class="splash-bottom">
       <div class="splash-spinner" aria-hidden="true"></div>
       <div class="splash-credit">
         <div class="splash-credit-label">تطوير المنصة</div>
         <div class="splash-credit-name">قصي مهند الصالح</div>
-        <a class="splash-credit-phone" href="tel:0952639157" dir="ltr">0952639157</a>
       </div>
     </div>
   </div>
@@ -189,8 +189,9 @@
   (function(){
     var done=false;
     function hide(){ if(done) return; done=true; var el=document.getElementById('splashScreen'); if(!el) return; el.classList.add('is-hidden'); setTimeout(function(){ if(el&&el.parentNode) el.parentNode.removeChild(el); }, 500); }
-    setTimeout(hide, 4000);
     window.__hideSplash = hide;
+    /* أمان: إذا لم يُستدعي hideSplash خلال 8 ثواني (التطبيق غير جاهز)، يُخفي تلقائياً */
+    setTimeout(function(){ hide(); }, 8000);
   })();
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').then(function(r){ console.log('SW registered', r.scope); }).catch(function(e){ console.warn('SW register failed', e); });
