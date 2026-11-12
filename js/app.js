@@ -1815,7 +1815,7 @@ window.__appHideSplash = hideSplash;
     /* جلب البيانات الحية من Supabase — عند الفشل تُستخدم بيانات data.js */
     try { await loadRemoteData(); } catch (_) {}
     render();
-    /* إخفاء شاشة البداية بعد جاهزية التطبيقات */
-    if (window.__appHideSplash) { try { window.__appHideSplash(); } catch (_) {} }
-    } catch (err) { showBootError(err); if (window.__appHideSplash) { try { window.__appHideSplash(); } catch (_) {} } }
+    /* إخفاء شاشة البداية بعد جاهزية التطبيق مع استمرار 2 ثانية */
+    if (window.__appHideSplash) { setTimeout(function(){ try { window.__appHideSplash(); } catch (_) {} }, 2000); }
+    } catch (err) { showBootError(err); if (window.__appHideSplash) { setTimeout(function(){ try { window.__appHideSplash(); } catch (_) {} }, 2000); } }
 })();
